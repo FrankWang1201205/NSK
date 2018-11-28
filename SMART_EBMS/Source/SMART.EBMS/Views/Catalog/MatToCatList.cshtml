@@ -1,0 +1,246 @@
+﻿@model PageList<Material>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Material_Filter MF = ViewData["MF"] as Material_Filter;
+    List<Category> CatList = ViewData["CatList"] as List<Category>;
+    List<SelectOption> CatSelectList = new List<SelectOption>();
+    CatSelectList.Add(new SelectOption { Key_STR = Cat_Enum.ALL.ToString(), Name = "全部产品" });
+    CatSelectList.Add(new SelectOption { Key_STR = Cat_Enum.NoneCat.ToString(), Name = "无目录产品" });
+    foreach (var x in CatList)
+    {
+        if (x.Level == 1)
+        {
+            CatSelectList.Add(new SelectOption { Key_STR = x.CatID.ToString(), Name = x.CatName, Key_INT = 1 });
+        }
+        if (x.Level == 2)
+        {
+            CatSelectList.Add(new SelectOption { Key_STR = x.CatID.ToString(), Name = "　" + x.CatName });
+        }
+        if (x.Level == 3)
+        {
+            CatSelectList.Add(new SelectOption { Key_STR = x.CatID.ToString(), Name = "　　├─ " + x.CatName });
+        }
+    }
+
+    Guid ToCatID = Guid.Empty;
+    try { ToCatID = new Guid(Request.QueryString["ToCatID"]); } catch { }
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("目录维护");</script>
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+
+<ul class="TopMenuNavSub_Sim DeductionDiv">
+    <li><a id="TopSub_Cat_Config" href="~/Catalog/Cat_Config">目录维护</a></li>
+    <li><a id="TopSub_MatToCatList" href="~/Catalog/MatToCatList">产品归类</a></li>
+</ul>
+<script>TopMenuSubToAction("MatToCatList");</script>
+
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/Catalog/MatToCatList" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:160px;">
+                    <select class="form-control input-sm" id="CatID_Str" name="CatID_Str" style="width:160px;" onchange="SubmitPageIndex(1)">
+                        @foreach (var x in CatSelectList)
+                        {
+                            if (MF.CatID_Str == x.Key_STR)
+                            {
+                                if (x.Key_INT == 1)
+                                {
+                                    <option selected="selected" value="@x.Key_STR" style="font-weight:bold;">@x.Name</option>
+                                }
+                                else
+                                {
+                                    <option selected="selected" value="@x.Key_STR">@x.Name</option>
+                                }
+                            }
+                            else
+                            {
+                                if (x.Key_INT == 1)
+                                {
+                                    <option value="@x.Key_STR" style="font-weight:bold;">@x.Name</option>
+                                }
+                                else
+                                {
+                                    <option value="@x.Key_STR">@x.Name</option>
+                                }
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:60px; text-align:center; vertical-align:middle; padding-left:10px; padding-right:10px;" class="table-nowrap">归入<span class="glyphicon glyphicon-chevron-right"></span></td>
+
+                <td style="width:160px;">
+                    <select class="form-control input-sm" id="ToCatID" name="ToCatID" style="width:160px; border-radius:0px;">
+                        <option value="">目标目录</option>
+                       @foreach (var x in CatSelectList.Where(x=>x.Key_STR != Cat_Enum.ALL.ToString() && x.Key_STR != Cat_Enum.NoneCat.ToString()))
+                       {
+                           if (ToCatID.ToString() == x.Key_STR)
+                           {
+                               if (x.Key_INT == 1)
+                               {
+                                <option selected="selected" value="@x.Key_STR" style="font-weight:bold;">@x.Name</option>
+                               }
+                               else
+                               {
+                                <option selected="selected" value="@x.Key_STR">@x.Name</option>
+                               }
+                           }
+                           else
+                           {
+                               if (x.Key_INT == 1)
+                               {
+                                <option value="@x.Key_STR" style="font-weight:bold;">@x.Name</option>
+                               }
+                               else
+                               {
+                                <option value="@x.Key_STR">@x.Name</option>
+                               }
+                           }
+                       }
+                    </select>
+                </td>
+
+                <td style="width:10px; padding-left:0px;">
+                    <button type="button" onclick="MoveToCatID()" style="border-radius:0px; width:70px;" class="btn btn-primary btn-sm">递交</button>
+                </td>
+
+                <td style="width:100px;">&nbsp;</td>
+
+
+                <td style="width:150px;">
+                    <select name="MatBrand" id="MatBrand" class="form-control input-sm" onchange="SubmitPageIndex(1)">
+                        <option value="">选择品牌</option>
+                        @foreach (var x in MF.BrandList)
+                        {
+                            if (MF.MatBrand == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:300px; padding-left:5px;">
+                    <div class="input-group input-group-sm" style="width: 300px; ">
+                        <input type="text" name="MatName" id="MatName" placeholder="产品名称关键词" value="@MF.MatName" class="form-control ">
+                        <div class="input-group-btn">
+                            <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                        </div>
+                    </div>
+                </td>
+
+
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<form id="MySubmitForm" action="~/Catalog/MatToCatList_Post" method="post">
+    <input type="hidden" id="ToCatID_D" name="ToCatID" value="" />
+    <input type="hidden" name="CatID_Str" value="@MF.CatID_Str" />
+    <input type="hidden" name="MatBrand" value="@MF.MatBrand" />
+    <input type="hidden" name="Keyword" value="@MF.Keyword" />
+    <table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+        <thead>
+            <tr>
+                <th style="width:15px;">&nbsp;</th>
+                <th style="width:40px; text-align:center; padding-top:0px; padding-bottom:0px;">
+                    <input type="checkbox" id="ALL" onclick="checkBoxCheckAll('ALL', 'MatID')" />
+                </th>
+                <th style="width:150px;">产品目录</th>
+                <th style="width:190px;">产品型号</th>
+                <th style="width:200px;">产品名称</th>
+                <th style="width:80px;">品牌</th>
+                <th></th>
+            </tr>
+
+        </thead>
+        <tbody>
+            @foreach (var x in Model.Rows)
+        {
+        <tr>
+            <td>&nbsp;</td>
+            <td style="text-align:center;"><input type="checkbox" name="MatID" class="MatID" value="@x.MatID"></td>
+            <td>@x.Cat_Name_Path</td>
+            <td><span class="MatSn_Font">@x.MatSn</span></td>
+            <td>@x.MatName</td>
+            <td>@x.MatBrand</td>
+            <td></td>
+        </tr>
+        }
+        </tbody>
+    </table>
+</form>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>
+
+<script>
+    function MoveToCatID()
+    {
+        var ToCatID = $("#ToCatID").val();
+        if (ToCatID == "")
+        {
+            $("#ToCatID").focus();
+            alert("请选择目标目录");
+            return false;
+        }
+
+        $("#ToCatID_D").val(ToCatID);
+
+        var Loop = checkBoxCheckLength('MatID');
+        if (Loop <= 0) {
+            alert("请至少选择一项产品");
+            return false;
+        }
+
+        DisAndEnabledBtn(1);
+        $("#MySubmitForm").submit();
+    }
+</script>
+

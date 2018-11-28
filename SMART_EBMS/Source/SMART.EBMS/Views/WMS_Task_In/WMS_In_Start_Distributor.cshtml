@@ -1,0 +1,261 @@
+﻿@model WMS_In_Task
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    WMS_In_Filter MF = ViewData["MF"] as WMS_In_Filter;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("任务导入");</script>
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/WMS_Task_In/WMS_In_Start_Distributor/@Model.Head_ID" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:20px;"><a href="~/WMS_Task_In/WMS_In_Start" class="btn btn-info btn-sm">返回</a></td>
+                <td style="width:120px;padding-left:10px;">
+                    <select name="Line_Status" id="Line_Status" class="form-control input-xs" onchange="SubmitPageIndex(1)">
+                        <option value="">任务状态</option>
+                        @foreach (var x in MF.Line_Status_List)
+                        {
+                            if (x == MF.Line_Status)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:250px; padding-left:5px;">
+                    <div class="input-group input-group-sm" style="width: 250px; ">
+                        <input type="text" name="MatSn" id="MatSn" placeholder="产品型号" value="@MF.MatSn" class="form-control ">
+                        <div class="input-group-btn">
+                            <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                        </div>
+                    </div>
+                </td>
+
+                <td style="width:50px;">&nbsp;</td>
+
+                <td style="width:150px">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-default btn-sm" data-toggle="dropdown">操作指令</button>
+                        <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="caret"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            @if (Model.Global_State == WMS_In_Global_State_Enum.等待收货.ToString()|| Model.Global_State == WMS_In_Global_State_Enum.通知采购.ToString())
+                            {
+                                <li><a href="javascript:void(0)" onclick="Delete_Task()"><span style="color:red;">删除任务单</span></a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="javascript:void(0)" onclick="Batch_Upload()">导入任务单</a></li>
+                                <li role="separator" class="divider"></li>
+                            }
+                           
+                            <li><a href="~/WMS_Task_In/WMS_In_Start_To_Excel/@Model.Head_ID" target="_blank">导出任务单</a></li>
+                        </ul>
+                    </div>
+                </td>
+
+                <td style="text-align:right; vertical-align:bottom; padding-right:10px;">
+                    <span>任务单编号：</span> <strong style="font-size:14px;">@Model.Task_Bat_No_Str</strong>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:40px;">序</th>
+            <th style="width:320px;">产品型号</th>
+            <th style="width:80px; text-align:right;">调货数量</th>
+            <th style="width:80px; text-align:right;">扫码复核</th>
+            <th style="width:70px;">状态备注</th>
+            <th style="width:55px;">&nbsp;</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model.Line_List)
+            {
+            <tr>
+                <td>&nbsp;</td>
+                <td style="vertical-align:top;">@x.Line_No</td>
+                <td style="vertical-align:top;">
+                    @if (x.Line_State == WMS_In_Line_State_Enum.多出型号.ToString())
+                    {
+                        <strong class="MatSn_Font" style="color:red;">@x.MatSn</strong>
+                    }
+                    else
+                    {
+                        <strong class="MatSn_Font">@x.MatSn</strong>
+                    }
+                </td>
+                <td style="vertical-align:top; text-align:right;">@x.Quantity_Sum.ToString("N0")</td>
+                <td style="vertical-align:top; text-align:right;">@x.Quantity_Sum_Scan.ToString("N0")</td>
+                <td>
+                    @if (x.Line_State == WMS_In_Line_State_Enum.还未扫码.ToString())
+                    {
+                        <span style="color:silver">@x.Line_State</span>
+                    }
+                    else if (x.Line_State == WMS_In_Line_State_Enum.数量一致.ToString())
+                    {
+                        <span style="color:green">@x.Line_State</span>
+                    }
+                    else
+                    {
+                        <span style="color:red">@x.Line_State</span>
+                    }
+                </td>
+                <td style="vertical-align:top; text-align:center;">
+                    <button type="button" class="btn btn-info btn-xs" onclick="Show_Sub_Modal('@Model.Head_ID', '@x.MatSn')">查看</button>
+                </td>
+                <td>&nbsp;</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<p class="DeductionDiv">
+    <script>
+        function SubmitPageIndex(PageIndex) {
+            $("#MyForm").submit();
+        }
+    </script>
+</p>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>
+
+<form id="Delete_Form" action="~/WMS_Task_In/WMS_In_Start_Delete/@Model.Head_ID" method="post">
+    <script>
+        function Delete_Task() {
+            if (confirm("确认删除？") == false) {
+                return false;
+            }
+            $("#Delete_Form").submit();
+        }
+    </script>
+</form>
+
+<script>
+    function Show_Sub_Modal(Head_ID, MatSn) {
+        Reload_Sub_Modal(Head_ID, MatSn);
+        $('#Sub_Modal').modal({ backdrop: 'static' });
+    }
+
+    function Reload_Sub_Modal(Head_ID, MatSn) {
+        var escape_MatSn = escape(MatSn);
+        $("#Sub_Modal_Context").text("Loading...");
+        $("#Sub_Modal_Context").load("/WMS_Task_In/WMS_In_Start_Distributor_Item/" + Head_ID + "?MatSn=" + escape_MatSn);
+    }
+</script>
+<div class="modal fade" id="Sub_Modal">
+    <div class="modal-dialog" style="width:680px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">产品明细</h5>
+            </div>
+            <div class="modal-body" id="Sub_Modal_Context"></div>
+        </div>
+    </div>
+</div>
+
+<!--导入Excel-->
+<script>
+    function Batch_Upload() {
+        $('#Upload_Modal').modal({ backdrop: 'static' });
+    }
+
+    function Close_Upload_Modal() {
+        $('#Upload_Modal').modal('hide');
+    }
+</script>
+<div class="modal fade" id="Upload_Modal">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:480px;">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="Close_Upload_Modal()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">批量导入</h5>
+            </div>
+            <div class="modal-body">
+                <form id="Upload_First_Form" action="~/WMS_Task_In/WMS_In_Start_Post/@Model.Head_ID" method="post" enctype="multipart/form-data">
+                    <table style="width:100%; border:1px solid silver;">
+                        <tr id="Upload_TR">
+                            <td style="width:100px; padding:10px;">
+                                <input type="file" onchange="ShowFileName()" data-val="true" name="ExcelFile" id="FirstExcelFile" />
+                                <script>
+                                    function Check_Upload_First() {
+                                        if ($("#FirstExcelFile").val() == "") {
+                                            alert("请选择Excel文件");
+                                            return false;
+                                        }
+
+                                        DisAndEnabledBtn(1);
+                                        Show_Load_First();
+                                        $("#Upload_First_Form").submit();
+                                    }
+
+                                    function Show_Load_First() {
+                                        $("#LoadImg_1").show();
+                                        $("#Upload_First_Form").hide();
+                                    }
+                                </script>
+                            </td>
+
+                            <td id="UpLoad_First" style="padding:10px;vertical-align:bottom;">
+                                <button type="button" class="btn btn-info btn-sm" onclick="Check_Upload_First()">保存并发送</button>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+
+                <div style="padding-top:15px; line-height:20px;">
+                    1. Excel单元格不能含有公式，单元格设为文本格式，文件小于4M<br />
+                    2. 时间内容的单元格设为日期格式！<br />
+                    2. 每次上传最大支持10000条产品信息！<br />
+                    3. 请选择正确的Excel上传！
+                </div>
+
+                <div style="width:100%; padding-top:10px; text-align:center; display:none; margin:auto;" id="LoadImg_1">
+                    <img src="~/Content/Images/Load.gif" /><br /><br />
+                    <span style="padding-left:5px; color:blue;">系统正在上传和检查Excel数据，请稍后...</span>
+                </div>
+
+                <p></p>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!--导入Excel-->

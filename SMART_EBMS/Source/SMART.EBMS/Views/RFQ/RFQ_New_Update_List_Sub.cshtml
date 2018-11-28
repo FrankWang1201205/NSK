@@ -1,0 +1,130 @@
+﻿@model RFQ_Head_Line
+@{
+    Layout = null;
+}
+
+
+<form id="Line_Set_Form" action="~/RFQ/RFQ_New_Update_List_Sub_Post/@Model.Line_ID" method="post">
+    <table class="FormTable_Sim  text-nowrap">
+        <tr>
+            <td style="width:10px;">询价型号</td>
+            <td colspan="5" style="width:10px;"><input type="text" name="Cust_Mat_Sn" class="form-control input-xs MatSn_Font" style="width:100%; font-size:14px; border:1px solid #808080; border-radius:0px;" value="@Model.Cust_Mat_Sn" /></td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>.</td>
+        </tr>
+
+        <tr>
+            <td style="width:10px;">型号要求	</td>
+            <td colspan="5" style="width:10px;">
+                <label style="cursor:pointer">
+                    @if (Model.Cust_Mat_Sn_INFO_STR.Contains(Mat_Sn_INFO_Enum.油脂不限.ToString()))
+                    {
+                        <input type="checkbox" checked name="Cust_Mat_Sn_INFO_STR" id="Cust_Mat_Sn_Is_None_YZ" value="@Mat_Sn_INFO_Enum.油脂不限.ToString()" /> @Mat_Sn_INFO_Enum.油脂不限.ToString()
+                    }
+                    else
+                    {
+                        <input type="checkbox" name="Cust_Mat_Sn_INFO_STR" id="Cust_Mat_Sn_Is_None_YZ" value="@Mat_Sn_INFO_Enum.油脂不限.ToString()" /> @Mat_Sn_INFO_Enum.油脂不限.ToString()
+                    }
+                </label>
+                <label style="cursor:pointer; margin-left:8px;">
+                    @if (Model.Cust_Mat_Sn_INFO_STR.Contains(Mat_Sn_INFO_Enum.游隙不限.ToString()))
+                    {
+                        <input type="checkbox" checked name="Cust_Mat_Sn_INFO_STR" id="Cust_Mat_Sn_Is_None_YX" value="@Mat_Sn_INFO_Enum.游隙不限.ToString()" /> @Mat_Sn_INFO_Enum.游隙不限.ToString()
+                    }
+                    else
+                    {
+                        <input type="checkbox" name="Cust_Mat_Sn_INFO_STR" id="Cust_Mat_Sn_Is_None_YX" value="@Mat_Sn_INFO_Enum.游隙不限.ToString()" /> @Mat_Sn_INFO_Enum.游隙不限.ToString()
+                    }
+                </label>
+                <label style="cursor:pointer; margin-left:8px;">
+                    @if (Model.Cust_Mat_Sn_INFO_STR.Contains(Mat_Sn_INFO_Enum.产地不限.ToString()))
+                    {
+                        <input type="checkbox" checked name="Cust_Mat_Sn_INFO_STR" id="Cust_Mat_Sn_Is_None_CD" value="@Mat_Sn_INFO_Enum.产地不限.ToString()" /> @Mat_Sn_INFO_Enum.产地不限.ToString()
+                    }
+                    else
+                    {
+                        <input type="checkbox" name="Cust_Mat_Sn_INFO_STR" id="Cust_Mat_Sn_Is_None_CD" value="@Mat_Sn_INFO_Enum.产地不限.ToString()" /> @Mat_Sn_INFO_Enum.产地不限.ToString()
+                    }
+                </label>
+            </td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>.</td>
+        </tr>
+
+        <tr>
+            <th style="width:10px;">产品用途</th>
+            <th style="width:10px;" colspan="7"><input type="text" class="MyInput" name="Cust_Mat_Describe" value="@Model.Cust_Mat_Describe" style="width:100%;" placeholder="客户询价产品用途信息" /></th>
+            <td>.</td>
+        </tr>
+
+        <tr>
+            <th style="width:10px;">* 品　牌</th>
+            <td style="width:10px;">
+                <input type="text" class="MyInput ReadonlyInput" readonly name="BID_Name" value="@Model.BID_Name" style="width:100px;" />
+            </td>
+            <th style="width:10px;">单　位</th>
+            <td style="width:10px;"><input type="text" class="MyInput" name="Cust_Mat_Unit" value="@Model.Cust_Mat_Unit" style="width:100px;" /></td>
+            <th style="width:10px;">数　量</th>
+            <td style="width:10px;"><input type="number" class="MyInput" name="Qty" value="@Model.Qty" style="width:100px; text-align:center;" /></td>
+            <th style="width:10px;">紧急度</th>
+            <td style="width:10px;"><input type="text" class="MyInput" name="Urgency" value="@Model.Urgency" style="width:100px;" /></td>
+            <td>.</td>
+        </tr>
+
+
+
+        <tr>
+            <th style="width:10px;">备注信息</th>
+            <th style="width:10px;" colspan="7"><input type="text" class="MyInput" name="Line_Remark" value="@Model.Line_Remark" style="width:100%;" /></th>
+            <td>.</td>
+        </tr>
+
+
+        <tr>
+            <th>&nbsp;</th>
+            <td><button type="button" onclick="Line_Set_Form_Post()" class="btn btn-primary btn-sm" style="width:100%;">更新</button></td>
+            <td><button type="button" onclick="Line_Del_Form_Post()" class="btn btn-danger btn-sm" style="width:100%;">删除</button></td>
+            <td colspan="5">&nbsp;</td>
+            <td>.</td>
+        </tr>
+
+    </table>
+</form>
+<p>&nbsp;</p>
+
+<script>
+    function Line_Del_Form_Post() {
+        if (confirm("确认删除?") == false) {
+            return false;
+        }
+
+        $.post("/RFQ/RFQ_New_Update_List_Sub_Post_Delete/@Model.Line_ID", function (result) {
+            if (result == "") {
+                $("#TR_Line_@Model.Line_ID").remove();
+                Close_Line_Model();
+            } else {
+                alert(result);
+            }
+        })
+    }
+
+
+    function Line_Set_Form_Post() {
+        var FormObj = $("#Line_Set_Form");
+        var PostData = $(FormObj).serialize();
+        var Url = $(FormObj).prop("action");
+        DisAndEnabledBtn(1);
+        $.post(Url, PostData, function (result) {
+            if (result == "") {
+                DisAndEnabledBtn(0);
+                Close_Line_Model();
+                Reload_Sub_List();
+            } else {
+                DisAndEnabledBtn(0);
+                alert(result);
+            }
+        });
+    }
+</script>

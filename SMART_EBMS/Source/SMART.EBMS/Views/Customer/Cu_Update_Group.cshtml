@@ -1,0 +1,134 @@
+﻿@model PageList<Customer_Group>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Customer_Group_Filter MF = ViewData["MF"] as Customer_Group_Filter;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("集团管理");</script>
+
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"] </div>
+}
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/Customer/Cu_Update_Group" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:100px; padding-left:5px;">
+                    <input type="text" name="Cust_Group_Code" id="Cust_Group_Code" placeholder="集团代码" value="@MF.Cust_Group_Code" class="form-control input-xs">
+                </td>
+
+                <td style="width:150px; padding-left:5px;">
+                    <input type="text" name="Cust_Group_Name" id="Cust_Group_Name" placeholder="集团名称" value="@MF.Cust_Group_Name" class="form-control input-xs">
+                </td>
+
+                <td style="width:10px; padding-left:5px;">
+                    <button class="btn btn-danger btn-sm btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                </td>
+
+                <td style="width:90px;padding-left:10px;">
+                    <button type="button" onclick="ShowAddNewItem()" class="btn btn-primary btn-sm"><i class="icon-plus" style="font-size:12px;"> 新增集团</i></button>
+                </td>
+
+                <td style="width:50px;">&nbsp;</td>
+
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:80px;">集团代码</th>
+            <th style="width:200px;">集团名称</th>
+            <th style="width:60px;text-align:center">关联客户</th>
+            <th style="width:50px">&nbsp;</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model.Rows)
+            {
+            <tr>
+                <td>&nbsp;</td>
+                <td style="vertical-align:top;">@x.Group_Code</td>
+                <td style="vertical-align:top;">@x.Group_Name</td>
+                <td style="vertical-align:top;text-align:center">@x.Cust_List_Count</td>
+                
+                <td style="text-align:center"><a class="btn btn-info btn-xs" href="~/Customer/Cu_Update_Group_Sub/@x.GID">更新</a></td>
+                <td>&nbsp;</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>
+
+<!--新增-->
+<script>
+    function ShowAddNewItem()
+    {
+        ReloadAddNewItem();
+        $('#MyNewModel').modal({ backdrop: 'static' });
+    }
+
+    function CloseAddNewItem() { $('#MyNewModel').modal('hide'); }
+
+    function ReloadAddNewItem()
+    {
+        $("#NewContext").load("/Customer/Cu_Update_Group_Add");
+    }
+</script>
+
+<div class="modal fade" id="MyNewModel">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:380px;">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="CloseAddNewItem()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">新增集团</h5>
+            </div>
+            <div class="modal-body" id="NewContext"></div>
+        </div>
+    </div>
+</div>
+<!--新增-->

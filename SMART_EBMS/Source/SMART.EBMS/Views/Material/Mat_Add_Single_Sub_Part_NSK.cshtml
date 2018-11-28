@@ -1,0 +1,560 @@
+﻿@model Material
+@{
+    Layout = null;
+    List<SelectOption> SList_Is_Stock = new List<SelectOption>();
+    Model.Is_Stock = 99;
+    SList_Is_Stock.Add(new SelectOption { Key_INT = 99, Name = "请选择" });
+    SList_Is_Stock.Add(new SelectOption { Key_INT = 1, Name = "是" });
+    SList_Is_Stock.Add(new SelectOption { Key_INT = 0, Name = "否" });
+
+    Model.Mat_CODE_List = new List<Material_CODE>();
+    for (int CC = 1; CC <= 4; CC++)
+    {
+        Model.Mat_CODE_List.Add(new Material_CODE { Mat_CODE_ID = MyGUID.NewGUID(), Line_Number = CC, CODE = string.Empty });
+    }
+
+    List<Material_CODE> New_CODE_List = new List<Material_CODE>();
+    for (int CC = Model.Mat_CODE_List.Count() + 1; CC <= Model.Mat_CODE_List.Count() + 3; CC++)
+    {
+        New_CODE_List.Add(new Material_CODE { Mat_CODE_ID = MyGUID.NewGUID(), Line_Number = CC, CODE = string.Empty });
+    }
+
+    //默认 NSM AM定价折扣率
+    Model.Price_AM_Rate_List.Add((decimal)17.5);
+    Model.Price_AM_Rate_List.Add((decimal)17.0);
+    Model.Price_AM_Rate_List.Add((decimal)16.5);
+    Model.Price_AM_Rate_List.Add((decimal)16.0);
+    Model.Price_AM_Rate_List.Add((decimal)15.5);
+    Model.Price_AM_Rate_List.Add((decimal)15.0);
+    Model.Price_AM_Rate_List.Add((decimal)14.5);
+    Model.Price_AM_Rate_List.Add((decimal)14.0);
+}
+
+
+<h6 style="padding-left:40px;"><strong>基本信息</strong></h6>
+
+<table class="FormTable_Sim FormTable_Sim_Input text-nowrap" style="width:400px;">
+    <tr>
+        <th style="text-align:right; width:10px; vertical-align:top;"><div style="width:75px; overflow:hidden; padding-top:5px;">* 产品型号</div></th>
+        <td style="padding-bottom:10px;" class="MatSn_Font">
+            <input class="NotEmpty" name="MatSn" id="MatSn" value="@Model.MatSn" style="width:250px; font-size:14px;" maxlength="@Model.MatSn_Length_Max" onchange="Check_MatSn_Code()" />
+            <table style="width:400px;">
+                <tr>
+                    <td></td>
+                </tr>
+                <tr>
+                    @for (int j = 1; j <= Model.MatSn_Length_Max; j++)
+                    {
+                        <td style="padding:0px"><input class="MyInput MatSn_Code" id="MatSn_Code_@j" onchange="Check_MatSn_Code_Box()" maxlength="1" style="text-align:center; padding:0px; width:25px; border:1px solid #bababa;" value="" /></td>
+                        if (j == 18 || j == 20 || j == 22)
+                        {
+                            <td>&nbsp;</td>
+                        }
+                    }
+                </tr>
+
+                <tr>
+                    @for (int j = 1; j <= Model.MatSn_Length_Max; j++)
+                    {
+                        <td style="padding:0px; text-align:center; color:#686868;">@j</td>
+                        if (j == 18 || j == 20 || j == 22)
+                        {
+                            <td>&nbsp;</td>
+                        }
+                    }
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+<table class="FormTable_Sim FormTable_Sim_Input text-nowrap" style="width:400px;">
+    <tr>
+        <th style="text-align:right; width:10px;"><div style="width:75px; overflow:hidden;">产品名称</div></th>
+        <td colspan="3" style="width:10px;">
+            <select class="form-control input-sm" id="MatName" name="MatName" style="width:100%;" type="text">
+                @foreach (var x in Model.Mat_Name_List)
+                {
+                    if (Model.MatName == x.ToString())
+                    {
+                        <option selected value="@x">@x</option>
+                    }
+                    else
+                    {
+                        <option value="@x">@x</option>
+                    }
+                }
+            </select>
+        </td>
+        <th style="text-align:right;  width:10px; overflow:hidden;"><div style="width:75px; overflow:hidden;">产品规格</div></th>
+        <td colspan="3" style="width:10px;"><input class="form-control input-sm" id="MatSpecifications" name="MatSpecifications" style="width:100%;" type="text" value="@Model.MatSpecifications" /></td>
+    </tr>
+    <tr>
+        <th style="text-align:right;">* 品　牌</th>
+        <td>
+            <input class="form-control input-sm" readonly="readonly" name="MatBrand" id="MatBrand" style="width:120px;" type="text" value="@Model.MatBrand" />
+            <input class="form-control input-sm" readonly="readonly" name="Link_BID" id="Link_BID" style="width:120px;" type="hidden" value="@Model.Link_BID" />
+        </td>
+        <th style="text-align:right;">产　地</th>
+        <td><input class="form-control input-sm" style="width:120px;" type="text" id="PC_Place" name="PC_Place" value="@Model.PC_Place" /></td>
+
+        <th style="text-align:right;"><div style="width:75px; overflow:hidden;">* 单　位</div></th>
+        <td><input class="form-control input-sm NotEmpty" id="MatUnit" name="MatUnit" style="width:120px;" type="text" value="@Model.MatUnit" /></td>
+
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+
+    <tr>
+        <th style="text-align:right;"><div style="width:75px; overflow:hidden;">重　量</div></th>
+        <td><input class="form-control input-sm" style="width:120px; text-align:right;" type="number" name="Weight" id="Weight" value="" placeholder="KG" /></td>
+
+        <th style="text-align:right;">起订量</th>
+        <td><input class="form-control input-sm" style="width:120px;" name="MOQ" id="MOQ" type="text" value="@Model.MOQ" /></td>
+
+        <th style="text-align:right;">装箱数</th>
+        <td><input class="form-control input-sm" style="width:120px; text-align:center;" name="Pack_Qty" id="Pack_Qty" type="number" value="@Model.Pack_Qty" /></td>
+
+        <th style="text-align:right;">* 重点备货</th>
+        <td>
+            <select name="Is_Stock" id="Is_Stock" class="form-control input-sm NotEmpty" style="width:120px;">
+                @foreach (var x in SList_Is_Stock)
+                {
+                    if (Model.Is_Stock == x.Key_INT)
+                    {
+                        <option selected="selected" value="@x.Key_INT">@x.Name</option>
+                    }
+                    else
+                    {
+                        <option value="@x.Key_INT">@x.Name</option>
+                    }
+                }
+            </select>
+        </td>
+    </tr>
+
+    <tr>
+        <th style="text-align:right;">PC</th>
+        <td>
+            <input class="form-control input-sm" style="width:120px;" type="text" name="PC" id="PC" value="@Model.PC" placeholder="产线编号" />
+        </td>
+
+        <th style="text-align:right;">生产周期</th>
+        <td><input class="form-control input-sm" style="width:120px;" type="text" name="PC_Day" id="PC_Day" value="@Model.PC_Day" placeholder="" /></td>
+        <th style="text-align:right;  width:80px;">指令月</th>
+        <td>
+            <select name="PC_Mon" id="PC_Mon" class="form-control input-sm" style="width:120px;">
+                <option value="">请选择</option>
+                @foreach (var Mon in Model.PC_Mon_List)
+                {
+                    <option value="@Mon">@Mon</option>
+                }
+            </select>
+        </td>
+
+        <th style="text-align:right;  width:80px;">生产月</th>
+        <td><input name="PC_Mon_Type" id="PC_Mon_Type" value="@Model.PC_Mon_Type" class="form-control input-sm" style="width:120px;" /></td>
+    </tr>
+</table>
+
+<p>&nbsp;</p>
+<h6 style="padding-left:40px;"><strong>定价信息</strong> <span style="color:blue; cursor:pointer; padding-left:20px;" onclick="Show_AM_Model()">查看公式</span></h6>
+<table class="FormTable_Sim FormTable_Sim_Input text-nowrap" style="width:400px;">
+    <tr>
+        <th style="text-align:right; width:75px;"><div style="width:75px; overflow:hidden;">* 定价品</div></th>
+        <td>
+            <select name="Price_Is_AM" id="Price_Is_AM" class="form-control input-sm" style="width:120px;" onchange="Set_Price_Input()">
+                @foreach (var AM in Model.Price_Is_AM_List)
+                {
+                    if (Model.Price_Is_AM == AM)
+                    {
+                        <option selected="selected" value="@AM">@AM</option>
+                    }
+                    else
+                    {
+                        <option value="@AM">@AM</option>
+                    }
+                }
+            </select>
+        </td>
+
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+
+    <tr>
+        <th style="text-align:right; width:50px;"><div style="width:75px; overflow:hidden;">AM定价</div></th>
+        <td><input class="form-control input-xs On_Price_Change" type="number" style="width:120px; text-align:right;" name="Price_AM" id="Price_AM" value="" /></td>
+
+        <th style="text-align:right;  width:10px; overflow:hidden;">折扣率</th>
+        <td style="width:100px;">
+            <select name="Price_AM_Rate" id="Price_AM_Rate" class="form-control input-xs On_Price_Change">
+                <option value="">请选择</option>
+                @foreach (var x in Model.Price_AM_Rate_List)
+                {
+                    <option value="@x.ToString("0.0")">@x.ToString("0.0")</option>
+                }
+            </select>
+        </td>
+
+        <th style="text-align:right;  width:10px; overflow:hidden;">未税契约单价</th>
+        <td style="width:10px;">
+            <input class="form-control input-xs On_Price_Change" readonly="readonly" type="number" style="width:120px; text-align:right;" name="Price_Cost_Ref_QY" id="Price_Cost_Ref_QY" value="@Model.Price_Cost_Ref.ToString("0.0000")" />
+        </td>
+
+        <th style="text-align:right;  width:10px; overflow:hidden;">未税参考进价</th>
+        <td style="width:10px;">
+            <input class="form-control input-xs On_Price_Change" readonly="readonly" type="number" style="width:120px; text-align:right;" name="Price_Cost_Ref" id="Price_Cost_Ref" value="@Model.Price_Cost_Ref.ToString("0.0000")" />
+        </td>
+    </tr>
+
+    <tr>
+        <th style="text-align:right;  width:10px; overflow:hidden;">含税参考进价</th>
+        <td style="width:10px;">
+            <input class="form-control input-xs" readonly="readonly" type="number" style="width:120px; text-align:right; color:blue; font-size:14px; font-weight:bold;" name="Price_Cost_Ref_Vat" id="Price_Cost_Ref_Vat" value="@Model.Price_Cost_Ref_Vat.ToString("0.0000")" />
+        </td>
+
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+
+        <th style="text-align:right;  width:10px; overflow:hidden;">未税目标进价</th>
+        <td style="width:10px;">
+            <input class="form-control input-xs" type="number" style="width:120px; text-align:right;" name="Price_Cost_Target" id="Price_Cost_Target" value="@Model.Price_Cost_Target.ToString("0.0000")" />
+        </td>
+    </tr>
+
+    <tr><td style="overflow:hidden; height:8px;"></td><td colspan="7" style="overflow:hidden; height:8px;"><hr style="margin:0px; padding:0px; border-bottom:1px dotted #bababa;" /> </td></tr>
+
+    <tr>
+        <th style="text-align:right;  width:10px; overflow:hidden;">* 利润率</th>
+        <td style="width:10px;">
+            <input class="MyInput On_Price_Change" type="number" style="width:120px; text-align:right;" name="Price_Retail_Rate" id="Price_Retail_Rate" value="@Model.Price_Retail_Rate.ToString("0.000")" step="0.1" />
+        </td>
+        <th style="text-align:right;  width:10px; overflow:hidden;">* 利润率</th>
+        <td style="width:10px;">
+            <input class="MyInput On_Price_Change" type="number" style="width:120px; text-align:right;" name="Price_Trade_A_Rate" id="Price_Trade_A_Rate" value="@Model.Price_Trade_A_Rate.ToString("0.000")" step="0.1" />
+        </td>
+
+        <th style="text-align:right;  width:10px; overflow:hidden;">* 利润率</th>
+        <td style="width:10px;">
+            <input class="MyInput On_Price_Change" type="number" style="width:120px; text-align:right;" name="Price_Trade_B_Rate" id="Price_Trade_B_Rate" value="@Model.Price_Trade_B_Rate.ToString("0.000")" step="0.1" />
+        </td>
+
+        <th style="text-align:right;  width:10px; overflow:hidden;">* 利润率</th>
+        <td style="width:10px;">
+            <input class="MyInput On_Price_Change" type="number" style="width:120px; text-align:right;" name="Price_Trade_NoTax_Rate" id="Price_Trade_NoTax_Rate" value="@Model.Price_Trade_NoTax_Rate.ToString("0.000")" step="0.1" />
+        </td>
+    </tr>
+
+    <tr>
+        <th style="text-align:right;  width:10px; overflow:hidden;">* 零售价</th>
+        <td style="width:10px;">
+            <input class="MyInput ReadonlyInput" readonly="readonly" type="number" style="width:120px; text-align:right;" name="Price_Retail" id="Price_Retail" value="@Model.Price_Retail.ToString("0.0000")" />
+        </td>
+        <th style="text-align:right;  width:10px; overflow:hidden;">* 批发价1</th>
+        <td style="width:10px;">
+            <input class="MyInput ReadonlyInput" readonly="readonly" type="number" style="width:120px; text-align:right;" name="Price_Trade_A" id="Price_Trade_A" value="@Model.Price_Trade_A.ToString("0.0000")" />
+        </td>
+
+        <th style="text-align:right;  width:10px; overflow:hidden;">* 批发价2</th>
+        <td style="width:10px;">
+            <input class="MyInput ReadonlyInput" readonly="readonly" type="number" style="width:120px; text-align:right;" name="Price_Trade_B" id="Price_Trade_B" value="@Model.Price_Trade_B.ToString("0.0000")" />
+        </td>
+
+        <th style="text-align:right;  width:10px; overflow:hidden;">* 不含税价</th>
+        <td style="width:10px;">
+            <input class="MyInput ReadonlyInput" readonly="readonly" type="number" style="width:120px; text-align:right;" name="Price_Trade_NoTax" id="Price_Trade_NoTax" value="@Model.Price_Trade_NoTax.ToString("0.0000")" />
+        </td>
+    </tr>
+</table>
+
+<p>&nbsp;</p>
+<h6 style="padding-left:40px;"><strong>订货信息</strong></h6>
+<table class="FormTable_Sim FormTable_Sim_Input text-nowrap" style="width:300px; margin-left:50px;">
+    <tr>
+        <td style="width:10px;">#</td>
+        <td style="width:10px;">CODE</td>
+        <td style="width:10px;">订货窗口</td>
+        <td style="width:10px;">未税订货价格</td>
+    </tr>
+
+    @foreach (var CODE in Model.Mat_CODE_List)
+            {
+        <tr>
+            <td>@CODE.Line_Number<input type="hidden" name="Mat_CODE_ID" id="Mat_CODE_ID_@CODE.Mat_CODE_ID" value="@CODE.Mat_CODE_ID" /></td>
+            <td><input style="width:120px;" class="MyInput" name="CODE_@CODE.Mat_CODE_ID" value="@CODE.CODE" /></td>
+            <td><input style="width:200px;" class="MyInput" name="Order_Window_@CODE.Mat_CODE_ID" value="@CODE.Order_Window" /></td>
+            <td><input style="text-align:right; width:100px;" type="number" class="MyInput" name="Order_Price_@CODE.Mat_CODE_ID" value="" /></td>
+        </tr>
+    }
+
+    <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td style="text-align:right; width:10px;"><button onclick="javascript:$('.DODE_TR').toggle();" style="width:100px; border-radius:0px;" type="button" class="btn btn-info btn-xs">新增 CODE <i class="icon-double-angle-down"></i></button></td>
+    </tr>
+
+    @foreach (var CODE in New_CODE_List)
+            {
+        <tr class="DODE_TR" style="display:none;">
+            <td>@CODE.Line_Number<input type="hidden" name="Mat_CODE_ID" id="Mat_CODE_ID_@CODE.Mat_CODE_ID" value="@CODE.Mat_CODE_ID" /></td>
+            <td><input style="width:120px;" class="MyInput" name="CODE_@CODE.Mat_CODE_ID" value="@CODE.CODE" /></td>
+            <td><input style="width:200px;" class="MyInput" name="Order_Window_@CODE.Mat_CODE_ID" value="@CODE.Order_Window" /></td>
+            <td><input style="text-align:right; width:100px;" name="Order_Price_@CODE.Mat_CODE_ID" type="number" class="MyInput" value="" /></td>
+        </tr>
+    }
+</table>
+
+
+<p></p>
+<table class="FormTable_Sim FormTable_Sim_Input text-nowrap" style="width:400px;">
+    <tr>
+        <th style="text-align:right; width:10px;"><div style="width:50px; overflow:hidden;">&nbsp;</div></th>
+        <td>
+            <table>
+                <tr>
+                    <td style="padding:0px;"><button type="button" onclick="MyMatItem_FormSubmit()" class="btn btn-primary btn-sm" style="width:100px;">创建产品</button></td>
+                </tr>
+            </table>
+
+        </td>
+    </tr>
+</table>
+
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<!--产品型号-->
+<script>
+    function Check_MatSn_Code() {
+        var MatSn = $("#MatSn").val();
+        MatSn = $.trim(MatSn);
+        $("#MatSn").val(MatSn);
+
+        var MatSn_Sub = "";
+        var MatSn_Length_Min = parseInt("@Model.MatSn_Length_Min");
+        var MatSn_Length_Max = parseInt("@Model.MatSn_Length_Max");
+        $('.MatSn_Code').each(function (i) {
+            MatSn_Sub = MatSn.charAt(i);
+
+            if (MatSn_Sub == " " || MatSn_Sub == "") {
+                $(this).css("backgroundColor", "#FFF");
+            } else {
+                $(this).css("backgroundColor", "#96FED1");
+            }
+
+            if (MatSn_Sub == "" && MatSn_Length_Min == MatSn_Length_Max && i == MatSn_Length_Max - 1) {
+                $(this).css("backgroundColor", "yellow");
+            }
+
+            $(this).val($.trim(MatSn_Sub));
+        });
+    }
+
+    function Check_MatSn_Code_Box() {
+        var MatSn = "";
+        var MatSn_Sub = "";
+        $('.MatSn_Code').each(function (i) {
+            MatSn_Sub = $(this).val();
+            if (MatSn_Sub == "") { MatSn_Sub = " "; }
+            MatSn = MatSn + MatSn_Sub;
+        });
+
+        MatSn = $.trim(MatSn);
+        $("#MatSn").val(MatSn);
+        Check_MatSn_Code();
+    }
+</script>
+<!--产品型号-->
+
+<!--价格变动-->
+<script>
+    function Set_Price_Input() {
+        var Price_Is_AM = $("#Price_Is_AM").val();
+
+        if (Price_Is_AM == "@Price_Is_AM_Emun.是.ToString()") {
+            $("#Price_AM_Rate").val("@Model.Price_AM_Rate.ToString("0.0")");
+            $("#Price_AM").removeAttr("readonly");
+            $("#Price_AM_Rate").removeAttr("readonly");
+            $("#Price_Cost_Ref_QY").attr("readonly", "readonly");
+        } else {
+            $("#Price_AM").val("");
+            $("#Price_AM_Rate").val("n.a");
+
+            $("#Price_AM").attr("readonly", "readonly");
+            $("#Price_AM_Rate").attr("readonly", "readonly");
+            $("#Price_Cost_Ref_QY").removeAttr("readonly");
+        }
+
+        Get_Price_Match();
+    }
+
+
+    function Get_Price_Match() {
+        var Price_Cost_Ref = 0;
+
+        if ($("#Price_Is_AM").val() == "@Price_Is_AM_Emun.是.ToString()") {
+            var Price_AM = parseFloat($("#Price_AM").val());
+            var Price_AM_Rate = parseFloat($("#Price_AM_Rate").val());
+
+            //未税参考进价 = AM定价*折扣率/100
+            Price_Cost_Ref = parseFloat(Price_AM * (Price_AM_Rate / 100));
+        } else {
+            //未税参考进价 = 未税契约单价
+            Price_Cost_Ref = parseFloat($("#Price_Cost_Ref_QY").val());
+        }
+
+        //未税参考价
+        $("#Price_Cost_Ref").val(Price_Cost_Ref.toFixed(4));
+        $("#Price_Cost_Ref_QY").val(Price_Cost_Ref.toFixed(4));
+
+        //含税参考价
+        var Tax_Rate = 1.17;
+        var Price_Cost_Ref_Vat = Price_Cost_Ref * Tax_Rate;
+        $("#Price_Cost_Ref_Vat").val(Price_Cost_Ref_Vat.toFixed(4));
+
+        //零售价、批发价1、批发价2、不含税价
+        var Price_Retail = parseFloat(Price_Cost_Ref_Vat * $("#Price_Retail_Rate").val());
+        var Price_Trade_A = parseFloat(Price_Cost_Ref_Vat * $("#Price_Trade_A_Rate").val());
+        var Price_Trade_B = parseFloat(Price_Cost_Ref_Vat * $("#Price_Trade_B_Rate").val());
+        var Price_Trade_NoTax = parseFloat(Price_Cost_Ref_Vat * $("#Price_Trade_NoTax_Rate").val());
+
+        $("#Price_Retail").val(Price_Retail.toFixed(4));
+        $("#Price_Trade_A").val(Price_Trade_A.toFixed(4));
+        $("#Price_Trade_B").val(Price_Trade_B.toFixed(4));
+        $("#Price_Trade_NoTax").val(Price_Trade_NoTax.toFixed(4));
+    }
+</script>
+<!--价格变动-->
+
+<script>
+    $(function () {
+        Check_MatSn_Code();
+    });
+
+    $(".On_Price_Change").change(function () {
+        Get_Price_Match();
+    });
+</script>
+
+<!--定价公式-->
+<script>
+    function Show_AM_Model() {
+        $('#AM_Model').modal({ backdrop: 'static' });
+    }
+    function Close_AM_Model() { $('#AM_Model').modal('hide'); }
+</script>
+
+<div class="modal fade" id="AM_Model">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:680px;">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="Close_AM_Model()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">@Model.MatBrand - AM定价公式</h5>
+            </div>
+            <div class="modal-body">
+                <table class="FormTable_Sim FormTable_Sim_Input text-nowrap" style="width:auto;">
+                    <tr>
+                        <td style="width:10px;">1）</td>
+                        <td colspan="4">
+                            <strong>定价品</strong>：AM定价 由 @Model.MatBrand 官方提供，标准折扣率：
+                            @foreach (var x in Model.Price_AM_Rate_List)
+                            {
+                                <span style="padding-right:5px;">@x</span>
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td style="width:10px;">未税参考进价</td>
+                        <td style="width:10px;">=</td>
+                        <td style="width:10px;">AM定价 * 折扣率 / 100</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td><span style="color:blue;">含税参考进价</span></td>
+                        <td>=</td>
+                        <td>未税参考进价 * 1.17</td>
+                        <td>&nbsp;</td>
+                    </tr>
+
+                    <tr><td colspan="5">&nbsp;</td></tr>
+
+
+                    <tr>
+                        <td style="width:10px;">2）</td>
+                        <td colspan="4"><strong>非定价品</strong>：未税契约单价 由 @Model.MatBrand 官方额外报价提供</td>
+                    </tr>
+
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td style="width:10px;">未税参考进价</td>
+                        <td style="width:10px;">=</td>
+                        <td style="width:10px;">未税契约单价</td>
+                        <td>&nbsp;</td>
+                    </tr>
+
+
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td><span style="color:blue;">含税参考进价</span></td>
+                        <td>=</td>
+                        <td>未税参考进价 * 1.17</td>
+                        <td>&nbsp;</td>
+                    </tr>
+
+                    <tr><td colspan="5">&nbsp;</td></tr>
+                </table>
+
+                <table class="FormTable_Sim FormTable_Sim_Input text-nowrap" style="width:auto;">
+                    <tr>
+                        <td style="width:10px;">3）</td>
+                        <td colspan="4"><strong>零售价、批发价1、批发价2、不含税价</strong></td>
+                    </tr>
+
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td>零售价</td>
+                        <td>=</td>
+                        <td><span style="color:blue;">含税参考进价 * 1.125</span> (利润率)</td>
+                    </tr>
+
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td>批发价 1</td>
+                        <td>=</td>
+                        <td><span style="color:blue;">含税参考进价 * 1.200</span> (利润率)</td>
+                    </tr>
+
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td>批发价 2	</td>
+                        <td>=</td>
+                        <td><span style="color:blue;">含税参考进价 * 1.150</span> (利润率)</td>
+                    </tr>
+
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td>不含税价</td>
+                        <td>=</td>
+                        <td><span style="color:blue;">含税参考进价 * 1.100</span> (利润率)</td>
+                    </tr>
+
+                    <tr><td colspan="5">&nbsp;</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<!--定价公式-->

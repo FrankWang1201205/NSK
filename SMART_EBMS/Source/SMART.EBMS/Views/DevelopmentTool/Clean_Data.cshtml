@@ -1,0 +1,69 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("数据清理");</script>
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+<div id="RightDivContext">
+    <div style="padding:10px;">
+        <table class="table table-condensed table-bordered text-nowrap" style="background-color:white;">
+            <tr class="active">
+                <td>命令行</td>
+                <td>描述</td>
+            </tr>
+            <tr>
+                <td style="width:10px;"><a class="btn btn-danger btn-xs" href="~/DevelopmentTool/Refresh_WMS_Stock_Record">反刷出入库时间</a></td>
+                <td>&nbsp;</td>
+            </tr>
+            @*<tr>
+                <td style="width:10px;"><a class="btn btn-danger btn-xs" href="~/DevelopmentTool/Refresh_WMS_Stock">反刷库存信息</a></td>
+                <td>&nbsp;</td>
+            </tr>*@
+            @*<tr>
+                <td style="width:10px;"><a class="btn btn-danger btn-xs" href="~/DevelopmentTool/Reset_WMS_Stock_Task_Type">反刷盘库任务</a></td>
+                <td>&nbsp;</td>
+            </tr>*@
+
+            @*<tr>
+                        <td style="width:10px;"><a class="btn btn-danger btn-xs" href="~/DevelopmentTool/Clean_Material">产品数据清理</a></td>
+                        <td>Material， Material_CODE， MatImage， MatImage_Detail， Mat_Excel， Mat_Excel_Line</td>
+                    </tr>
+                    <tr>
+                        <td style="width:10px;"><a class="btn btn-danger btn-xs" href="~/DevelopmentTool/Clean_WMS_In">入库数据清理</a></td>
+                        <td>WMS_In_Head， WMS_In_Line， WMS_Track， WMS_In_Tray_Temp， WMS_Track_Temp， WMS_Stock</td>
+                    </tr>
+                    <tr>
+                        <td style="width:10px;"><a class="btn btn-danger btn-xs" href="~/DevelopmentTool/Set_Supplier_Name">数据重刷</a></td>
+                        <td>&nbsp;</td>
+                    </tr>
+
+                    <tr>
+                        <td style="width:10px;"><a class="btn btn-danger btn-xs" href="~/DevelopmentTool/Create_WMS_Move">生成移库任务</a></td>
+                        <td>&nbsp;</td>
+                    </tr>
+                          <tr>
+                        <td style="width:10px;"><a class="btn btn-danger btn-xs" href="~/DevelopmentTool/Add_Out_In_Record_From_First_Stocktaking">首次盘进入出入库记录</a></td>
+                        <td>&nbsp;</td>
+                    </tr>
+                     <tr>
+                    <td style="width:10px;"><a class="btn btn-danger btn-xs" href="~/DevelopmentTool/Reset_Out_In_Record_From_WMS_In">反刷入库记录</a></td>
+                    <td>&nbsp;</td>
+                </tr>*@
+        </table>
+    </div>
+</div>
+
+
+
+

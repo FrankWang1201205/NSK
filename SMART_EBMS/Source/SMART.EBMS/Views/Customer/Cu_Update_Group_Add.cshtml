@@ -1,0 +1,35 @@
+﻿@model Customer_Group
+@{
+    Layout = null;
+}
+
+<form id="MyItem_Form" action="~/Customer/Cu_Update_Group_Add_Post" method="post" enctype="multipart/form-data">
+    <table class="FormTable_Sim">
+        <tr>
+            <td style="text-align:right;">* 集团代码</td>
+            <td><input class="form-control input-sm NotEmpty" id="Group_Code" name="Group_Code" type="text" style="width:190px;"  value="@Model.Group_Code" /></td>
+        </tr>
+
+        <tr>
+            <td style="text-align:right;">* 集团名称</td>
+            <td><input class="form-control input-sm NotEmpty" id="Group_Name" name="Group_Name" type="text" style="width:190px;" value="@Model.Group_Name" /></td>
+        </tr>
+
+        <tr>
+            <td>&nbsp;</td>
+            <td><button type="button" class="btn btn-primary btn-sm" style="width:70px;" onclick="MyItem_FormSubmit()">递交</button></td>
+        </tr>
+
+    </table>
+</form>
+
+<script>
+    function MyItem_FormSubmit() {
+        if (validateFormByClass('NotEmpty') == false) {
+            return false;
+        }
+
+        DisAndEnabledBtn(1);
+        $("#MyItem_Form").submit();
+    }
+</script>

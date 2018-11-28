@@ -1,0 +1,221 @@
+﻿@model PageList<Material>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Material_Filter MF = ViewData["MF"] as Material_Filter;
+
+    List<Category> CatList = ViewData["CatList"] as List<Category>;
+    List<SelectOption> CatSelectList = new List<SelectOption>();
+    CatSelectList.Add(new SelectOption { Key_STR = Cat_Enum.ALL.ToString(), Name = "全部产品" });
+    foreach (var x in CatList)
+    {
+        if (x.Level == 1)
+        {
+            CatSelectList.Add(new SelectOption { Key_STR = x.CatID.ToString(), Name = x.CatName, Key_INT = 1 });
+        }
+        if (x.Level == 2)
+        {
+            CatSelectList.Add(new SelectOption { Key_STR = x.CatID.ToString(), Name = "　" + x.CatName });
+        }
+        if (x.Level == 3)
+        {
+            CatSelectList.Add(new SelectOption { Key_STR = x.CatID.ToString(), Name = "　　├─ " + x.CatName });
+        }
+    }
+
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("上架管理");</script>
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/WebSite/PublicList" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:120px;">
+                    <select name="IsPublic" id="IsPublic" class="form-control input-sm" onchange="SubmitPageIndex(1)" style="border-radius:0px;">
+                        @foreach (var x in MF.IsPublicList)
+                        {
+                            if (MF.IsPublic == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:5px; padding-left:0px;">
+                    @if (MF.IsPublic == Mat_Public.已上架.ToString())
+                    {
+                        <button type="button" class="btn btn-danger btn-sm" onclick="SubmitForm()"  style="border-radius:0px;">勾选下架</button>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-primary btn-sm" onclick="SubmitForm()"  style="border-radius:0px;">勾选上架</button>
+                    }
+                </td>
+
+       
+
+                <td style="width:50px;">&nbsp;</td>
+
+                <td style="width:160px;">
+                    <select class="form-control input-sm" id="CatID_Str" name="CatID_Str" style="width:160px;" onchange="SubmitPageIndex(1)">
+                        @foreach (var x in CatSelectList)
+                        {
+                            if (MF.CatID_Str == x.Key_STR)
+                            {
+                                if (x.Key_INT == 1)
+                                {
+                                    <option selected="selected" value="@x.Key_STR" style="font-weight:bold;">@x.Name</option>
+                                }
+                                else
+                                {
+                                    <option selected="selected" value="@x.Key_STR">@x.Name</option>
+                                }
+                            }
+                            else
+                            {
+                                if (x.Key_INT == 1)
+                                {
+                                    <option value="@x.Key_STR" style="font-weight:bold;">@x.Name</option>
+                                }
+                                else
+                                {
+                                    <option value="@x.Key_STR">@x.Name</option>
+                                }
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:150px; padding-left:5px;">
+                    <select name="MatBrand" id="MatBrand" class="form-control input-sm" onchange="SubmitPageIndex(1)">
+                        <option value="">选择品牌</option>
+                        @foreach (var x in MF.BrandList)
+                        {
+                            if (MF.MatBrand == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:300px; padding-left:5px;">
+                    <div class="input-group input-group-sm" style="width: 300px; ">
+                        <input type="text" name="Keyword" id="Keyword" placeholder="产品信息关键词" value="@MF.Keyword" class="form-control ">
+                        <div class="input-group-btn">
+                            <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                        </div>
+                    </div>
+                </td>
+
+
+                <td style="vertical-align:bottom;">&nbsp;</td>
+
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:40px; text-align:center; padding-top:0px; padding-bottom:0px;"><input type="checkbox" id="ALL" onclick="checkBoxCheckAll('ALL', 'MatID')" /></th>
+            <th style="width:50px; text-align:center;">图</th>
+            <th style="width:280px;">产品编号/品名/规格型号</th>
+            <th style="width:80px;">品牌</th>
+            <th style="width:60px; text-align:center;">单位</th>
+            <th style="width:80px; text-align:center;">安全库存</th>
+            <th style="width:80px; text-align:center;">在库数量</th>
+            <th style="width:80px; text-align:center;">可用余量</th>
+            <th style="width:80px; text-align:center;">在途数量</th>
+            <th style="width:80px; text-align:center;">月均销量</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model.Rows)
+            {
+            <tr>
+                <td>&nbsp;</td>
+                <td style="vertical-align:top; text-align:center;"><input type="checkbox" id="MatID" name="MatID" class="MatID" value="@x.MatID" /></td>
+                <td style="text-align:center; vertical-align:top;">
+                    @if (!string.IsNullOrEmpty(x.MatThumbImgPath))
+                    {
+                        <img src="~/@x.MatThumbImgPath" onclick="ShowMatImgModel('/@x.MatImgPath')" style="width:50px; height:50px; cursor:pointer;" />
+                    }
+                </td>
+                <td style="width:280px; vertical-align:top;">
+                    <div style="width:280px; overflow:hidden; text-overflow:ellipsis;">
+                        <a href="javascript:void(0);"  onclick="ShowMatPartModel('@x.MatID')">@x.MatSn</a>
+                        <br />
+                        <strong>@x.MatName</strong><br />
+                        @if (!string.IsNullOrEmpty(x.MatSpecifications))
+                        {
+                            <span style="padding-right:5px;">@x.MatSpecifications</span>
+                        }
+                    </div>
+                </td>
+                <td style="vertical-align:top;">@x.MatBrand</td>
+                <td style="text-align:center; vertical-align:top;">@x.MatUnit</td>
+                <td style="text-align:center; vertical-align:top;"></td>
+                <td style="text-align:center; vertical-align:top;"></td>
+                <td style="text-align:center; vertical-align:top;"></td>
+                <td style="text-align:center; vertical-align:top;"></td>
+                <td style="text-align:center; vertical-align:top;"></td>
+                <td style="vertical-align:top; color:white; text-align:right;">@x.MatchDegree</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+    
+</script>
+
+<!--勾选上架-->
+<script>
+    function SubmitForm()
+    {
+        alert("功能建设中...");
+    }
+</script>

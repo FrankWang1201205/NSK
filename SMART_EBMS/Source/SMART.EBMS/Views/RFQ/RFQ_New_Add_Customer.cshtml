@@ -1,0 +1,139 @@
+﻿@model RFQ_Head
+@{ 
+    Layout = null;
+}
+
+<form action="~/RFQ/RFQ_New_Add_Post/@Model.CID" id="SubmitForm" method="post" onsubmit="return Check_SubmitForm()">
+    <table class="FormTable FormTable_Sim FormTable_Sim_Input text-nowrap" style="width:300px">
+        <tr>
+            <th style="width:10px;">客户名称</th>
+            <td colspan="3">
+                <input class="form-control input-sm NotEmpty_Customer" name="Cust_Name" id="Cust_Name" value="@Model.Cust_Name" style="width:100%;" />
+            </td>
+        </tr>
+
+        <tr>
+            <th>客户来源</th>
+            <td>
+                <select name="C_FormBy" id="C_FormBy" class="form-control input-sm">
+                    <option value="">请选择</option>
+                    @foreach (var x in Model.C_FormBy_List)
+                {
+                    if (Model.C_FormBy == x)
+                    {
+                        <option selected="selected" value="@x">@x</option>
+                }
+                else
+                {
+                    <option value="@x">@x</option>
+            }
+        }
+                </select>
+            </td>
+
+            <th>所属行业</th>
+            <td>
+                <select name="C_Industry" id="C_Industry" class="form-control input-sm">
+                    <option value="">请选择</option>
+                    @foreach (var x in Model.C_Industry_List)
+                {
+                    if (Model.C_Industry == x)
+                    {
+                        <option selected="selected" value="@x">@x</option>
+                }
+                else
+                {
+                    <option value="@x">@x</option>
+            }
+        }
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <th>询价人</th>
+            <td style="width:120px;">
+                <input name="Buyer" id="Buyer" value="@Model.Buyer" class="form-control input-sm" style="width:150px;" />
+            </td>
+            <th style="width:10px;">询价日期</th>
+            <td>
+                <div class="input-group date form_date input-group-sm" data-date="" data-date-format="yyyy-mm-dd" style="width:150px;">
+                    <input class="form-control" data-val="true" size="16" type="text" name="Create_DT" value="@Model.Create_DT.ToString("yyyy-MM-dd")">
+                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <th>电　话</th>
+            <td>
+                <input name="Buyer_Tel" id="Buyer_Tel" value="@Model.Buyer_Tel" class="form-control input-sm" style="width:150px;" />
+            </td>
+
+            <th>传　真</th>
+            <td>
+                <input name="Buyer_Fax" id="Buyer_Fax" value="@Model.Buyer_Fax" class="form-control input-sm" style="width:150px;" />
+            </td>
+        </tr>
+
+        <tr>
+            <th>邮　箱</th>
+            <td colspan="3">
+                <input name="Buyer_Mail" id="Buyer_Mail" value="@Model.Buyer_Mail" class="form-control input-sm" style="width:100%;" />
+            </td>
+        </tr>
+
+        <tr>
+            <th>竞争对手</th>
+            <td colspan="3">
+                <input name="Compete_Company" id="Compete_Company" value="@Model.Compete_Company" class="form-control input-sm" style="width:100%;" />
+            </td>
+        </tr>
+
+        <tr>
+            <th>竞争品牌</th>
+            <td colspan="3">
+                <input name="Compete_Brand" id="Compete_Brand" value="@Model.Compete_Brand" class="form-control input-sm" style="width:100%;" />
+            </td>
+        </tr>
+
+        <tr>
+            <th style="vertical-align:top;">询价备注</th>
+            <td colspan="3">
+                <textarea name="RFQ_Remark" id="RFQ_Remark" value="@Model.RFQ_Remark" class="form-control input-sm" style="width:100%;"></textarea>
+            </td>
+        </tr>
+
+        <tr>
+            <th>&nbsp;</th>
+            <td colspan="3">
+                <button type="submit" class="btn btn-primary">开始创建</button>
+            </td>
+        </tr>
+    </table>
+</form>
+
+<p>&nbsp;</p>
+
+<script>
+    function Check_SubmitForm()
+    {
+        if (validateFormByClass("NotEmpty_Customer") == false)
+        {
+            return false;
+        }
+        DisAndEnabledBtn(1);
+    }
+
+
+    $('.form_date').datetimepicker({
+        language: 'zh-CN',
+        weekStart: 1,
+        todayBtn: 1,
+        autoclose: 1,
+        todayHighlight: 1,
+        startView: 2,
+        minView: 2,
+        forceParse: 0
+    });
+</script>

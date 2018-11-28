@@ -1,0 +1,292 @@
+﻿@model PageList<WMS_Stock_Group_Location>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    WMS_Stock_Filter MF = ViewData["MF"] as WMS_Stock_Filter;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("库位产品");</script>
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/WMS_Stock/WMS_Stock_List_By_Location" method="get">
+        <table style="width:100%;">
+            <tr>
+                @*<td style="width:150px;">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary btn-sm btn-sm-top" data-toggle="dropdown">批量导入</button>
+                        <button type="button" class="btn btn-primary btn-sm btn-sm-top dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="caret"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a href="javascript:void(0)" onclick="Show_Upload_Model()">上传 - 库存数据</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="~/DownLoad/批量导入库存模板.xlsx" target="_blank">下载 - 数据模板</a></li>
+                        </ul>
+                    </div>
+                </td>*@
+
+                <td style="width:100px;">
+                    <select name="Location_Type" id="Location_Type" class="form-control input-sm" onchange="SubmitPageIndex(1)">
+                        <option value="">全部</option>
+                        @foreach (var x in MF.Location_Type_List)
+                        {
+                            if (MF.Location_Type == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:100px;padding-right:10px;padding-left:10px;">
+                    <input type="text" name="Location" id="Location" placeholder="库位" value="@MF.Location" class="form-control input-sm">
+                </td>
+
+                <td style="width:250px;">
+                    <div class="input-group input-group-sm" style="width: 250px; ">
+                        <input type="text" name="MatSn" id="MatSn" placeholder="产品型号" value="@MF.MatSn" class="form-control ">
+                        <div class="input-group-btn">
+                            <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                        </div>
+                    </div>
+                </td>
+
+                <td style="padding-left:25px;">
+                    <span style="font-size:15px;text-align:right">当前库存产品总数为 @MF.Quantity_Sum.ToString("N0")</span>
+                </td>
+
+                <td style="width:50px;">&nbsp;</td>
+
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<div id="RightDivContext" style="overflow:auto; padding:20px;margin:auto;border-bottom:1px solid #cccaca;border-top:1px solid #cccaca">
+    @foreach (var x in Model.Rows)
+    {
+        if (string.IsNullOrEmpty(x.Task_Bat_No))
+        {
+            <a href="javascript:void(0)" class="Tray_Box" onclick="Show_Location_Modal('@x.Location','@x.Link_HeadID')">
+                <table>
+                    <tr>
+                        <td style="padding-top:15px; color:#175a9b;"><strong style="font-size:22px;">@x.Location</strong></td>
+                    </tr>
+                    <tr>
+                        <td style="font-size:13px; padding-top:10px;"><strong>@x.Stock_List.GroupBy(c => c.MatSn).Count().ToString("N0")</strong> 个型号</td>
+                    </tr>
+                </table>
+            </a>
+        }
+        else
+        {
+            <a href="javascript:void(0)" class="Tray_Box" onclick="Show_Location_Modal('@x.Location','@x.Link_HeadID')">
+                <table>
+                    <tr>
+                        <td style="padding-top:15px; color:#175a9b;"><strong style="font-size:22px;">@x.Location</strong></td>
+                    </tr>
+                    <tr>
+                        <td style="font-size:12px; padding-top:5px;"><strong>@x.Supplier_Name</strong></td>
+                    </tr>
+                    <tr>
+                        <td style="font-size:12px; padding-top:5px;"><strong>@x.Task_Bat_No</strong></td>
+                    </tr>
+                </table>
+            </a>
+        }
+    }
+</div>
+
+<style>
+    .Tray_Box {
+        width: 150px;
+        height: 110px;
+        float: left;
+        border: 1px solid #808080;
+        border-bottom: 13px solid #808080;
+        margin-right: 20px;
+        margin-bottom: 20px;
+        background-color:white;
+        color: black;
+    }
+
+        .Tray_Box:hover {
+            border: 2px solid #175a9b;
+            border-bottom: 13px solid #175a9b;
+            text-decoration: none;
+        }
+
+        .Tray_Box table {
+            font-size: 16px;
+            width: 100%;
+        }
+
+            .Tray_Box table td {
+                width: 100%;
+                text-align: center;
+            }
+</style>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+  <!--库位信息-->
+<script>
+    function Show_Location_Modal(Location, Link_HeadID) {
+        Reload_Location_Context(Location, Link_HeadID);
+        $('#Location_Modal').modal({ backdrop: 'static' });
+    }
+
+    function Reload_Location_Context(Location, Link_HeadID) {
+        var escape_Location = escape(Location);
+        var escape_HeadID = escape(Link_HeadID);
+        $("#Location_Context").text("Loading...");
+        $("#Location_Context").load("/WMS_Stock/WMS_Stock_List_By_Location_Sub/" + escape_Location + "?Link_HeadID=" + escape_HeadID);
+    }
+</script>
+<div class="modal fade" id="Location_Modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">库位明细</h5>
+            </div>
+            <div class="modal-body" id="Location_Context"></div>
+        </div>
+    </div>
+</div>
+<!--库位信息-->
+
+  <!--箱号明细-->
+<script>
+    function Show_Case_Modal(Case, Location) {
+        Reload_Case_Context(Case, Location);
+        $('#Case_Modal').modal({ backdrop: 'static' });
+    }
+
+    function Reload_Case_Context(Case, Location) {
+        var escape_Case = escape(Case);
+        var escape_Location = escape(Location);
+        $("#Case_Context").text("Loading...");
+        $("#Case_Context").load("/WMS_Stock/WMS_Stock_List_By_Location_Sub_By_Case/" + escape_Location + "?Case=" + escape_Case);
+    }
+</script>
+<div class="modal fade" id="Case_Modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">箱号明细</h5>
+            </div>
+            <div class="modal-body" id="Case_Context"></div>
+        </div>
+    </div>
+</div>
+<!--箱号明细-->
+
+
+<!--导入Excel-->
+<script>
+    function Show_Upload_Model() {
+        $('#MyUploadModel').modal({ backdrop: 'static' });
+    }
+
+    function Close_Upload_Model() {
+
+        $('#MyUploadModel').modal('hide');
+    }
+</script>
+<div class="modal fade" id="MyUploadModel">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:480px;">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="Close_Upload_Model()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">批量导入</h5>
+            </div>
+            <div class="modal-body">
+                <form id="MyUploadForm" action="~/WMS_Stock/WMS_Stock_Batch_Create_Post" method="post" enctype="multipart/form-data">
+                    <table style="width:100%; border:1px solid silver;">
+                      
+                        <tr>
+                            <td style="width:50px;padding:10px;padding-right:0px;">上传文件</td>
+                            <td style="width:100px; padding:10px;">
+                                <input type="file" onchange="ShowFileName()" data-val="true" name="ExcelFile" id="ExcelFile" />
+                                <script>
+                                    function CheckUpload() {
+
+                                        if (validateFormByClass("Not_Empty")==false) {
+                                            return false;
+                                        }
+
+                                        if ($("#ExcelFile").val() == "") {
+                                            alert("请选择Excel文件");
+                                            return false;
+                                        } else {
+                                            ShowLoad();
+                                            $("#MyUploadForm").submit();
+                                            return true;
+                                        }
+                                    }
+
+                                    function ShowLoad() {
+                                        $("#LoadImg").show();
+                                        $("#MyUploadForm").hide();
+                                    }
+                                </script>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td id="MyUpLoad" style="padding:10px;  vertical-align:bottom;">
+                                <button type="button" onclick="CheckUpload()" class="btn btn-primary btn-sm">确定上传</button>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+
+                <div style="padding-top:15px; line-height:20px;">
+                    1.Excel单元格不能含有公式，文件小于4M<br />2.每次上传最大支持10000条产品信息！
+                </div>
+
+                <div style="width:100%; padding-top:10px; text-align:center; display:none; margin:auto;" id="LoadImg">
+                    <img src="~/Content/Images/Load.gif" /><br /><br />
+                    <span style="padding-left:5px; color:blue;">系统正在上传和检查Excel数据，请稍后...</span>
+                </div>
+
+                <p></p>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!--导入Excel-->
+  

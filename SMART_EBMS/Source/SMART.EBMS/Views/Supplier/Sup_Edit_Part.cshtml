@@ -1,0 +1,431 @@
+﻿@model Supplier
+@{
+    Layout = null;
+}
+
+<h6 style="padding-left:40px;"><strong>基本信息</strong></h6>
+
+<table class="FormTable_Sim FormTable_Sim_Input text-nowrap" style="width:400px;">
+    <tr>
+        <th style="text-align:right; width:10px;"><div style="width:75px; overflow:hidden;">* 供应商代码</div></th>
+        <td style="width:10px;">
+            <input class="form-control input-sm NotEmpty" id="SupplierCode" name="SupplierCode" type="text" style="width:150px;" value="@Model.SupplierCode" />
+        </td>
+        <th style="text-align:right; width:10px;"><div style="width:75px; overflow:hidden;">* 供应商简称</div></th>
+        <td>
+            <input class="form-control input-sm NotEmpty" id="Sup_Short_Name" name="Sup_Short_Name" type="text" style="width:150px;" value="@Model.Sup_Short_Name" />
+        </td>
+    </tr>
+    <tr>
+        <th style="text-align:right; width:10px;"><div style="width:75px; overflow:hidden;">* 供应商名称</div></th>
+        <td colspan="3">
+            <input class="form-control input-sm NotEmpty" id="Sup_Name" name="Sup_Name" type="text" style="width:100%;" value="@Model.Sup_Name" />
+        </td>
+    </tr>
+
+    <tr>
+        <th style="text-align:right;">* 所属地区</th>
+        <td>
+            <select class="form-control input-sm NotEmpty" name="District" id="District" style="width:150px;">
+                <option value="">请选择</option>
+                @foreach (var x in Model.District_List)
+                {
+                    if (Model.District == x)
+                    {
+                        <option selected="selected" value="@x">@x</option>
+                    }
+                    else
+                    {
+                        <option value="@x">@x</option>
+                    }
+                }
+            </select>
+        </td>
+
+        <td colspan="2">&nbsp;</td>
+    </tr>
+    <tr>
+        <th style="text-align:right;">* 公司地址</th>
+        <td colspan="3"><input class="form-control input-sm NotEmpty" id="Address" name="Address" type="text" style="width:100%;" value="@Model.Address" /></td>
+    </tr>
+
+    <tr>
+        <th style="text-align:right;">* 供应商资质</th>
+        <td>
+            <select class="form-control input-sm NotEmpty" name="Qualification" id="Qualification" style="width:150px;">
+                <option value="">请选择</option>
+                @foreach (var x in Model.Qualification_List)
+                {
+                    if (Model.Qualification == x)
+                    {
+                        <option selected="selected" value="@x">@x</option>
+                    }
+                    else
+                    {
+                        <option value="@x">@x</option>
+                    }
+                }
+            </select>
+        </td>
+
+        @*<th style="text-align:right;">* 主营业务</th>
+        <td>
+            <div class="Multi_Select">
+                <table style="width:100%;">
+                    <tbody>
+                        <tr>
+                            <td><input type="text" readonly="readonly" value="@Model.Main_Business_Json" class="form-control input-sm" placeholder="支持多选" style="border-radius:0px;"></td>
+                            <td style="width:10px;"><button class="btn btn-info btn-sm" type="button" onclick="Show_Multi_Select_DIV(this)"><span class="glyphicon glyphicon-menu-hamburger"></span></button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="Multi_Select_DIV" style="width:300px;">
+                    <table>
+                        @foreach (var x in Model.Main_Business_List)
+                        {
+                            <tr>
+                                <td class="Multi_Select_DIV_td">
+                                    @if (Model.Main_Business_List_Json.Where(c => c == x).Any())
+                                    {
+                                        <input checked="checked" id="Main_Business_@x" name="Main_Business_Json" type="checkbox" value="@x" />
+                                    }
+                                    else
+                                    {
+                                        <input id="Main_Business_@x" name="Main_Business_Json" type="checkbox" value="@x" />
+                                    }
+                                </td>
+                                <td><label for="Main_Business_@x">@x</label></td>
+                            </tr>
+                        }
+                    </table>
+                </div>
+            </div>
+        </td>*@
+
+    </tr>
+
+    <tr>
+        <th style="text-align:right;"><div style="width:75px; overflow:hidden;">* 供应商性质</div></th>
+        <td>
+            <select class="form-control input-sm NotEmpty" name="Type" id="Type" style="width:150px;">
+                <option value="">请选择</option>
+                @foreach (var x in Model.Type_List)
+                {
+                    if (Model.Type == x)
+                    {
+                        <option selected="selected" value="@x">@x</option>
+                    }
+                    else
+                    {
+                        <option value="@x">@x</option>
+                    }
+                }
+            </select>
+        </td>
+
+        <th style="text-align:right;">品　牌</th>
+        <td colspan="3">
+            <div class="Multi_Select">
+                <table style="width:100%;">
+                    <tbody>
+                        <tr>
+                            <td style="padding:0px;"><input type="text" readonly="readonly" value="@Model.Main_Brand_Json" class="form-control input-sm" placeholder="支持多选" style="border-radius:0px;"></td>
+                            <td style="width:10px; padding:0px;"><button class="btn btn-info btn-sm" type="button" onclick="Show_Multi_Select_DIV(this)"><span class="glyphicon glyphicon-menu-hamburger"></span></button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="Multi_Select_DIV" id="Multi_Select_DIV_Main_Brand" style="width:300px;">
+                    <table>
+                        @foreach (var x in Model.Main_Brand_List)
+                        {
+                            <tr>
+                                <td class="Multi_Select_DIV_td">
+                                @if (Model.Main_Brand_List_Json.Where(c => c == x).Any())
+                                {
+                                    <input checked="checked" id="Main_Brand_@x" name="Main_Brand_Json" type="checkbox" value="@x" />
+                                }
+                                else
+                                {
+                                    <input id="Main_Brand_@x" name="Main_Brand_Json" type="checkbox" value="@x" />
+                                }
+                                </td>
+                                <td><label for="Main_Brand_@x">@x</label></td>
+                            </tr>
+                        }
+                    </table>
+                </div>
+            </div>
+
+        </td>
+
+    </tr>
+
+    <tr>
+        <th style="text-align:right;">* 优先等级</th>
+        <td>
+            <select class="form-control input-sm NotEmpty" name="Sup_Level" id="Sup_Level" style="width:150px;">
+                <option value="">请选择</option>
+                @foreach (var x in Model.Sup_Level_List)
+                {
+                    if (Model.Sup_Level == x)
+                    {
+                        <option selected="selected" value="@x">@x</option>
+                    }
+                    else
+                    {
+                        <option value="@x">@x</option>
+                    }
+                }
+            </select>
+        </td>
+
+
+
+        <th style="text-align:right;">* 付款方式</th>
+        <td>
+            <div class="Multi_Select">
+                <table style="width:100%;">
+                    <tr>
+                        <td style="padding:0px;"><input type="text" readonly="readonly" value="@Model.Payment_Json" class="form-control input-sm" placeholder="支持多选" style="border-radius:0px;"></td>
+                        <td style="width:10px; padding:0px;"><button class="btn btn-info btn-sm" type="button" onclick="Show_Multi_Select_DIV(this)"><span class="glyphicon glyphicon-menu-hamburger"></span></button></td>
+                    </tr>
+                </table>
+                <div class="Multi_Select_DIV" id="Multi_Select_DIV_Payment" style="width:300px">
+                    <table>
+                        @foreach (var x in Model.Payment_List)
+                        {
+                            <tr>
+                                <td class="Multi_Select_DIV_td">
+                                    @if (Model.Payment_List_Json.Where(c => c == x).Any())
+                                    {
+                                        <input checked="checked" id="Payment_@x" name="Payment_Json" type="checkbox" value="@x" />
+                                    }
+                                    else
+                                    {
+                                        <input id="Payment_@x" name="Payment_Json" type="checkbox" value="@x" />
+                                    }
+                                </td>
+                                <td><label for="Payment_@x">@x</label></td>
+                            </tr>
+                        }
+                    </table>
+                </div>
+            </div>
+        </td>
+  
+    </tr>
+
+    
+    <tr>
+        <th style="text-align:right;">* 税　率</th>
+        <td>
+            <select class="form-control input-sm NotEmpty" name="Tax_Rate" id="Tax_Rate" style="width:150px;">
+                <option value="">请选择</option>
+                @foreach (var x in Model.Tax_Rate_List)
+                {
+                    if (Model.Tax_Rate == x.Key_STR)
+                    {
+                        <option selected="selected" value="@x.Key_STR">@x.Name</option>
+                    }
+                    else
+                    {
+                        <option value="@x.Key_STR">@x.Name</option>
+                    }
+                }
+            </select>
+        </td>
+
+        <th style="text-align:right;">* 结算方式</th>
+        <td>
+            <div class="Multi_Select">
+                <table style="width:100%;">
+                    <tr>
+                        <td style="padding:0px;"><input type="text" readonly="readonly"  value="@Model.Settle_Accounts_Json"  class="form-control input-sm" placeholder="支持多选" style="border-radius:0px;"></td>
+                        <td style="width:10px; padding:0px;"><button class="btn btn-info btn-sm" type="button" onclick="Show_Multi_Select_DIV(this)"><span class="glyphicon glyphicon-menu-hamburger"></span></button></td>
+                    </tr>
+                </table>
+                <div class="Multi_Select_DIV" id="Multi_Select_DIV_Settle_Accounts" style="width:300px;">
+                    <table>
+                        @foreach (var x in Model.Settle_Accounts_List)
+                        {
+                            <tr>
+                                <td class="Multi_Select_DIV_td">
+                                @if (Model.Settle_Accounts_List_Json.Where(c => c == x).Any())
+                                {
+                                    <input checked="checked" id="Settle_Accounts_@x" name="Settle_Accounts_Json" type="checkbox" value="@x" />
+                                }
+                                else
+                                {
+                                    <input id="Settle_Accounts_@x" name="Settle_Accounts_Json" type="checkbox" value="@x" />
+                                }
+                                <td><label for="Settle_Accounts_@x">@x</label></td>
+                            </tr>
+                        }
+                    </table>
+                </div>
+            </div>
+        </td>
+    </tr>
+</table>
+
+
+<p>&nbsp;</p>
+<table class="FormTable_Sim FormTable_Sim_Input text-nowrap" style="width:400px;">
+    <tr>
+        <th style="text-align:right;"><div style="width:75px; overflow:hidden;">供应商状态</div></th>
+        <td>
+            <select class="form-control input-sm NotEmpty" name="Act_Status" id="Act_Status" style="width:150px;">
+                @foreach (var x in Model.Act_Status_List)
+                {
+                    if (Model.Act_Status == x)
+                    {
+                        <option selected="selected" value="@x">@x</option>
+                    }
+                    else
+                    {
+                        <option value="@x">@x</option>
+                    }
+                }
+            </select>
+        </td>
+
+        <th style="text-align:right;"><div style="width:75px; overflow:hidden;">锁定原因</div></th>
+        <td>
+            <select class="form-control input-sm NotEmpty" name="Act_Status_Reason" id="Act_Status_Reason" style="width:150px;">
+                @foreach (var x in Model.Act_Status_Reason_List)
+                {
+                    if (Model.Act_Status_Reason == x)
+                    {
+                        <option selected="selected" value="@x">@x</option>
+                    }
+                    else
+                    {
+                        <option value="@x">@x</option>
+                    }
+                }
+            </select>
+        </td>
+    </tr>
+</table>
+<p>&nbsp;</p>
+
+
+
+<h6 style="padding-left:40px;"><strong>开票资料</strong></h6>
+<table class="FormTable_Sim FormTable_Sim_Input text-nowrap" style="width:400px;">
+    <tr>
+        <th style="text-align:right; width:10px;"><div style="width:75px; overflow:hidden;">开票抬头</div></th>
+        <td style="width:10px;">
+            <input class="form-control input-sm" id="Invoice_Title" name="Invoice_Title" type="text" style="width:300px;" value="@Model.Invoice_Title" />
+        </td>
+        <td style="text-align:right; width:10px;"><div style="width:75px; overflow:hidden;">税　号</div></td>
+        <td style="width:10px;">
+            <input class="form-control input-sm" id="Invoice_Identification" name="Invoice_Identification" type="text" style="width:175px;" value="@Model.Invoice_Identification" />
+        </td>
+    </tr>
+
+    <tr>
+        <th style="text-align:right;">开票地址</th>
+        <td>
+            <input class="form-control input-sm" id="Invoice_Address" name="Invoice_Address" type="text" style="width:100%;" value="@Model.Invoice_Address" />
+        </td>
+        <td style="text-align:right;"><div style="width:75px; overflow:hidden;">电　话</div></td>
+        <td style="width:10px;">
+            <input class="form-control input-sm" id="Invoice_Tel" name="Invoice_Tel" type="text" style="width:100%;" value="@Model.Invoice_Tel" />
+        </td>
+    </tr>
+
+    <tr>
+        <th style="text-align:right;">开户银行</th>
+        <td>
+            <input class="form-control input-sm" id="Bank_Name" name="Bank_Name" type="text" style="width:100%;" value="@Model.Bank_Name" />
+        </td>
+        <td style="text-align:right;"><div style="width:75px; overflow:hidden;">账　号</div></td>
+        <td style="width:10px;">
+            <input class="form-control input-sm" id="Bank_Account" name="Bank_Account" type="text" style="width:100%;" value="@Model.Bank_Account" />
+        </td>
+    </tr>
+</table>
+
+<p>&nbsp;</p>
+<h6 style="padding-left:40px;"><strong>供方联系人</strong></h6>
+
+<table class="FormTable_Sim FormTable_Sim_Input text-nowrap" style="width:400px;">
+    <tr>
+        <th style="text-align:right; width:10px;"><div style="width:75px; overflow:hidden;">* 业务专员</div></th>
+        <td style="width:10px;"><input class="MyInput" id="Sales_Man" name="Sales_Man" type="text" style="width:120px;" value="@Model.Sales_Man" /></td>
+        <td style="text-align:right; width:10px;"><div style="width:60px; overflow:hidden;">电　话</div></td>
+        <td style="width:10px;"><input class="MyInput" id="Sales_Man_Tel" name="Sales_Man_Tel" type="text" style="width:120px;" value="@Model.Sales_Man_Tel" /></td>
+        <td style="text-align:right; width:10px;"><div style="width:60px; overflow:hidden;">传　真</div></td>
+        <td style="width:10px;"><input class="MyInput" id="Sales_Man_Fax" name="Sales_Man_Fax" type="text" style="width:120px;" value="@Model.Sales_Man_Fax" /></td>
+        <td style="text-align:right; width:10px;"><div style="width:60px; overflow:hidden;">邮　箱</div></td>
+        <td style="width:10px;"><input class="MyInput" id="Sales_Man_Mail" name="Sales_Man_Mail" type="text" style="width:200px;" value="@Model.Sales_Man_Mail" /></td>
+    </tr>
+
+    <tr>
+        <th style="text-align:right; width:10px;">业务经理</th>
+        <td style="width:10px;"><input class="MyInput" id="Sales_Manager" name="Sales_Manager" type="text" style="width:120px;" value="@Model.Sales_Manager" /></td>
+        <td style="text-align:right; width:10px;">电　话</td>
+        <td style="width:10px;"><input class="MyInput" id="Sales_Manager_Tel" name="Sales_Manager_Tel" type="text" style="width:120px;" value="@Model.Sales_Manager_Tel" /></td>
+        <td style="text-align:right; width:10px;">传　真</td>
+        <td style="width:10px;"><input class="MyInput" id="Sales_Manager_Fax" name="Sales_Manager_Fax" type="text" style="width:120px;" value="@Model.Sales_Manager_Fax" /></td>
+        <td style="text-align:right; width:10px;">邮　箱</td>
+        <td style="width:10px;"><input class="MyInput" id="Sales_Manager_Mail" name="Sales_Manager_Mail" type="text" style="width:200px;" value="@Model.Sales_Manager_Mail" /></td>
+    </tr>
+
+
+    <tr>
+        <th style="text-align:right; width:10px;">财务人员</th>
+        <td style="width:10px;"><input class="MyInput" id="Finance" name="Finance" type="text" style="width:120px;" value="@Model.Finance" /></td>
+        <td style="text-align:right; width:10px;">电　话</td>
+        <td style="width:10px;"><input class="MyInput" id="Finance_Tel" name="Finance_Tel" type="text" style="width:120px;" value="@Model.Finance_Tel" /></td>
+        <td style="text-align:right; width:10px;">传　真</td>
+        <td style="width:10px;"><input class="MyInput" id="Finance_Fax" name="Finance_Fax" type="text" style="width:120px;" value="@Model.Finance_Fax" /></td>
+        <td style="text-align:right; width:10px;">邮　箱</td>
+        <td style="width:10px;"><input class="MyInput" id="Finance_Mail" name="Finance_Mail" type="text" style="width:200px;" value="@Model.Finance_Mail" /></td>
+    </tr>
+
+    <tr>
+        <th style="text-align:right; width:10px;">总经理</th>
+        <td style="width:10px;"><input class="MyInput" id="GM" name="GM" type="text" style="width:120px;" value="@Model.GM" /></td>
+        <td style="text-align:right; width:10px;">电　话</td>
+        <td style="width:10px;"><input class="MyInput" id="GM_Tel" name="GM_Tel" type="text" style="width:120px;" value="@Model.GM_Tel" /></td>
+        <td style="text-align:right; width:10px;">传　真</td>
+        <td style="width:10px;"><input class="MyInput" id="GM_Fax" name="GM_Fax" type="text" style="width:120px;" value="@Model.GM_Fax" /></td>
+        <td style="text-align:right; width:10px;">邮　箱</td>
+        <td style="width:10px;"><input class="MyInput" id="GM_Mail" name="GM_Mail" type="text" style="width:200px;" value="@Model.GM_Mail" /></td>
+    </tr>
+
+</table>
+
+
+
+<p>&nbsp;</p>
+<table class="FormTable_Sim FormTable_Sim_Input text-nowrap" style="width:400px;">
+    <tr>
+        <th style="text-align:right; width:10px;"><div style="width:75px; overflow:hidden;">&nbsp;</div></th>
+        <td>
+            <table>
+                <tr>
+                    @if (Model.SupID == Guid.Empty)
+                    {
+                        <td style="padding:0px;"><button type="button" onclick="MyFormSubmit()" class="btn btn-primary btn-sm" style="width:100px;">创建供应商</button></td>
+                    }
+                    else
+                    {
+                        <td style="padding:0px;"><button type="button" onclick="Delete_Sup_Item()" class="btn btn-danger btn-sm" style="width:100px;">删除供应商</button></td>
+                        <td style="padding:0px; padding-left:10px;"><button type="button" onclick="MyFormSubmit()" class="btn btn-primary btn-sm" style="width:100px;">递交更新</button></td>
+                    }
+
+                </tr>
+            </table>
+
+        </td>
+    </tr>
+</table>
+
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<script src="~/Scripts/Multi_Select_DIV.js"></script>

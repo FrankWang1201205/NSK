@@ -1,0 +1,87 @@
+﻿@model User
+@{
+    Layout = null;
+}
+
+<table class="FormTable_Sim FormTable_Sim_Border text-nowrap" style="width:100%;">
+    <tr>
+        <th style="text-align:right; width:10px;"><div style="width:80px; overflow:hidden;">员工代码</div></th>
+        <td style="width:10px;">@Model.UserName</td>
+        <th style="text-align:right; width:10px;"><div style="width:80px; overflow:hidden;">员工姓名</div></th>
+        <td style="width:10px;">@Model.UserFullName</td>
+        <th style="text-align:right; width:10px;"><div style="width:60px; overflow:hidden;">性　别</div></th>
+        <td>@Model.Sex</td>
+    </tr>
+
+    <tr>
+        <th style="text-align:right;">出生日期</th>
+        <td>@Model.U_Pro.Birth_DT.ToString("yyyy-MM-dd")</td>
+
+        <th style="text-align:right;">籍　贯</th>
+        <td>@Model.Origin</td>
+
+        <th style="text-align:right;">学　历</th>
+        <td>@Model.Education</td>
+    </tr>
+
+    <tr>
+        <th style="text-align:right;">入职日期</th>
+        <td>@Model.U_Pro.Entry_DT.ToString("yyyy-MM-dd")</td>
+
+        <th style="text-align:right;">员工性质</th>
+        <td>@Model.U_Type</td>
+
+        <th style="text-align:right;">当前状态</th>
+        <td>@Model.U_Status</td>
+    </tr>
+
+    <tr>
+        <th style="text-align:right;">所属部门</th>
+        <td>@Model.Department</td>
+
+        <td style="text-align:right;">分支机构</td>
+        <td colspan="3">@Model.Branch</td>
+    </tr>
+
+    <tr>
+        <td style="text-align:right;">手机号码</td>
+        <td>@Model.MobilePhone</td>
+        <td style="text-align:right;">电子邮箱</td>
+        <td colspan="3">@Model.Email</td>
+    </tr>
+
+    <tr>
+        <td style="text-align:right;">座机号码</td>
+        <td>@Model.Tel</td>
+        <td style="text-align:right;">身份证编号</td>
+        <td colspan="3">@Model.U_Pro.Identity_Card</td>
+    </tr>
+
+    <tr>
+        <td style="text-align:right;">当前角色</td>
+        <td>@Model.RoleTitle</td>
+
+        <td style="text-align:right;">社保编号</td>
+        <td colspan="3">@Model.U_Pro.Identity_Social</td>
+    </tr>
+
+    <tr>
+        <td style="text-align:right;">家庭电话</td>
+        <td>@Model.U_Pro.Family_Tel</td>
+        <td style="text-align:right;">家庭地址</td>
+        <td colspan="3">@Model.U_Pro.Family_Address</td>
+    </tr>
+
+    <tr>
+        <td style="text-align:right;">紧急联络人</td>
+        <td>@Model.U_Pro.EMD</td>
+        <td style="text-align:right;">联络电话</td>
+        <td colspan="3">@Model.U_Pro.EMD_Tel</td>
+    </tr>
+
+    <tr>
+        <td style="text-align:right;">备注信息</td>
+        <td colspan="5">@Model.U_Pro.Remark</td>
+    </tr>
+</table>
+

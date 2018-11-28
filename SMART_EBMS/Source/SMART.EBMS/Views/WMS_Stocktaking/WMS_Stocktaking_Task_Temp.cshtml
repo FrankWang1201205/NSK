@@ -1,0 +1,144 @@
+﻿@model PageList<WMS_Location>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    WMS_Stock_Filter MF = ViewData["MF"] as WMS_Stock_Filter;
+    User U = ViewData["User"] as User;
+    int i = 0;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("底盘任务");</script>
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/WMS_Stocktaking/WMS_Stocktaking_Task_Temp" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:100px;">
+                    <select name="Type" id="Type" class="form-control input-sm" onchange="SubmitPageIndex(1)">
+                        <option value="">任务状态</option>
+                        @foreach (var x in MF.Type_Enum_List)
+                        {
+                            if (MF.Type == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+                <td style="width:250px; padding-left:5px;">
+                    <div class="input-group input-group-sm" style="width: 250px; ">
+                        <input type="text" name="Location" id="Location" placeholder="库位" value="@MF.Location" class="form-control ">
+                        <div class="input-group-btn">
+                            <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                        </div>
+                    </div>
+                </td>
+
+                <td>&nbsp;</td>
+
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:40px;">序</th>
+            <th style="width:70px;">库位</th>
+            <th style="width:70px;">类型</th>
+            <th style="width:90px;">&nbsp;</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model.Rows.OrderBy(x => x.Location).ToList())
+        {
+            i++;
+            <tr>
+                <td>&nbsp;</td>
+                <td style="vertical-align:top;">@i</td>
+                <td style="vertical-align:top;">
+                    <a href="javascript:void(0)" onclick="Show_QRCode_Madal('@x.Location')">@x.Location</a>
+                </td>
+                <td style="vertical-align:top;">@x.Type</td>
+                <td style="text-align:center">
+                    <a href="~/WMS_Stocktaking/WMS_Stocktaking_Task_Temp_To_Excel?Location=@x.Location" class="btn btn-info btn-xs" target="_blank">导出信息</a>
+                </td>
+                <td>&nbsp;</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>
+
+<!--二维码查看-->
+<script>
+    function Show_QRCode_Madal(Loc_ID) {
+        Reload_QRCode_Madal(Loc_ID);
+        $('#MyQRCodeModal').modal({ backdrop: 'static' });
+    }
+
+    function Close_QRCode_Madal() { $('#MyQRCodeModal').modal('hide'); }
+
+    function Reload_QRCode_Madal(Loc) {
+        $("#QRCodeContext").load("/WMS_Out/WMS_Out_Task_Preview_Pick_QRCode/" + Loc);
+    }
+</script>
+<div class="modal fade" id="MyQRCodeModal">
+    <div class="modal-dialog" style="width:250px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="Close_QRCode_Madal()"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body" id="QRCodeContext" style="margin:auto;text-align:center"></div>
+        </div>
+    </div>
+</div>
+<!--二维码查看-->

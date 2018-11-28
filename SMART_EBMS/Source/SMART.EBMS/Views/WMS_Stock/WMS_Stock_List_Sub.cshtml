@@ -1,0 +1,51 @@
+﻿@model List<WMS_Stock_Group>
+@{
+    Layout = null;
+    
+    decimal TotalPrice = 0;
+}
+
+<p style="font-size:14px;">产品型号：<span class="MatSn_Font" style="font-size:16px;">@Model.FirstOrDefault().MatSn</span></p>
+
+<table class="table table-condensed table-bordered text-nowrap">
+    <tr class="active">
+        <td style="width:100px;text-align:right;">库位</td>
+        <td style="width:50px;text-align:right;">箱数</td>
+        <td style="width:80px;text-align:right;">产品数</td>
+        <td style="width:100px;text-align:right;">入库日期</td>
+        <td style="text-align:right; width:120px;">单价</td>
+        <td style="text-align:right; width:120px;">总金额</td>
+    </tr>
+    @foreach (var x in Model.OrderBy(c=>c.Location).ToList())
+    {
+        TotalPrice = x.Price * x.Quantity_Sum;
+        <tr>
+            <td style="text-align:right;">@x.Location</td>
+            <td style="text-align:right;">
+                @if (x.Line_Count > 0)
+                {
+                    <span>@x.Line_Count.ToString("N0")</span>
+                }
+                else
+                {
+                    <span>端数</span>
+                }
+            </td>
+            <td style="text-align:right;">@x.Quantity_Sum.ToString("N0")</td>
+            <td style="text-align:right">@x.In_DT.Substring(0, 10)</td>
+            <td style="text-align:right">@x.Price.ToString("N2")</td>
+            <td style="text-align:right">@TotalPrice.ToString("N2")</td>
+        </tr>
+    }
+    <tr>
+        <td style="text-align:right;">Total:</td>
+        <td style="text-align:right;">
+            @if (Model.Sum(c => c.Line_Count) > 0)
+            {
+                <span>@Model.Sum(c => c.Line_Count).ToString("N0")</span>
+            }
+        </td>
+        <td style="text-align:right;">@Model.Sum(c => c.Quantity_Sum).ToString("N0")</td>
+        <td colspan="3">&nbsp;</td>
+    </tr>
+</table>

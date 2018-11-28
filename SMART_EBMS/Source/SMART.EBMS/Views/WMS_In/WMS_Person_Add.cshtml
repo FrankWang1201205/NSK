@@ -1,0 +1,29 @@
+﻿@model WMS_Work_Person
+@{ 
+    Layout = null;
+}
+
+<form id="MyItem_Form" action="~/WMS_In/WMS_Person_Add_Post" method="post" enctype="multipart/form-data">
+    <table class="FormTable_Sim text-nowrap">
+        <tr>
+            <td style="width:10px;text-align:right">* 作业人名称</td>
+            <td colspan="3"><input class="form-control input-sm NotEmpty" id="Person_Name" name="Person_Name" style="width:150px" type="text" value="@Model.Person_Name" /></td>          
+        </tr>
+
+        <tr>
+            <td>&nbsp;</td>
+            <td colspan="3"><button type="button" class="btn btn-primary btn-sm" style="width:70px;" onclick="MyLocationItem_FormSubmit()">创建</button></td>
+        </tr>
+    </table>
+</form>
+
+<script>
+    function MyLocationItem_FormSubmit() {
+        if (validateFormByClass('NotEmpty') == false) {
+            return false;
+        }
+
+        DisAndEnabledBtn(1);
+        $("#MyItem_Form").submit();
+    }
+</script>

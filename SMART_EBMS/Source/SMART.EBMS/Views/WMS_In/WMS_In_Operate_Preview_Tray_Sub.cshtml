@@ -1,0 +1,108 @@
+﻿@model List<WMS_In_Scan>
+@{
+    Layout = null;
+    WMS_In_Head Head = ViewData["Head"] as WMS_In_Head;
+}
+
+<table style="width:100%;">
+    <tr>
+        <td>
+            <h4>第 <strong style="font-size:22px;">@Model.FirstOrDefault().Tray_No</strong> 托，<strong>@Model.Select(x => x.MatSn).Distinct().Count().ToString("N0")</strong>个型号</h4>
+        </td>
+        @if (Head.Status == WMS_In_Global_State_Enum.完成入库.ToString())
+            {
+            <td style="text-align:right">
+                <a style="margin-left:10px;" href="~/WMS_In/WMS_In_Operate_Preview_To_Excel_By_TrayNo/@Head.Head_ID?Tray_No=@Model.FirstOrDefault().Tray_No" class="btn btn-primary" target="_blank">导出明细</a>
+            </td>
+            <td style="text-align:right">
+                <a href="~/WMS_In/WMS_In_Operate_Preview_To_PDF_By_TrayNo/@Head.Head_ID?Tray_No=@Model.FirstOrDefault().Tray_No" class="btn btn-primary" target="_blank">打印明细</a>
+            </td>
+        }
+        else
+        {
+            <td style="text-align:right;">
+                <button style="text-align:right" type="button" class="btn btn-danger btn-sm" onclick="Reset_Task_Bat_Tray_No('@Model.FirstOrDefault().Tray_No')">重置本托</button>
+            </td>
+        }
+    </tr>
+</table>
+<p></p>
+
+@if (Model.Where(x => x.Package_Type == WMS_Stock_Package_Enum.整箱.ToString()).Any())
+{
+    <table class="table table-condensed table-bordered text-nowrap">
+        <tr class="active">
+            <td style="width:190px;">产品型号</td>
+            <td style="text-align:right; width:10px;">箱数</td>
+            <td style="text-align:right; width:10px;">扫码数量</td>
+            <td>&nbsp;</td>
+        </tr>
+
+        @foreach (var MatSn in Model.Where(x => x.Package_Type == WMS_Stock_Package_Enum.整箱.ToString()).Select(x => x.MatSn).Distinct().ToList())
+        {
+        <tr>
+            <td class="MatSn_Font">@MatSn</td>
+            <td style="text-align:right">@Model.Where(c => c.Package_Type == WMS_Stock_Package_Enum.整箱.ToString() && c.MatSn == MatSn).Count().ToString("N0")</td>
+            <td style="text-align:right">@Model.Where(c => c.Package_Type == WMS_Stock_Package_Enum.整箱.ToString() && c.MatSn == MatSn).Sum(c => c.Scan_Quantity).ToString("N0")</td>
+            <td>&nbsp;</td>
+        </tr>
+        }
+
+        <tr>
+            <td style="text-align:right;">Total:</td>
+            <td style="text-align:right;">@Model.Where(x => x.Package_Type == WMS_Stock_Package_Enum.整箱.ToString()).Count().ToString("N0")</td>
+            <td style="text-align:right;">@Model.Where(x => x.Package_Type == WMS_Stock_Package_Enum.整箱.ToString()).Sum(c => c.Scan_Quantity).ToString("N0")</td>
+            <td>&nbsp;</td>
+        </tr>
+    </table>
+}
+
+@if (Model.Where(x => x.Package_Type == WMS_Stock_Package_Enum.零头.ToString()).Any())
+{
+    <hr />
+    <h4>箱号列表</h4>
+
+    foreach (var Case_No in Model.Where(x => x.Package_Type == WMS_Stock_Package_Enum.零头.ToString()).Select(x => x.Case_No).Distinct().ToList())
+    {
+        <table style="width:100%;">
+            <tr>
+                <td>
+                    <h5>箱号： <strong style="font-size:20px;">@Case_No</strong> ，<strong>@Model.Where(xx => xx.Package_Type == WMS_Stock_Package_Enum.零头.ToString() && xx.Case_No == Case_No).Count()</strong>个型号</h5>
+                </td>
+                @if (Head.Status == WMS_In_Global_State_Enum.完成入库.ToString())
+                {
+                    <td style="text-align:right">
+                        <a href="~/WMS_In/WMS_In_Operate_Preview_To_PDF_By_TrayNo_With_CaseNo/@Head.Head_ID?Tray_No=@Model.FirstOrDefault().Tray_No&Case_No=@Case_No" class="btn btn-primary btn-sm" target="_blank">打印明细</a>
+                    </td>
+                }
+                else
+                {
+                    <td style="text-align:right;">
+                        <button style="text-align:right" type="button" class="btn btn-danger btn-sm" onclick="Reset_Task_Bat_Tray_No_By_Box('@Model.FirstOrDefault().Tray_No','@Case_No')">重置本箱</button>
+                    </td>
+                }
+            </tr>
+        </table>
+        <table class="table table-condensed table-bordered text-nowrap">
+            <tr>
+                <td style="width:190px;">产品型号</td>
+                <td style="text-align:right; width:10px;">扫码数量</td>
+                <td>&nbsp;</td>
+            </tr>
+            @foreach (var xx in Model.Where(xx => xx.Package_Type == WMS_Stock_Package_Enum.零头.ToString() && xx.Case_No == Case_No).ToList())
+            {
+                <tr>
+                    <td class="MatSn_Font">@xx.MatSn</td>
+                    <td style="text-align:right;">@xx.Scan_Quantity.ToString("N0")</td>
+                    <td>&nbsp;</td>
+                </tr>
+            }
+            <tr>
+                <td style="text-align:right">Total:</td>
+                <td style="text-align:right;">@Model.Where(x => x.Package_Type == WMS_Stock_Package_Enum.零头.ToString() && x.Case_No == Case_No).Sum(x => x.Scan_Quantity).ToString("N0")</td>
+                <td>&nbsp;</td>
+            </tr>
+
+        </table>
+    }
+}

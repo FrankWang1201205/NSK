@@ -1,0 +1,174 @@
+﻿@model CatTree
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("目录维护");</script>
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+
+<ul class="TopMenuNavSub_Sim DeductionDiv">
+    <li><a id="TopSub_Cat_Config" href="~/Catalog/Cat_Config">目录维护</a></li>
+    <li><a id="TopSub_MatToCatList" href="~/Catalog/MatToCatList">产品归类</a></li>
+</ul>
+<script>TopMenuSubToAction("Cat_Config");</script>
+
+<div class="DeductionDiv TopSearchDiv">
+    <table style="width:100%;">
+        <tr>
+            <td>
+                <button onclick="ShowCatModel('@Guid.Empty')" class="btn btn-primary btn-sm" title="添加顶级目录"><i class="icon-plus" style="font-size:12px;"> 顶级目录</i></button>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr class="active">
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:120px;">顶级目录</th>
+            <th style="width:120px;">二级目录</th>
+            <th style="width:150px;">三级目录</th>
+            <th style="width:50px;">&nbsp;</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model.Top_List)
+            {
+            <tr>
+                <td>&nbsp;</td>
+                <td style="vertical-align:top; font-size:14px; font-weight:bold;">@x.Cat_Name</td>
+                <td><button type="button" onclick="ShowCatModel('@x.CatID')" class="btn btn-info btn-xs"><i class="icon-plus" style="font-size:12px;"></i> 二级目录</button></td>
+                <td>&nbsp;</td>
+                <td style="text-align:center;"><button type="button" class="btn btn-info btn-xs" onclick="ShowSetCatItem('@x.CatID')">更新</button></td>
+                <td>&nbsp;</td>
+            </tr>
+            foreach (var xx in x.Sub_Cat_List)
+            {
+                <tr>
+                    <td>&nbsp;</td>
+                    <td style="width:30px; border-right:0px;">&nbsp;</td>
+                    <td style="font-size:14px; width:200px; border-left:0px;">@xx.Cat_Name</td>
+                    <td><button type="button" onclick="ShowCatModel('@xx.CatID')" class="btn btn-info btn-xs"><i class="icon-plus" style="font-size:12px;"></i> 三级目录</button></td>
+                    <td style="text-align:center;">
+                        <button type="button" class="btn btn-info btn-xs" onclick="ShowSetCatItem('@xx.CatID')">更新</button>
+                    </td>
+                    <td>&nbsp;</td>
+                </tr>
+
+                foreach (var xxx in xx.Sub_Cat_List)
+                {
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td style="width:30px; border-right:0px;">&nbsp;</td>
+                        <td style="width:30px; border-right:0px; border-left:0px;">&nbsp;</td>
+                        <td style="width:200px; border-left:0px;">@xxx.Cat_Name</td>
+                        <td style="text-align:center;"><button type="button" class="btn btn-info btn-xs" onclick="ShowSetCatItem('@xxx.CatID')">更新</button></td>
+                        <td>&nbsp;</td>
+                    </tr>
+                }
+            }
+        }
+    </tbody>
+</table>
+<div style="width:100%; height:25px;" class="DeductionDiv">&nbsp;</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            ordering: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>
+
+
+
+<!--添加分类-->
+<script>
+    function ShowCatModel(Parent_CatID) {
+        $("#Parent_CatID").val(Parent_CatID);
+        if (Parent_CatID == "@Guid.Empty")
+        {
+            $("#CatName").attr('placeholder', '请输入顶级名称...');
+        } else {
+            $("#CatName").attr('placeholder', '请输入子目录名称...');
+        }
+        $('#CatModel').modal({ backdrop: 'static' });
+    }
+
+    function CloseCatModel()
+    {
+        $('#CatModel').modal('hide');
+    }
+</script>
+
+<div class="modal fade" id="CatModel">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:300px;">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="CloseCatModel()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">添加目录</h5>
+            </div>
+            <div class="modal-body">
+                <form action="~/Catalog/Cat_Config_Post" method="post" onsubmit="DisAndEnabledBtn(1)">
+                    <table class="FormTable">
+                        <tr>
+                            <td style="padding-right:0px;">
+                                <input type="text" id="CatName" name="CatName" class="form-control input-sm" placeholder="请输入目录名称..." value="" style="width:200px;">
+                            </td>
+                            <td style="padding-left:5px;">
+                                <input type="hidden" id="Parent_CatID" name="Parent_CatID" value="" />
+                                <button class="btn btn-primary btn-sm" type="submit">递交</button>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!--添加分类-->
+
+
+<!--更新分类-->
+<script>
+    function ShowSetCatItem(CatID) {
+        RelaodCatContext(CatID);
+        $('#MySetModel').modal({ backdrop: 'static' });
+    }
+
+    function CloseSetModel() { $('#MySetModel').modal('hide'); }
+
+    function RelaodCatContext(CatID)
+    {
+        $("#CatContext").text("Loading...");
+        $("#CatContext").load("/Catalog/Cat_Config_Sub/" + CatID);
+    }
+
+</script>
+<div class="modal fade" id="MySetModel">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:300px;">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="CloseSetModel()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">更新分类</h5>
+            </div>
+            <div class="modal-body" id="CatContext"></div>
+        </div>
+    </div>
+</div>
+<!--更新分类-->

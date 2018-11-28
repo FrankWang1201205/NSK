@@ -1,0 +1,55 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Guid SupID = new Guid(ViewData["SupID"].ToString());
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("供应商更新");</script>
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+<div id="RightDivContext">
+    <form id="SubmitForm" action="~/Supplier/Sup_Update_Sub_Update_Post/@SupID" method="post" style="padding:20px;">
+        <div id="Part_Page_Context" style="overflow:hidden;"></div>
+    </form>
+</div>
+
+<script>
+    $(function () {
+        Reload_Part_Page();
+    });
+
+    function Reload_Part_Page() {
+        $("#Part_Page_Context").text("Loading...");
+        $("#Part_Page_Context").load("/Supplier/Sup_Edit_Part/@SupID");
+    }
+
+    function MyFormSubmit() {
+        if (validateFormByClass('NotEmpty') == false) { return false; }
+        DisAndEnabledBtn(1);
+        $("#SubmitForm").submit();
+    }
+</script>
+
+
+<!--供应商删除-->
+<form id="Delete_Sup" action="~/Supplier/Sup_Delete_post/@SupID" method="post">
+    <script>
+        function Delete_Sup_Item()
+        {
+            if(confirm("确认删除？")==true)
+            {
+                $("#Delete_Sup").submit();
+            }
+        }
+    </script>
+</form>
+<!--供应商删除-->

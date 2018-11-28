@@ -1,0 +1,178 @@
+﻿@model WMS_In_Task
+@{
+    Layout = null;
+    WMS_In_Filter MF = ViewData["MF"] as WMS_In_Filter;
+    ViewBag.Title = Model.Task_Bat_No_Str;
+    User U = ViewData["User"] as User;
+    int Diff_Qty = 0;
+
+    List<WMS_In_Line_Other> Line_Other_List = ViewData["Line_Other_List"] as List<WMS_In_Line_Other>;
+}
+
+<!DOCTYPE html>
+<html>
+@Html.Partial("_JsAndCss")
+<body style="background-color:white; overflow:auto; padding:20px; max-width:1024px; margin:auto;">
+    @if (TempData["Error"] != null)
+    {
+        <div class="Textarea_Error">@TempData["Error"]</div>
+    }
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="Textarea_Success">@TempData["Success"]</div>
+    }
+    <table style="text-align:center; width:100%;" class="text-nowrap">
+        <tr>
+            <td style="width:10px;">&nbsp;</td>
+            <td><span style="text-align:center; padding-left:150px; font-size:24px;">收 货 任 务 单</span></td>
+            <td style="text-align:right; width:10px; text-align:right;"><span style="font-size:16px;">NO.</span><strong style="font-size:18px;">@Model.Task_Bat_No_Str</strong></td>
+        </tr>
+    </table>
+
+    <table class="table table-bordered text-nowrap" style="width:100%;font-size:14px;margin-top:15px;">
+        <tr>
+            <td class="active" style="width:10px;">任务类型</td>
+            <td>@Model.MatType</td>
+            <td class="active" style="width:10px;">品牌</td>
+            <td>@Model.Brand</td>
+            <td class="active" style="width:10px;">收货方式</td>
+            <td>@Model.Scan_Mat_Type</td>
+            <td class="active" style="width:10px;">物流公司</td>
+            <td>@Model.Logistics_Company</td>
+            <td class="active" style="width:10px;">运输方式</td>
+            <td><span>@Model.Logistics_Mode</span><span>，</span><span>@Model.Logistics_Cost_Type</span></td>
+        </tr>
+        <tr>
+            <td class="active" style="width:10px;">上传人</td>
+            <td>@Model.Create_Person</td>
+            <td class="active" style="width:10px;">产品型号</td>
+            <td><strong>@Model.Line_List.Where(x => x.Quantity_Sum > 0).Count().ToString("N0")</strong> <span>项</span></td>
+            <td class="active" style="width:10px;">产品数量</td>
+            <td><strong>@Model.Line_List.Where(x => x.Quantity_Sum > 0).Sum(x => x.Quantity_Sum).ToString("N0")</strong></td>
+            <td class="active" style="width:10px;">当前状态</td>
+            <td>@Model.Global_State</td>
+            <td class="active" style="width:10px;">供应商</td>
+            <td>@Model.Supplier_Name</td>
+        </tr>
+    </table>
+
+    <style>
+        .Return_Info strong {
+            font-size: 16px;
+            padding-left: 5px;
+            padding-right: 5px;
+            color: red;
+        }
+    </style>
+    <table style="width:100%; margin-top:-10px;" class="Table_Clean">
+        <tr>
+            <td class="Return_Info">@Html.Raw(MF.Return_Info)</td>
+            <td>&nbsp;</td>
+            <td style="width:10px;">
+                <button type="button" class="btn btn-default" onclick="ReloadPage()"><span class="glyphicon glyphicon-repeat"></span> 刷新</button>
+            </td>
+        </tr>
+    </table>
+
+    <p></p>
+    <ul class="nav nav-tabs">
+        <li><a href="~/WMS_Task_In/WMS_In_Task_Preview/@Model.Head_ID">产品型号</a></li>
+        <li>
+            <a href="~/WMS_Task_In/WMS_In_Task_Preview_Tray/@Model.Head_ID">
+                @if (Model.Scan_Mat_Type == Scan_Mat_Type_Enum.按托.ToString())
+                {
+                    <span>托盘列表</span>
+                }
+                else if (Model.Scan_Mat_Type == Scan_Mat_Type_Enum.按箱.ToString())
+                {
+                    <span>箱号列表</span>
+                }
+            </a>
+        </li>
+        <li><a href="~/WMS_Task_In/WMS_In_Task_Preview_Track/@Model.Head_ID">物流信息</a></li>
+        <li><a href="~/WMS_Task_In/WMS_In_Task_Preview_Source/@Model.Head_ID">原始表单</a></li>
+        <li class="active"><a href="~/WMS_Task_In/WMS_In_Task_Preview_Diff/@Model.Head_ID">差异型号</a></li>
+        <li><a href="~/WMS_Task_In/WMS_In_Task_Preview_Scan/@Model.Head_ID">扫描列表</a></li>
+
+    </ul>
+    <p></p>
+
+    <table class="table table-bordered text-nowrap" style="width:100%;font-size:14px;">
+        <tr class="active">
+            <td style="width:190px;">产品型号</td>
+            <td style="width:190px;">到货型号</td>
+            <td style="width:70px;text-align:right">扫码复核</td>
+            <td style="width:70px;text-align:right">差异数量</td>
+            <td style="width:60px;text-align:right">箱数</td>
+            <td style="width:100px;">
+                @if (Model.Scan_Mat_Type == Scan_Mat_Type_Enum.按托.ToString())
+                {
+                    <span>托号</span>
+                }
+                else if (Model.Scan_Mat_Type == Scan_Mat_Type_Enum.按箱.ToString())
+                {
+                    <span>箱号</span>
+                }
+            </td>
+            <td>当前状态</td>
+        </tr>
+
+        @foreach (var x in Model.Line_List.Where(x => x.Line_State == WMS_In_Line_State_Enum.低于到货.ToString()).ToList())
+        {
+            Diff_Qty = x.Quantity_Sum_Scan - x.Quantity_Sum;
+            <tr>
+                <td><span class="MatSn_Font">@x.MatSn</span></td>
+                <td><span class="MatSn_Font">@x.MatSn</span></td>
+                <td style="text-align:right">@x.Quantity_Sum_Scan.ToString("N0")</td>
+                <td style="text-align:right; color:orange;"><strong>@Diff_Qty.ToString("N0")</strong></td>
+               
+                    <td style="text-align:right">
+                        @if (x.Cases_Scan_Count > 0)
+                        {
+                            <span>@x.Cases_Scan_Count.ToString("N0")</span><span>箱</span>
+                        }
+                    </td>
+                <td>@x.Tray_No_List_Str</td>
+                <td style="color:orange">@x.Line_State</td>
+            </tr>
+        }
+
+
+        @foreach (var x in Model.Line_List.Where(x => x.Line_State == WMS_In_Line_State_Enum.还未扫码.ToString()).ToList())
+        {
+            <tr>
+                <td><span class="MatSn_Font">@x.MatSn</span></td>
+                <td>
+                    @if (Line_Other_List.Where(c => c.MatSn == x.MatSn).Any())
+                    {
+                        <span class="MatSn_Font">@Line_Other_List.Where(c => c.MatSn == x.MatSn).FirstOrDefault().New_MatSn</span>
+                    }
+                    else
+                    {
+                        <span class="MatSn_Font">@x.MatSn</span>
+                    }
+                </td>
+
+                <td style="text-align:right">@x.Quantity_Sum_Scan.ToString("N0")</td>
+                <td>&nbsp;</td>
+                    <td style="text-align:right">
+                        @if (x.Cases_Scan_Count > 0)
+                        {
+                            <span>@x.Cases_Scan_Count.ToString("N0")</span><span>箱</span>
+                        }
+                    </td>
+                <td>@x.Tray_No_List_Str</td>
+                <td style="color:silver">@x.Line_State</td>
+            </tr>
+        }
+    </table>
+
+    <table class="table table-condensed" style="width:100%;font-size:14px;">
+        <tr>
+            <td>作业人：@Model.Work_Person</td>
+        </tr>
+    </table>
+
+</body>
+</html>

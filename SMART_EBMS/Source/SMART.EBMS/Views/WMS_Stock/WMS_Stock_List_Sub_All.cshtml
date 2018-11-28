@@ -1,0 +1,181 @@
+﻿@{
+    Layout = null;
+    List<WMS_Out_Line> Line_List = ViewData["Line_List"] as List<WMS_Out_Line>;
+    List<WMS_Stock_Group> Temp_List = ViewData["Temp_List"] as List<WMS_Stock_Group>;
+    List<WMS_Stock_Group> List = ViewData["List"] as List<WMS_Stock_Group>;
+    decimal TotalPrice_A = 0;
+    decimal TotalPrice_B = 0;
+    decimal TotalPrice_C = 0;
+
+    decimal TotalPrice_All = 0;
+
+    string MatSn = string.Empty;
+    WMS_Stock_Group Group = new WMS_Stock_Group();
+    Group = List.FirstOrDefault();
+    Group = Group == null ? new WMS_Stock_Group() : Group;
+    MatSn = Group.MatSn;
+
+    if (string.IsNullOrEmpty(MatSn))
+    {
+        WMS_Out_Line Line = new WMS_Out_Line();
+        Line = Line_List.FirstOrDefault();
+        Line = Line == null ? new WMS_Out_Line() : Line;
+        MatSn = Line.MatSn;
+    }
+
+    if (string.IsNullOrEmpty(MatSn))
+    {
+        Group = Temp_List.FirstOrDefault();
+        Group = Group == null ? new WMS_Stock_Group() : Group;
+        MatSn = Group.MatSn;
+    }
+}
+
+<p style="font-size:14px;">产品型号：<span class="MatSn_Font" style="font-size:16px;">@MatSn</span></p>
+
+<p></p>
+<ul class="nav nav-tabs">
+    <li id="Menu_A" class="Menu"><a href="javascript:void(0)" onclick="Select_Form('A')">可用余量</a></li>
+    <li id="Menu_B" class="Menu"><a href="javascript:void(0)" onclick="Select_Form('B')">已配货数</a></li>
+    <li id="Menu_C" class="Menu"><a href="javascript:void(0)" onclick="Select_Form('C')">待配货数</a></li>
+</ul>
+<p></p>
+
+<!--可用库存-->
+<table id="Form_A" class="table table-condensed table-bordered text-nowrap Form">
+    <tr class="active">
+        <td style="width:100px;text-align:right;">库位</td>
+        <td style="width:50px;text-align:right;">箱数</td>
+        <td style="width:80px;text-align:right;">产品数</td>
+        <td style="width:100px;text-align:right;">入库日期</td>
+        <td style="text-align:right; width:120px;">单价</td>
+        <td style="text-align:right; width:120px;">总金额</td>
+    </tr>
+    @foreach (var x in List.OrderBy(c=>c.Location).ToList())
+    {
+        TotalPrice_A = x.Price * x.Quantity_Sum;
+    <tr>
+        <td style="text-align:right;">@x.Location</td>
+        <td style="text-align:right;">
+            @if (x.Line_Count > 0)
+                {
+            <span>@x.Line_Count.ToString("N0")</span>
+                }
+                else
+                {
+            <span>端数</span>
+                }
+        </td>
+        <td style="text-align:right;">@x.Quantity_Sum.ToString("N0")</td>
+        <td style="text-align:right">@x.In_DT.Substring(0, 10)</td>
+        <td style="text-align:right">@x.Price.ToString("N2")</td>
+        <td style="text-align:right">@TotalPrice_A.ToString("N2")</td>
+    </tr>
+    }
+    <tr>
+        <td style="text-align:right;">Total:</td>
+        <td style="text-align:right;">
+            @if (List.Sum(c => c.Line_Count) > 0)
+            {
+            <span>@List.Sum(c => c.Line_Count).ToString("N0")</span>
+            }
+        </td>
+        <td style="text-align:right;">@List.Sum(c => c.Quantity_Sum).ToString("N0")</td>
+        <td colspan="3">&nbsp;</td>
+    </tr>
+</table>
+<!--可用库存-->
+<!--已配货库存-->
+<table id="Form_B" class="table table-condensed table-bordered text-nowrap Form">
+    <tr class="active">
+        <td style="width:100px;text-align:right;">下架库位</td>
+        <td style="width:50px;text-align:right;">箱数</td>
+        <td style="width:80px;text-align:right;">产品数</td>
+        <td style="width:100px;text-align:right;">入库日期</td>
+        <td style="text-align:right; width:120px;">单价</td>
+        <td style="text-align:right; width:120px;">总金额</td>
+    </tr>
+    @foreach (var x in Temp_List.OrderBy(c => c.Location).ToList())
+    {
+        TotalPrice_B = x.Price * x.Quantity_Sum;
+        <tr>
+            <td style="text-align:right;">@x.Location</td>
+            <td style="text-align:right;">
+                @if (x.Line_Count > 0)
+                {
+                    <span>@x.Line_Count.ToString("N0")</span>
+                }
+                else
+                {
+                    <span>端数</span>
+                }
+            </td>
+            <td style="text-align:right;">@x.Quantity_Sum.ToString("N0")</td>
+            <td style="text-align:right">@x.In_DT.Substring(0, 10)</td>
+            <td style="text-align:right">@x.Price.ToString("N2")</td>
+            <td style="text-align:right">@TotalPrice_B.ToString("N2")</td>
+        </tr>
+    }
+    <tr>
+        <td style="text-align:right;">Total:</td>
+        <td style="text-align:right;">
+            @if (Temp_List.Sum(c => c.Line_Count) > 0)
+            {
+                <span>@Temp_List.Sum(c => c.Line_Count).ToString("N0")</span>
+            }
+        </td>
+        <td style="text-align:right;">@Temp_List.Sum(c => c.Quantity_Sum).ToString("N0")</td>
+        <td colspan="3">&nbsp;</td>
+    </tr>
+</table>
+<!--已配货库存-->
+<!--待配货库存-->
+<table id="Form_C" class="table table-condensed table-bordered text-nowrap Form">
+    <tr class="active">
+        <td style="width:100px;text-align:right;">任务批次</td>
+        <td style="width:80px;text-align:right;">产品数</td>
+        <td style="text-align:right; width:120px;">单价</td>
+        <td style="text-align:right; width:120px;">总金额</td>
+        <td style="width:100px;text-align:right;">上传时间</td>
+        <td style="width:100px;text-align:right;">送货时间</td>
+        <td style="width:100px;text-align:right;">上传人</td>
+    </tr>
+    @foreach (var x in Line_List.OrderBy(c => c.Create_DT).ToList())
+    {
+        TotalPrice_C = x.Price * x.Quantity;
+        TotalPrice_All = TotalPrice_All + TotalPrice_C;
+        <tr>
+            <td style="text-align:right;">@x.Task_Bat_No_Str</td>
+            <td style="text-align:right;">@x.Quantity.ToString("N0")</td>
+            <td style="text-align:right">@x.Price.ToString("N2")</td>
+            <td style="text-align:right">@TotalPrice_C.ToString("N2")</td>
+            <td style="text-align:right">@x.Create_DT.ToString("yyyy-MM-dd HH:mm")</td>
+            <td style="text-align:right">@x.Out_DT_Str</td>
+            <td style="text-align:right">@x.Create_Person</td>
+        </tr>
+    }
+    <tr>
+        <td style="text-align:right;">Total:</td>
+        <td style="text-align:right;">@Line_List.Sum(c => c.Quantity).ToString("N0")</td>
+        <td>&nbsp;</td>
+        <td style="text-align:right;">@TotalPrice_All.ToString("N2")</td>
+        <td colspan="3">&nbsp;</td>
+    </tr>
+</table>
+<!--待配货库存-->
+
+<script>
+    $(document).ready(function () {
+        $(".Form").hide();
+        $("#Form_A").show();
+        $("#Menu_A").addClass("active");
+
+    });
+
+    function Select_Form(No) {
+        $(".Form").hide();
+        $(".Menu").removeClass("active");
+        $("#Form_" + No).show();
+        $("#Menu_" + No).addClass("active");
+    }
+</script>

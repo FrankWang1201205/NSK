@@ -1,0 +1,131 @@
+﻿@model PageList<User>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    User_Filter MF = ViewData["MF"] as User_Filter;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("用户更新");</script>
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/User/User_Update" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:100px;">
+                    <select name="IsFrozen" id="IsFrozen" class="form-control input-sm" onchange="SubmitPageIndex(1)">
+                        <option value="">状态</option>
+                        @foreach (var x in MF.FrozenList)
+                        {
+                            if (MF.IsFrozen == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:150px; padding-left:5px;">
+                    <select name="DepName" id="DepName" class="form-control input-sm" onchange="SubmitPageIndex(1)">
+                        <option value="">所在部门</option>
+                        @foreach (var x in MF.DepNameList)
+                        {
+                            if (MF.DepName == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+
+                <td style="width:300px; padding-left:5px;">
+                    <div class="input-group input-group-sm" style="width: 300px; ">
+                        <input type="text" name="Keyword" id="Keyword" placeholder="员工代码或姓名关键词" value="@MF.Keyword" class="form-control ">
+                        <div class="input-group-btn">
+                            <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                        </div>
+                    </div>
+                </td>
+
+                <td style="width:50px;">&nbsp;</td>
+
+
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr class="active">
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:80px;">创建日期</th>
+            <th style="width:100px;">员工代码</th>
+            <th style="width:100px;">员工姓名</th>
+            <th style="width:120px;">所在部门</th>
+            <th style="width:80px;">角色</th>
+            <th style="width:80px;">状态</th>
+            <th style="width:60px;">&nbsp;</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model.Rows)
+            {
+            <tr>
+                <td>&nbsp;</td>
+                <td>@x.CreateDate.ToString("yyyy-MM-dd")</td>
+                <td>@x.UserName</td>
+                <td>@x.UserFullName</td>
+                <td>@x.Department</td>
+                <td>@x.RoleTitle</td>
+                <td>@x.U_Status</td>
+                <td style="text-align:center;"><a href="~/User/User_Update_Sub/@x.UID" class="btn btn-info btn-xs">更新</a></td>
+                <td>&nbsp;</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>
+
+

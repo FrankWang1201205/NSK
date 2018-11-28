@@ -1,0 +1,234 @@
+﻿@model PurchasePlan
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    PurchasePlan_Filter MF = ViewData["MF"] as PurchasePlan_Filter;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("新增计划");</script>
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/PurchasePlan/Plan_Group_Sub" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:20px;"><button type="button" onclick="SubmitForm()" class="btn btn-primary btn-sm">勾选下达</button></td>
+
+                <td style="width:75px;">&nbsp;</td>
+
+                <td style="width:120px;">
+                    <select name="MatBrand" id="MatBrand" class="form-control input-sm" onchange="SubmitPageIndex(1)">
+                        <option value="">选择品牌</option>
+                        @foreach (var x in MF.BrandList)
+                        {
+                            if (MF.MatBrand == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:300px; padding-left:5px;">
+                    <div class="input-group input-group-sm" style="width: 300px; ">
+                        <input type="text" name="Keyword" id="Keyword" placeholder="产品信息关键词" value="@MF.Keyword" class="form-control ">
+                        <div class="input-group-btn">
+                            <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                        </div>
+                    </div>
+                </td>
+
+                <td style="width:50px;">&nbsp;</td>
+
+                <td style="vertical-align:bottom;">&nbsp;</td>
+
+
+                <td style="text-align:right;">
+                    <a href="~/PurchasePlan/Plan_Group" class="btn btn-default btn-sm">返回</a>
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<form id="SubmitForm" action="~/PurchasePlan/Plan_Group_Sub_Post/@Model.Month" method="post">
+    <table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+        <thead>
+            <tr>
+                <th style="width:10px;">&nbsp;</th>
+                <th style="width:40px; text-align:center; padding-top:0px; padding-bottom:0px; vertical-align:middle;"><input type="checkbox" id="ALL" onclick="checkBoxCheckAll('ALL', 'MatID')" /></th>
+                <th style="width:180px;">产品型号</th>
+                <th style="width:100px;">产品名称</th>
+                <th style="width:80px;">品牌</th>
+                <th style="width:60px; text-align:center;">单位</th>
+                <th style="width:70px; text-align:center;">安全库存</th>
+                <th style="width:70px; text-align:center;">在库余量</th>
+                <th style="width:80px; text-align:center;">@Model.Next_Mon_A</th>
+                <th style="width:80px; text-align:center;">@Model.Next_Mon_B</th>
+                <th style="width:80px; text-align:center;">@Model.Next_Mon_C</th>
+                <th style="width:50px; text-align:center;">明细</th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var x in Model.PurchasePlan_Line_PageList.Rows)
+            {
+                <tr>
+                    <td>&nbsp;</td>
+                    <td style="text-align:center; vertical-align:top;"><input type="checkbox" id="@x.MatID" name="MatID" class="MatID" value="@x.MatID" /></td>
+                    <td style="vertical-align:top;"><a href="javascript:void(0);" onclick="ShowMatPartModel('@x.MatID')" class="MatSn_Font">@x.MatInfo.MatSn</a></td>
+                    <td style="vertical-align:top;">@x.MatInfo.MatName</td>
+                    <td style="vertical-align:top;">@x.MatInfo.MatBrand</td>
+                    <td style="text-align:center; vertical-align:top;">@x.MatInfo.MatUnit</td>
+                    <td style="text-align:center; vertical-align:top;"></td>
+                    <td style="text-align:center; vertical-align:top;">@x.Wms_Qty</td>
+                    
+                    @if (x.PPID != Guid.Empty)
+                    {
+                        <td style="text-align:center; vertical-align:top;">
+                            <input type="number" onchange="MonthPlan_Set_Line('@x.MatID')" class="MyInput" min="0" value="@x.PoPlan_Next_Mon_Qty_A" id="PoPlan_Next_Mon_Qty_A_@x.MatID" Name="PoPlan_Next_Mon_Qty_A_@x.MatID" style="text-align:center; width:95%; margin-top:5px; font-weight:bold;" />
+                        </td>
+                        <td style="text-align:center; vertical-align:top;">
+                            <input type="number" onchange="MonthPlan_Set_Line('@x.MatID')" class="MyInput" min="0" value="@x.PoPlan_Next_Mon_Qty_B" id="PoPlan_Next_Mon_Qty_B_@x.MatID" Name="PoPlan_Next_Mon_Qty_B_@x.MatID" style="text-align:center; width:95%; margin-top:5px; font-weight:bold;" />
+                        </td>
+                        <td style="text-align:center; vertical-align:top;">
+                            <input type="number" onchange="MonthPlan_Set_Line('@x.MatID')" class="MyInput" min="0" value="@x.PoPlan_Next_Mon_Qty_C" id="PoPlan_Next_Mon_Qty_C_@x.MatID" Name="PoPlan_Next_Mon_Qty_C_@x.MatID" style="text-align:center; width:95%; margin-top:5px; font-weight:bold;" />
+                        </td>
+                    }
+                    else
+                    {
+                        <td style="text-align:center; vertical-align:top;">
+                            <input type="number" onchange="MonthPlan_Set_Line('@x.MatID')" class="MyInput" min="0" value="@x.PoPlan_Next_Mon_Qty_A" id="PoPlan_Next_Mon_Qty_A_@x.MatID" Name="PoPlan_Next_Mon_Qty_A_@x.MatID" style="text-align:center; width:95%; margin-top:5px;" />
+                        </td>
+                        <td style="text-align:center; vertical-align:top;">
+                            <input type="number" onchange="MonthPlan_Set_Line('@x.MatID')" class="MyInput" min="0" value="@x.PoPlan_Next_Mon_Qty_B" id="PoPlan_Next_Mon_Qty_B_@x.MatID" Name="PoPlan_Next_Mon_Qty_B_@x.MatID" style="text-align:center; width:95%; margin-top:5px;" />
+                        </td>
+                        <td style="text-align:center; vertical-align:top;">
+                            <input type="number" onchange="MonthPlan_Set_Line('@x.MatID')" class="MyInput" min="0" value="@x.PoPlan_Next_Mon_Qty_C" id="PoPlan_Next_Mon_Qty_C_@x.MatID" Name="PoPlan_Next_Mon_Qty_C_@x.MatID" style="text-align:center; width:95%; margin-top:5px;" />
+                        </td>
+                    }
+
+                    <td style="text-align:center; vertical-align:top;">
+                        <button style="margin-top:5px;" type="button" class="btn btn-default btn-xs" onclick="ShowSubModel('@x.MatID')"><span class="glyphicon glyphicon-search"></span></button>
+                    </td>
+                    <td style="vertical-align:top;">&nbsp;</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</form>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PurchasePlan_Line_PageList.PageIndex, PageSize = Model.PurchasePlan_Line_PageList.PageSize, TotalRecord = Model.PurchasePlan_Line_PageList.TotalRecord, TotalPage = Model.PurchasePlan_Line_PageList.TotalPage, PageSizeList = Model.PurchasePlan_Line_PageList.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>
+
+<!--勾选递交-->
+<script>
+    function SubmitForm() {
+        var Loop = checkBoxCheckLength('MatID');
+        if (Loop <= 0) {
+            alert("请至少选择一项产品");
+            return false;
+        }
+
+        var FormObj = $("#SubmitForm");
+        var PostData = $(FormObj).serialize();
+        var Url = $(FormObj).prop("action");
+        DisAndEnabledBtn(1);
+
+        $.post(Url, PostData, function (result) {
+            if (result != "") {
+                alert(result);
+                DisAndEnabledBtn(0);
+            } else {
+                ReloadPage();
+            }
+        })
+    }
+</script>
+<!--勾选递交-->
+
+
+<!--计划明细-->
+<script>
+    function ShowSubModel(MatID) {
+        $('#MySubModel').modal({
+            backdrop: 'static'
+        });
+        ReloadSubModel(MatID);
+    }
+
+    function CloseSubModel() {
+        $('#MySubModel').modal('hide');
+    }
+
+    function ReloadSubModel(MatID) {
+        $("#SubModelContext").text("Loading...");
+        $("#SubModelContext").load("/PurchasePlan/Plan_Group_Sub_Item/" + MatID + "?Month=@Model.Month");
+    }
+</script>
+<div class="modal fade" id="MySubModel">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:680px;">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="CloseSubModel()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">预测信息</h5>
+            </div>
+            <div class="modal-body" id="SubModelContext"></div>
+        </div>
+    </div>
+</div>
+<!--计划明细-->
+
+
+
+<!--AjaxSaveLineSet-->
+<script>
+    function MonthPlan_Set_Line(MatID) {
+        var Next_Qty_A = $("#PoPlan_Next_Mon_Qty_A_" + MatID).val();
+        var Next_Qty_B = $("#PoPlan_Next_Mon_Qty_B_" + MatID).val();
+        var Next_Qty_C = $("#PoPlan_Next_Mon_Qty_C_" + MatID).val();
+        var URL = "/PurchasePlan/Plan_Group_Sub_Set_Line/" + MatID;
+
+        $.post(URL, {
+            Month: "@Model.Month",
+            PoPlan_Next_Mon_Qty_A: Next_Qty_A,
+            PoPlan_Next_Mon_Qty_B: Next_Qty_B,
+            PoPlan_Next_Mon_Qty_C: Next_Qty_C,
+        }, function (result) {
+            if (result != "") {
+                alert(result);
+            }
+        });
+    }
+</script>
+<!--AjaxSaveLineSet-->

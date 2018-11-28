@@ -1,0 +1,1120 @@
+﻿@font-face {
+    font-family: Consolas;
+    src: url('/fonts/consola.eot'); /* IE9 Compat Modes */
+    src: url('/fonts/consola.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+    url('/fonts/consola.woff') format('woff'), /* Modern Browsers */
+    url('/fonts/consola.ttf') format('truetype'), /* Safari, Android, iOS */
+    url('/fonts/consola.svg#consola') format('svg'); /* Legacy iOS */
+}
+
+
+body {
+    font-size: 12px;
+    font-family: Arial, 'Microsoft YaHei';
+    overflow-y: hidden;
+    padding: 0px;
+    margin: 0px;
+    background-color:#F1F1F1;
+}
+
+pre {
+    white-space: pre-wrap !important; /*保留空白，进行换行*/
+    word-wrap: break-word !important; /*连续字符换行*/
+}
+
+#RightDivContext {
+    height: auto;
+    padding: 0px;
+    margin:0px;
+    overflow-y: auto;
+}
+
+
+ul {
+    list-style: none;
+    padding: 0px;
+    margin: 0px;
+}
+
+    ul li {
+        list-style: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+
+
+.LeftMenu {
+    width: 100%;
+    overflow:hidden;
+}
+
+.LeftMenuTitle
+{
+    display: block;
+    color:white;
+    padding:0px;
+    margin:0px;
+    width:100%;
+    font-size:14px;
+    height: 30px;
+    line-height: 30px;
+    color: white;
+    overflow:hidden;
+    padding-left:10px;
+    cursor:pointer;
+    background-color:#2C3D59;
+    border-bottom: 1px solid #212d3e;
+}
+
+.LeftMenu
+{
+    display:none;
+}
+
+    .LeftMenu li a {
+        display: block;
+        width: 100%;
+        line-height: 28px;
+        height: 30px;
+        overflow: hidden;
+        font-size: 12px;
+        font-family: 'Microsoft YaHei';
+        padding-left: 14px;
+        border-bottom: 1px solid #1F2E46;
+        text-decoration: none;
+        text-indent:8px;
+        color: white;
+        background-color:#44536D;
+    }
+
+
+        .LeftMenu li a:hover {
+            background-color:#D6E3F8;
+            color:#51617C;
+        }
+
+        .LeftMenu li a .icon-caret-right {
+            margin-right: 8px;
+        }
+
+.TopMenu {
+    padding-left: 0px;
+    padding-top: 0px;
+    margin:0px;
+    width: 100%;
+    font-size: 12px;
+}
+
+.TopMenu ul {
+    padding: 0px;
+    margin: 0px;
+    list-style: none;
+    height: 29px;
+    border-bottom: 1px solid #aaccde;
+    }
+
+.TopMenu ul li {
+           padding: 0px;
+        margin: 0px;
+        list-style: none;
+        float: left;
+        }
+
+            .TopMenu ul li a {
+            display: block;
+            padding-top: 6px;
+            padding-left: 25px;
+            padding-right: 25px;
+            height: 28px;
+            margin-right: -1px;
+            margin-left: 0px;
+            text-decoration: none;
+            border-left:1px solid #B4D0DB;
+            border-right:1px solid #B4D0DB;
+            background-color:#e8f8ff;
+            }
+
+                .TopMenu ul li a:hover {
+                    border-bottom: 0px;
+                border-radius: 0px;
+                font-weight:bold;
+                background-image:none;
+                background-color: #e8f8ff;
+                }
+
+
+     .TopMenu .TopMenuAction {
+       font-weight: bold;
+        border-bottom: 0px;
+        border-radius: 0px;
+        background-color: white;
+        background-image: none;
+    }
+
+.TopMenuNavSub
+    {
+        padding-left:0px;
+        padding-top:0px;
+    }
+
+.TopMenuNavSub_Sim {
+    padding: 0px;
+    margin: 0px;
+    list-style: none;
+    height: 27px;
+    border-bottom: 1px solid #aaccde;
+    border-top: 0px solid #aaccde;
+    margin-top:5px;
+    padding-left:15px;
+}
+    .TopMenuNavSub_Sim li {
+        padding: 0px;
+        margin: 0px;
+        list-style: none;
+        float: left;
+    }
+
+        .TopMenuNavSub_Sim li a {
+           display: block;
+            padding-top: 4px;
+            padding-bottom: 6px;
+            padding-left: 25px;
+            padding-right: 25px;
+            height: 26px;
+            margin-right: 0px;
+            margin-left: 0px;
+            text-decoration: none;
+            border:1px solid #aaccde;
+            border-bottom:0px;
+            border-top-left-radius:3px;
+            border-top-right-radius:3px;
+            margin-left:4px;
+            background-color:#e8f8ff;
+            background-repeat:repeat-x;
+        }
+
+        .TopMenuNavSub_Sim li a:hover {
+                border-radius: 0px;
+                background-image:none;
+                background-color: #e8f8ff;
+            }
+
+        .TopMenuNavSub_Sim .TopMenuNavSub_Sim-act {
+        font-weight: bold;
+        border-bottom: 0px;
+        border-radius: 0px;
+        background-color: white;
+        background-image: none;
+    }
+
+        .TopMenu .TopMenuHelp {
+        float:right;
+        padding-right:125px;
+        cursor:pointer;
+    }
+
+            .TopMenu .TopMenuHelp img {
+                margin-top: 7px;
+                margin-right: 5px;
+                float:left;
+            }
+
+                        .TopMenu .TopMenuHelp span {
+                            display:block;
+                            float:left;
+                margin-top: 7px;
+                color:#337AB7;
+                text-decoration:underline;
+            }
+
+            .SubTopMenuDivHelpSub
+            {
+margin-top:-5px;
+    display:none;
+    width:450px;
+    min-height:100px;
+    right:15px; 
+    position:fixed; 
+    background-color:white; 
+    float:left;
+    border:2px solid #B4D0DB;
+    border-radius:5px;
+    padding:5px;
+    z-index:999;
+    overflow:hidden;
+            }
+
+    .SubTopMenuDivHelpUL h6{
+    color:#004ed9;
+    padding-left:10px;
+    padding-top:10px;
+    margin:0px;
+    font-size:13px;
+    cursor:pointer;
+}
+
+.SubTopMenuDivHelpUL p {
+    padding-left:10px;
+    padding-top:5px;
+    padding-bottom:0px;
+    display:none;
+    line-height:20px;
+    color:black;
+    text-decoration:none;
+}
+
+.TopHelpBox
+{
+    background-color:white;
+}
+
+.TopHelpBox ul
+{
+    padding-left:25px;
+}
+
+.TopHelpBox ul li
+{
+    list-style:disc;
+}
+
+.TopHelpBox h6
+{
+    color:#0062ce;
+    font-size:14px;
+    cursor:pointer;
+    padding-bottom:3px;
+    margin-bottom:0px;
+}
+
+.TopHelpBox p
+{
+    display:none;
+}
+
+.TopHelpBox .btn-Help
+{
+    width:100%; 
+    margin:auto;
+    margin-top:10px;
+}
+
+
+.Textarea_Success {
+    width: 100%;
+    background-color: #6cc0ea;
+    color: white;
+    border: 0px;
+    text-indent: 0px;
+    padding-left:40px;
+    line-height: 25px;
+    max-height: 60px;
+    margin: 0px;
+    overflow: hidden;
+    overflow-y: auto;
+    background-image:url("../../Content/Images/tick-circle-frame.png");
+    background-position-x:20px;
+    background-position-y:3px;
+    background-repeat:no-repeat;
+}
+
+.Textarea_Remind {
+    width: 100%;
+    background-color: #feefd0;
+    border: 0px;
+    color: #212d3e;
+    text-indent: 0px;
+    padding-left:40px;
+    line-height: 25px;
+    max-height: 60px;
+    margin: 0px;
+    overflow: hidden;
+    overflow-y: auto;
+    background-image:url("../../Content/Images/light-bulb.png");
+    background-position-x:20px;
+    background-position-y:3px;
+    background-repeat:no-repeat;
+}
+
+.Textarea_Error {
+    width: 100%;
+    background-color: #ff8500;
+    border: 0px;
+    color:white;
+    text-indent: 0px;
+    padding-left:40px;
+    line-height: 25px;
+    max-height: 60px;
+    margin: 0px;
+    overflow: hidden;
+    overflow-y: auto;
+    background-image:url("../../Content/Images/minus-shield.png");
+    background-position-x:20px;
+    background-position-y:3px;
+    background-repeat:no-repeat;
+}
+
+
+.Table_Clean
+{
+    border:0px;
+    padding:0px;
+    margin:0px;
+} 
+
+.Table_Clean th
+{
+    border:0px;
+    padding:0px;
+    margin:0px;
+} 
+
+.Table_Clean td
+{
+    border:0px;
+    padding:0px;
+    margin:0px;
+} 
+
+.FormTable_Sim
+{
+    border:0px;
+    padding:0px;
+    margin:0px;
+    border-collapse:collapse;    
+    width:100%;
+} 
+
+.FormTable_Sim th
+{
+    padding:7px;
+    vertical-align:top;
+    white-space:nowrap;
+    word-break:keep-all;
+    vertical-align:middle;
+    font-weight:normal;
+    padding-right:6px;
+    text-align:right;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space:nowrap;
+}
+
+.FormTable_Sim td
+{
+    padding:7px;
+    vertical-align:top;
+    white-space:nowrap;
+    word-break:keep-all;
+    vertical-align:middle;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space:nowrap;
+}
+
+.FormTable_Sim_Border th
+{
+    border:1px solid #E0E0E0;
+}
+
+.FormTable_Sim_Border td
+{
+    border:1px solid #E0E0E0;
+}
+
+.FormTable_Sim_Input td {
+        padding-top: 2px;
+        padding-bottom: 3px;
+    }
+
+    .FormTable_Sim_Input th {
+        padding-top: 2px;
+        padding-bottom: 3px;
+        padding-left: 15px;
+    }
+
+.FormTable_Sim_Lg td {
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+
+    .FormTable_Sim_Lg th {
+        padding-top: 10px;
+        padding-bottom: 10px;
+        padding-left: 10px;
+    }
+
+
+/* 记录跟踪  */
+.MyInput{
+        border: 1px solid #808080;
+        background-color: white;
+        height: 22px;
+        line-height: 22px;
+        padding-left: 5px;
+        padding-right: 0px;
+    }
+
+    .ReadonlyInput {
+        background-color: #f2f2f2;
+        border-color:#b9b9b9;
+    }
+
+        .ReadonlyInput_NoBorder {
+        background-color:white;
+        color:black;
+        border:0px;
+    }
+
+.RecordTabe {
+        width: 100%;
+        margin-left: 10px;
+    }
+
+        .RecordTabe td {
+            padding: 0px;
+            padding-right: 20px;
+            border: 0px solid #808080;
+            white-space: nowrap;
+            word-break: keep-all;
+            vertical-align: top;
+        }
+
+            .RecordTabe td .DotDiv {
+                display: block;
+                border-radius: 14px;
+                height: 14px;
+                width: 14px;
+                background-color: #358eca;
+                z-index: 99;
+            }
+
+            .RecordTabe td .DotDiv_Empty {
+                display: block;
+                border-radius: 14px;
+                border: 2px solid #358eca;
+                height: 14px;
+                width: 14px;
+                background-color: #ffffff;
+                z-index: 99;
+            }
+
+    .LineCenter {
+        display: block;
+        border-left: 1px solid #358eca;
+        width: 1px;
+        height: 20px;
+        overflow: hidden;
+        margin-left: 6px;
+    }
+
+    .R_name {
+        font-size: 12px;
+        color: #358eca;
+        width: 10px;
+        padding-right: 5px;
+        font-weight: bold;
+    }
+
+    .R_Info {
+        font-size: 12px;
+        color: black;
+        width: 10px;
+        padding-right: 5px;
+    }
+/* 记录跟踪  */
+
+/*接口及实体规范  */
+.CodeRule{
+    font-size:12px;
+    background-color:white;
+}
+
+.CodeRule h4{
+    font-size:20px;
+    font-weight:bold;
+}
+
+.CodeRule h5{
+    font-size:16px;
+    font-weight:bold;
+    padding:0px;
+    padding-bottom:10px;
+    padding-top:5px;
+    margin:0px;
+}
+
+.CodeRule p{
+    font-size:12px;
+    color:silver;
+    padding-bottom:5px;
+    padding-top:10px;
+    margin:0px;
+}
+
+.CodeRule .ReturnType
+{
+    color:#209000;
+    font-weight:normal;
+    font-size:14px;
+    padding-right:8px;
+    color:#00968c
+}
+
+.CodeRule .MethodParameters
+{
+    font-weight:normal;
+    font-size:16px;
+}
+
+.CodeRule .NoteType
+{
+    color:#209000;
+}
+
+.CodeRule h3
+{
+    padding:0px;
+    margin:0px;
+    font-size:16px;
+    text-align:left;
+    font-weight:bold;
+    color:#212d3e;
+}
+
+.CodeRule h3 span
+{
+    font-size:12px;
+    padding-right:5px;
+    color:silver;
+}
+
+/*接口及实体规范  */
+
+/*头部搜索*/
+.TopSearchDiv
+{
+    width:100%;
+    padding:10px;
+    padding-left:20px;
+}
+
+.TopSearchDiv .btn-search
+{
+    padding:0px;
+    padding-left: 15px; 
+    padding-right: 15px;  
+    background-color:#FF6600;
+    height:27px;
+    border-radius:2px;
+    line-height:16px;
+}
+
+.TopSearchDiv .btn-sm-top
+{
+    padding:0px;
+    padding-left: 15px; 
+    padding-right: 15px;  
+    height:27px;
+    border-radius:2px;
+    line-height:16px;
+}
+/*头部搜索*/
+
+/*分页组件  */
+
+.MyPageFoot
+{
+    padding:5px;
+    padding-bottom:10px;
+    width:auto;
+    float:right;
+    padding-right:10px;
+}
+
+.MyPage {
+    width: 100%;
+}
+
+    .MyPage td {
+        white-space: nowrap;
+    }
+
+    .MyPage button {
+        margin-left: 2px;
+        margin-right: 2px;
+        text-align: center;
+        margin-left: 2px;
+        margin-right: 2px;
+        border-radius: 2px;
+        border: 1px solid #a3a3a3;
+        background-color:white;
+        padding-left:8px;
+        padding-right:8px;
+        padding-top:3px;
+        padding-bottom:3px;
+    }
+
+    .MyPage .DisabledBut {
+        opacity: 0.5;
+        filter: alpha(opacity=50);
+    }
+
+    .MyPage .LoopBut {
+        text-align: center;
+        margin-left: 2px;
+        margin-right: 2px;
+        border-radius: 2px;
+        border: 1px solid #a3a3a3;
+    }
+
+    .MyPage .LoopButAct {
+        background-color: #2d3c51;
+        border: 1px solid #364760;
+        border-radius: 2px;
+        color: white;
+        text-align: center;
+        margin-right: 3px;
+    }
+/*分页组件  */
+
+
+/*列表表格  */
+.ListTable {
+    background-color: White;
+    border: 0px;
+    padding: 0px;
+    margin: 0px;
+    border-collapse: collapse;
+    border: 1px solid #D6D6D6;
+    font-size: 12px;
+    table-layout: fixed;
+}
+
+    .ListTable thead {
+        background-color: #81CAEF;
+    }
+
+    .ListTable tfoot {
+        background-color: #81CAEF;
+    }
+
+    .ListTable th {
+        white-space: nowrap;
+        text-align: left;
+        overflow: hidden;
+        border-bottom: 0px solid #D6D6D6;
+        font-weight: normal;
+        background-color: #D6D6D6;
+        background-image: url("../../Content/Images/LineBG.png");
+        background-repeat: repeat-x;
+        color: black;
+    }
+
+    .ListTable td {
+        vertical-align: top;
+        border-bottom: 0px solid #E0E0E0;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+/*列表表格  */
+
+
+.nav-tabs-sim {
+    padding: 0px;
+    margin: 0px;
+    list-style: none;
+    height: 33px;
+    border-bottom: 1px solid #aaccde;
+}
+
+    .nav-tabs-sim li {
+        padding: 0px;
+        margin: 0px;
+        list-style: none;
+        float: left;
+    }
+
+        .nav-tabs-sim li a {
+            display: block;
+            padding-top: 7px;
+            padding-bottom: 6px;
+            padding-left: 25px;
+            padding-right: 25px;
+            height: 32px;
+            margin-right: 0px;
+            margin-left: 0px;
+            text-decoration: none;
+            border-right:1px solid #D6D6D6;
+            background-color:#e8f8ff;
+            background-image: url('../../Content/Images/Layout_Top_Menu.jpg');
+            background-repeat:repeat-x;
+        }
+
+            .nav-tabs-sim li a:hover {
+                border-bottom: 0px;
+                border-radius: 0px;
+                font-weight:bold;
+                background-image:none;
+                background-color: #e8f8ff;
+            }
+
+    .nav-tabs-sim .nav-tabs-sim-act {
+        font-weight: bold;
+        border-bottom: 0px;
+        border-radius: 0px;
+        background-color: white;
+        background-image: none;
+    }
+
+/*自定义Bootcss*/
+.input-xs{
+    height:28px;
+    line-height:28px;
+    padding:3px;
+    padding-left:8px;
+    border-radius:2px;
+    font-size:12px;
+}
+
+.btn-xs-m{
+    padding-top:4px;
+    padding-bottom:4px;
+}
+
+.btn-xs-clean
+{
+    padding-top:0px;
+    padding-bottom:0px;
+    margin:0px;
+    border-radius:2px;
+}
+/*自定义Bootcss*/
+ 
+
+.MyBox {
+    width: 100%;
+    padding: 0px;
+    margin: 0px;
+}
+
+.MyBox li
+{
+    display:block;
+    width:130px;
+    height:60px;
+    line-height:40px;
+    float:left;
+    margin-right:10px;
+    border:2px solid #D6D6D6;
+    background-color:white;
+    text-align:center;
+    border-radius:2px;
+    padding:8px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    word-break:break-all; 
+    cursor:pointer;
+}
+
+.BrandBox li:hover
+{
+    border:2px solid #004A75;
+    background-color:#efefef;
+}
+
+    
+
+    
+
+          .MyListTable {
+            width: 100%;
+            font-size: 10px;
+            border: 1px solid #808080;
+        }
+
+            .MyListTable th {
+                font-size: 10px;
+                border: 1px solid #808080;
+                line-height: 18px;
+                padding: 7px;
+            }
+
+            .MyListTable td {
+                font-size: 10px;
+                border: 1px solid #808080;
+                line-height: 15px;
+                padding: 7px;
+                vertical-align: top;
+            }
+
+
+            .OrderPage{
+     width:900px;
+     overflow:hidden; 
+     background-color:white; 
+     padding:5px; 
+     border:2px solid #d4d4d4
+}
+
+.OrderPage h2{
+     text-align:center;
+     font-size:16px;
+}
+
+.OrderPage h4{
+     text-align:center;
+     font-size:20px;
+     letter-spacing:10px;
+}
+
+    .OrderPage .CommonTable {
+        width: 100%;
+    }
+
+.OrderPage .CommonTable th{
+     padding:4px;
+     border:1px solid #D6D6D6;
+     font-weight:normal;
+          vertical-align:top;
+}
+
+.OrderPage .CommonTable td{
+     padding:4px;
+     vertical-align:top;
+}
+
+.OrderPage .LineTable{
+     width:100%;
+}
+
+.OrderPage .LineTable th{
+     background-color:#eaeaea;
+     padding:4px;
+     border:1px solid #D6D6D6;
+     font-weight:normal;
+          vertical-align:top;
+}
+
+.OrderPage .LineTable td{
+     padding:4px;
+     border:1px solid #D6D6D6;
+     vertical-align:top;
+}
+
+.OrderPage ol{
+     padding-left:20px;
+}
+.OrderPage ol li{
+     padding-bottom:5px;
+}
+
+.OrderPage .AmountTable{
+    width:auto;
+    float:right;
+}
+
+.OrderPage .AmountTable td{
+    text-align:right;
+    border:0px;
+    vertical-align:bottom;
+    white-space:nowrap;
+    word-break:keep-all;
+    padding-top:5px;
+}
+
+
+.FormTable
+{
+    border:0px;
+    padding:0px;
+    margin:0px;
+    border-collapse:collapse;    
+} 
+ 
+.FormTable thead
+{
+    background-color:#81CAEF;
+}
+
+.FormTable tfoot
+{
+    background-color:#81CAEF;
+}
+
+
+.FormTable th
+{
+    white-space:nowrap;
+    text-align:right;
+    overflow:hidden;
+    font-weight:normal;
+    padding:7px;
+    color:black;
+    vertical-align:middle;
+}
+
+.FormTable td
+{
+    padding:7px;
+    padding-right:40px;
+    vertical-align:top;
+    white-space:nowrap;
+    word-break:keep-all;
+    vertical-align:top;
+}
+
+
+.Float_Out_Red
+{
+    background-color:#FF6600;
+    color:white;
+}
+
+    .MatSn_Font{
+        font-family:Consolas;
+        white-space:pre;
+        font-weight:bold;
+    } 
+
+
+        .BrandBox {
+        display: block;
+        margin-right: 15px;
+        border-radius: 0px;
+        margin-bottom: 10px;
+        background-color: white;
+        float: left;
+        border: 2px solid #dcdcdc;
+        width: 120px;
+        height: 60px;
+        line-height: 35px;
+        font-size: 14px;
+        padding: 10px;
+        overflow: hidden;
+        text-align: center;
+        font-weight:bold;
+        border-radius:2px;
+    }
+
+    .BrandBox:hover
+    {
+        border:2px solid #0263b5;
+        text-decoration:none;
+    }
+
+
+
+.Multi_Select
+{
+    width:100%;
+}
+
+.Multi_Select button
+{
+    border-radius:0px;
+}
+
+.Multi_Select table
+{
+    width:100%;
+    padding:0px;
+    margin:0px;
+}
+
+.Multi_Select table td
+{
+    padding:0px;
+    margin:0px;
+}
+
+.Multi_Select_DIV {
+    width:auto;
+    background-color: white;
+    border: 1px solid #d5d5d5;
+    min-width:200px;
+    min-height:100px;
+    max-height:300px;
+    padding:0px;
+    position:absolute;
+    display: none;
+    z-index:99;
+    overflow-y:scroll;
+}
+
+
+.Multi_Select_DIV table{
+    width:100%;
+    padding:0px;
+    margin:0px;
+}
+
+.Multi_Select_DIV table td{
+    padding:3px;
+    padding-left:5px;
+}
+
+
+
+.Multi_Select_DIV table tr:hover {
+   background-color:#D6D6D6;
+}
+
+.Multi_Select_DIV_td
+{
+    width:10px;
+    text-align:center;
+}
+
+.Multi_Select_DIV table tr td label {
+    font-weight:normal;
+    line-height:20px;
+    margin-top:2px;
+    cursor:pointer;
+    width:100%;
+    
+}
+
+
+.EnterAndSelect
+{
+    width:100%;
+}
+
+.EnterAndSelect_Box
+{
+    width:auto;
+    min-width:150px;
+    background-color:white;
+    border:1px solid #cccccc; 
+    z-index:99; 
+    position:absolute; 
+    background-color:white;
+    display:none;
+    min-height:60px;
+    max-height:300px;
+    overflow-y:scroll;
+}
+
+.EnterAndSelect_Box table
+{
+    width:100%;
+    background-color:white;
+}
+
+.EnterAndSelect_Box table tr:hover
+{
+    background-color:#e4e8ec;
+}
+
+
+.EnterAndSelect_Box table td
+{
+    padding:7px;
+    cursor:pointer;
+    border-bottom:1px solid #D6D6D6;
+}
+

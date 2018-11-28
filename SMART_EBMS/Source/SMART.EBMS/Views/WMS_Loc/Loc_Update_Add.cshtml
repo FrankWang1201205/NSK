@@ -1,0 +1,82 @@
+﻿@model WMS_Location
+@{
+    Layout = null;
+}
+
+<form id="MyLocationItem_Form" action="~/WMS_Loc/Loc_Update_Add_Post" method="post" enctype="multipart/form-data">
+    <table class="FormTable_Sim text-nowrap">
+        <tr>
+            <td style="width:10px;text-align:right">* 库位编号</td>
+            <td style="width:10px;"><input class="form-control input-sm NotEmpty" id="Location" name="Location" type="text" style="width:150px;" value="@Model.Location" /></td>
+        </tr>
+        <tr>
+            <td style="width:10px;text-align:right">库位类型</td>
+            <td style="width:10px;">
+                <select name="Type" id="Type_Choose" class="form-control input-sm" style="width:150px;" onchange="Select_Link_MatSn_Count()">
+                    <option value="">请选择</option>
+                    @foreach (var x in Model.Type_Enum_List)
+                    {
+                        if (Model.Type == x)
+                        {
+                            <option selected="selected" value="@x">@x</option>
+                        }
+                        else
+                        {
+                            <option value="@x">@x</option>
+                        }
+                    }
+                </select>
+            </td>
+        </tr>
+       
+        <tr id="Link_MatSn_Count_Show" style="display:none">
+            <td style="width:10px;text-align:right">关联型号数</td>
+            <td style="width:10px;">
+                <select name="Link_MatSn_Count" id="Link_MatSn_Count" class="form-control input-sm" style="width:150px;">
+                    <option value="">请选择</option>
+                    @foreach (var x in Model.Link_MatSn_Count_Enum_List)
+                    {
+                        if (Model.Link_MatSn_Count == x)
+                        {
+                            <option selected="selected" value="@x">@x</option>
+                        }
+                        else
+                        {
+                            <option value="@x">@x</option>
+                        }
+                    }
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td style="width:10px;text-align:right">备注</td>
+            <td style="width:10px;"><input class="form-control input-sm" id="Remark" name="Remark" type="text" style="width:150px;" value="@Model.Remark" /></td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td style="width:10px;"><button type="button" class="btn btn-primary btn-sm" style="width:70px;" onclick="MyLocationItem_FormSubmit()">创建</button></td>
+        </tr>
+    </table>
+</form>
+
+<script>
+    function MyLocationItem_FormSubmit() {
+        if (validateFormByClass('NotEmpty') == false) {
+            return false;
+        }
+
+        DisAndEnabledBtn(1);
+        $("#MyLocationItem_Form").submit();
+    }
+
+    function Select_Link_MatSn_Count() {
+        var Type = $("#Type_Choose").val();
+        var Type_DB = '@Type_Enum.端数.ToString()';
+        if (Type == Type_DB) {
+            $("#Link_MatSn_Count_Show").show();
+        } else {
+            $("#Link_MatSn_Count_Show").hide();
+        }
+    }
+</script>

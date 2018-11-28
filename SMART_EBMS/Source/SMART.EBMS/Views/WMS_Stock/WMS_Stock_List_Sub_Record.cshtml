@@ -1,0 +1,36 @@
+﻿@model List<WMS_Stock_Record_Info>
+@{
+    Layout = null;
+    string MatSn = string.Empty;
+    try { MatSn = Model.FirstOrDefault().MatSn; } catch { }
+}
+
+<p style="font-size:14px;">产品型号：<span class="MatSn_Font" style="font-size:16px;">@MatSn</span></p>
+
+<table class="table table-condensed table-bordered text-nowrap">
+    <tr class="active">
+        <td style="width:80px;">作业日期</td>
+        <td style="width:80px;">作业类型</td>
+        <td style="width:80px;">对应库位</td>
+        <td style="width:80px;">作业状态</td>
+        <td style="width:60px;">数量</td>
+        <td>&nbsp;</td>
+    </tr>
+    @foreach (var x in Model.OrderBy(c => c.Act_Date).ToList())
+    {
+        <tr>
+            <td>@x.Act_Date.ToString("yyyy-MM-dd HH:mm")</td>
+            <td>@x.Record_Type</td>
+            <td>@x.Location</td>
+            <td>@x.Act_Status</td>
+            <td>@x.Quantity.ToString("N0")</td>
+            <td>&nbsp;</td>
+        </tr>
+    }
+
+    <tr>
+        <td colspan="4"></td>
+        <td><strong>@Model.Sum(x => x.Quantity).ToString("N0")</strong></td>
+        <td>&nbsp;</td>
+    </tr>
+</table>

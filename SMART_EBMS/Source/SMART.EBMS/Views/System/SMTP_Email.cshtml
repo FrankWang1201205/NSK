@@ -1,0 +1,128 @@
+﻿@model SentEmail
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string Controller = ViewContext.RouteData.Values["controller"].ToString();
+    string Action = ViewContext.RouteData.Values["action"].ToString();
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("系统邮箱");</script>
+
+@if (TempData["ErrorEmail"] != null)
+{
+    <div class="Textarea_Error">@TempData["ErrorEmail"]</div>
+}
+
+@if (TempData["OK_Email"] != null)
+{
+    <div class="Textarea_Success">SMTP系统发件箱配置完成，请发送一封测试邮件验证邮箱可用！</div>
+}
+
+@if (TempData["ErrorEmailTest"] != null)
+{
+    <div class="Textarea_Error">@TempData["ErrorEmailTest"]</div>
+}
+
+@if (TempData["OK_EmailTest"] != null)
+{
+    <div class="Textarea_Success">@TempData["OK_EmailTest"]</div>
+}
+
+<div id="RightDivContext">
+    <table style="margin-top:20px;">
+        <tr>
+            <td style="vertical-align:top;">
+                <form action="~/System/SMTP_Email_Post" method="post" onsubmit="return MailConfig()" style="overflow:hidden; float:left;">
+                    <script>
+                        function MailConfig() {
+                            if (validateFormByClass("NotMailEmpty") == false) {
+                                return false;
+                            }
+                            return true;
+                        }
+                    </script>
+                    <table class="FormTable_Sim" style="width:100%;">
+                        <tr>
+                            <th style="width:180px; text-align:right;">* 服务器类型 （A）</th>
+                            <td>
+                                <select disabled class="form-control input-sm" style="width:250px;">
+                                    <option value="POP3">POP3</option>
+                                </select>
+                                <input type="hidden" name="MailType" id="MailType" value="@Model.MailType" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th style="text-align:right;">* 发送邮件服务器 （SMTP）</th>
+                            <td>
+                                <input id="SMTP" name="SMTP" value="@Model.SMTP" class="form-control input-sm NotMailEmpty" type="text" style="width:250px;">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th style="text-align:right;">* SMTP端口号 （Prot）</th>
+                            <td>
+                                <input id="Port" name="Port" value="@Model.Port" class="form-control input-sm  NotMailEmpty" type="number" style="width:100px;">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th style="text-align:right;">* 邮箱名称 （MailName）</th>
+                            <td>
+                                <input id="MailName" name="MailName" value="@Model.MailName" class="form-control input-sm  NotMailEmpty" type="text" style="width:250px;">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th style="text-align:right;">* 邮箱用户名 （UserName）</th>
+                            <td>
+                                <input id="UserName" name="UserName" value="@Model.UserName" class="form-control input-sm  NotMailEmpty" type="text" placeholder="" style="width:250px;">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th style="text-align:right;">* 密码 （Password）</th>
+                            <td>
+                                <input id="Password" name="Password" value="@Model.Password" class="form-control input-sm  NotMailEmpty" type="text" placeholder="" style="width:250px;">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>&nbsp;</th>
+                            <td>
+                                <button type="submit" id="MySubmit" class="btn btn-primary btn-sm" style="width:100px;">更新配置</button>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            </td>
+            <td style="vertical-align:top; padding-left:40px;">
+                <form action="~/System/SMTP_Email_TestMail_Post" method="post" onsubmit="return MailTestConfig()" style="width:400px; overflow:hidden; margin-left:10px; padding-left:30px; padding-top:55px; float:left;">
+                    <script>
+                        function MailTestConfig() {
+                            if (validateFormByClass("NotMailEmpty") == false) {
+                                return false;
+                            }
+
+                            if (validateFormByClass("NotMailTextEmpty") == false) {
+                                return false;
+                            }
+                            return true;
+                        }
+                    </script>
+                    <table style="width:350px;">
+                        <tr>
+                            <td>
+                                <input name="MailToAddress" id="MailToAddress" class="form-control input-sm NotMailTextEmpty" placeholder="请输入测试邮箱" value="@TempData["MailToAddress"]" />
+                            </td>
+                            <td style="padding-left:5px;">
+                                @if (string.IsNullOrEmpty(Model.SMTP) || string.IsNullOrEmpty(Model.MailName) || string.IsNullOrEmpty(Model.UserName) || string.IsNullOrEmpty(Model.Password))
+                                {
+                                    <button type="button" disabled style="line-height:23px; color:silver;"><i class="icon-envelope-alt"></i>发送测试邮件</button>
+                                }
+                                else
+                                {
+                                    <button type="submit" style="line-height:23px; "><i class="icon-envelope-alt"></i> 发送测试邮件</button>
+                                }
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            </td>
+        </tr>
+    </table>
+</div>

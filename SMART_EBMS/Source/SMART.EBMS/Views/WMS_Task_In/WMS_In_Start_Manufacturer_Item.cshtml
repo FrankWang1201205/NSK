@@ -1,0 +1,66 @@
+﻿@model List<WMS_In_Line>
+@{
+    Layout = null;
+    string Mat_Sn = string.Empty;
+    try { Mat_Sn = Model.FirstOrDefault().MatSn; } catch { Mat_Sn = string.Empty; }
+    List<WMS_In_Scan> List_Scan = ViewData["List_Scan"] as List<WMS_In_Scan>;
+}
+
+<h4 class="MatSn_Font">@Mat_Sn</h4>
+
+@if (Model.Any())
+{
+    <table class="table table-condensed table-bordered text-nowrap">
+        <tr class="active">
+            <td>订货窗口</td>
+            <td style="text-align:right;">未税单价</td>
+            <td>合同号</td>
+            <td>提单编号</td>
+            <td>生产指令月</td>
+            <td>订货窗口</td>
+            <td>通知到货</td>
+            <td>到货时间</td>
+        </tr>
+        @foreach (var x in Model)
+        {
+        <tr>
+            <td>@x.Order_Win_Code</td>
+            <td style="text-align:right;">@x.Price_Cost.ToString("N2")</td>
+            <td>@x.Contract_Number</td>
+            <td>@x.Lading_Bill_No</td>
+            <td>@x.PC_Month</td>
+            <td>@x.Order_Win</td>
+            <td>@x.Quantity</td>
+            <td>@x.Delivery_DT.ToString("yyyy-MM-dd")</td>
+        </tr>
+        }
+    </table>
+}
+
+
+@if (List_Scan.Any())
+{
+    <h6>扫码记录</h6>
+    <table class="table table-condensed table-bordered text-nowrap">
+
+        @foreach (var x in List_Scan)
+        {
+            <tr class="active">
+                <td style="width:100px;">扫码数量</td>
+                <td style="width:100px;">托盘编号</td>
+                <td>&nbsp;</td>
+            </tr>
+
+            <tr>
+                <td>@x.Scan_Quantity.ToString("N0")</td>
+                <td>@x.Tray_No</td>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td colspan="4" style="padding:0px;">
+                    <textarea style="width:100%; height:auto; border:0px; background-color:#f2f2f2;" readonly="readonly">@x.Scan_Source</textarea>
+                </td>
+            </tr>
+        }
+    </table>
+}

@@ -1,0 +1,100 @@
+﻿@model PageList<Customer>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Customer_Filter MF = ViewData["MF"] as Customer_Filter;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("客户产品");</script>
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/MatSearch/CustMatList" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:150px;">
+                    <select class="form-control input-sm" name="Company_Type" id="Company_Type" onchange="SubmitPageIndex(1)">
+                        <option value="">客户类型</option>
+                        @foreach (var x in MF.Cust_Type_List)
+                        {
+                            if (MF.Cust_Type == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:150px; padding-left:5px;">
+                    <select class="form-control input-sm" name="Sales_UID" id="Sales_UID" onchange="SubmitPageIndex(1)">
+                        <option value="">销售经理</option>
+                        @foreach (var x in MF.SalesUserList)
+                        {
+                            if (MF.Sales_UID == x.UID)
+                            {
+                                <option selected="selected" value="@x.UID">@x.UserFullName</option>
+                            }
+                            else
+                            {
+                                <option value="@x.UID">@x.UserFullName</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:300px; padding-left:5px;">
+                    <div class="input-group input-group-sm" style="width: 300px; ">
+                        <input type="text" name="Cust_Name" id="Cust_Name" placeholder="客户编号或名称" value="@MF.Cust_Name" class="form-control ">
+                        <div class="input-group-btn">
+                            <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                        </div>
+                    </div>
+                </td>
+
+                <td style="width:50px;">&nbsp;</td>
+
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+
+<div id="RightDivContext">
+    <div style="width:100%; padding:20px; padding-top:0px;">
+        @foreach (var x in Model.Rows)
+        {
+            <a class="BrandBox" href="#" style="display:block; float:left; width:180px; height:80px; font-size:12px; overflow:hidden;">
+                <table style="width:100%; text-align:left;">
+                    <tr>
+                        <td style="height:30px; line-height:20px; font-weight:normal;">@x.Cust_Name</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:right; padding-right:5px; padding-top:0px;">
+                            (<strong>0</strong>)
+                        </td>
+                    </tr>
+                </table>
+            </a>
+        }
+    </div>
+</div>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>

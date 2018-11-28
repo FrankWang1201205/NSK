@@ -1,0 +1,155 @@
+﻿@model PageList<MatImage>
+@{ 
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Material_Filter MF = ViewData["MF"] as Material_Filter;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("图片关联");</script>
+
+@if(TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/MatImg/ImgLinkMat" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:150px;">
+                    <select name="MatBrand" id="MatBrand" class="form-control input-sm" onchange="SubmitPageIndex(1)">
+                        <option value="">选择品牌</option>
+                        @foreach (var x in MF.BrandList)
+                        {
+                            if (MF.MatBrand == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:300px; padding-left:5px;">
+                    <div class="input-group input-group-sm" style="width: 300px; ">
+                        <input type="text" name="Keyword" id="Keyword" placeholder="产品名称关键词" value="@MF.Keyword" class="form-control ">
+                        <div class="input-group-btn">
+                            <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                        </div>
+                    </div>
+                </td>
+
+                <td style="width:50px;">&nbsp;</td>
+
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:50px; text-align:center;">图</th>
+            <th style="width:250px;">产品名称</th>
+            <th style="width:80px;text-align:center">品牌</th>
+            <th style="width:80px; text-align:center;">关联产品</th>
+            <th style="width:50px">&nbsp;</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model.Rows)
+            {
+            <tr>
+                <td>&nbsp;</td>
+                <td style="text-align:center; vertical-align:top;">
+                    @if (!string.IsNullOrEmpty(x.MatThumbImgPath))
+                    {
+                        <img src="~/@x.MatThumbImgPath" onclick="ShowMatImgModel('/@x.MatImgPath')" style="width:50px; height:50px; cursor:pointer;" />
+                    }
+                </td>
+                <td style="vertical-align:top;">@x.MatName</td>
+                <td style="text-align:center; vertical-align:top;">@x.MatBrand</td>
+                <td style="text-align:center; vertical-align:top;">@x.MatCount</td>
+                <td style="text-align:center; vertical-align:top;">
+                    @if (x.MatCount > 0)
+                    {
+                        <a class="btn btn-info btn-xs" href="~/MatImg/ImgLinkMat_Sub/@x.IMGID?Link_IMGID=@x.IMGID">查看</a>
+                    }
+                    else
+                    {
+                        <a class="btn btn-info btn-xs" href="~/MatImg/ImgLinkMat_Sub/@x.IMGID">查看</a>
+                    }
+                </td>
+                <td>&nbsp;</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>
+
+
+<!--预览产品图片-->
+<script>
+    function ShowMatImgModel(ImgPatch) {
+        $('#MyMatImgModel').modal({ backdrop: 'static' });
+        $("#MatImg").attr("src", ImgPatch);
+    }
+
+    function CloseMatImgModel()
+    {
+        $('#MyMatImgModel').modal('hide');
+        $("#MatImg").attr("src", "");
+    }
+</script>
+
+<div class="modal fade" id="MyMatImgModel">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="width:480px;">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="CloseMatImgModel()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">产品图片</h5>
+            </div>
+            <div class="modal-body" style="height:500px; overflow-y:auto; padding:0px; padding-top:5px; text-align:center;">
+                <img src="" id="MatImg" style="width:95%" />
+            </div>
+        </div>
+    </div>
+</div>
+<!--预览产品图片-->

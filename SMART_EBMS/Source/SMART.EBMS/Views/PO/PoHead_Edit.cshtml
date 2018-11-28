@@ -1,0 +1,171 @@
+﻿@model Po_Head
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{Html.RenderPartial("_TopMenu");}
+
+@if (Model.Status == Po_Status_Enum.待发送供应商.ToString())
+{
+    <script>TopMenuToAction("下达");</script>
+}
+else if (Model.Status == Po_Status_Enum.待供应商确认.ToString())
+{
+    <script>TopMenuToAction("确认");</script>
+}
+else
+{
+    <script>TopMenuToAction("更新");</script>
+}
+
+@if(TempData["Success_Po_Update"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success_Po_Update"]</div>
+}
+
+<div class="DeductionDiv TopSearchDiv" style="padding:0px;">
+    <form id="MySubmitForm" action="~/PO/PoHead_Edit_Update_Post/@Model.POID" method="post" style="padding:10px; background-color:white;">
+        <table class="FormTable_Sim text-nowrap" style="width:100%;">
+            <tr>
+                <td colspan="2" style="width:225px;"><div style="font-size:14px; font-weight:bold; width:225px; overflow:hidden; text-overflow:ellipsis; border-bottom:1px solid #ababab;" title="@Model.Sup_Name">@Model.Sup_Name</div></td>
+                <th style="width:10px;">订单编号</th>
+                <td style="width:10px;"><input class="MyInput ReadonlyInput" type="text" value="@Model.Po_No" readonly="readonly" style="width:120px;" /></td>
+                <th style="width:10px;">下达日期</th>
+                <td style="width:10px;"><input class="MyInput ReadonlyInput" readonly="readonly" name="Create_DT" id="Create_DT" value="@Model.Create_DT.ToString("yyyy-MM-dd")" type="text" style="width:100px;"></td>
+                <th style="width:10px;">供应商代码</th>
+                <td style="width:10px;"><input class="MyInput ReadonlyInput" readonly="readonly" name="Sup_Code" id="Sup_Code" value="@Model.Sup_Code" type="text" style="width:100px;"></td>
+                <th style="width:10px;">订单总金额</th>
+                <td style="width:10px;"><input class="MyInput ReadonlyInput" readonly="readonly" name="Total_Amount" id="Total_Amount" value="@Model.Total_Amount.ToString("N2")" type="text" style="width:160px;"></td>
+
+                <td>&nbsp;</td>
+            </tr>
+
+            <tr>
+                <th style="width:10px;">需方采购员</th>
+                <td style="width:100px;"><input class="MyInput ReadonlyInput" readonly="readonly" type="text" name="Buyer" value="@Model.Buyer" style="width:100%;" /></td>
+                <th style="width:10px;">联系电话</th>
+                <td style="width:10px;"><input class="MyInput ReadonlyInput" readonly="readonly" type="text" name="Buyer_Tel" value="@Model.Buyer_Tel" style="width:120px;" /></td>
+                <th style="width:10px;">电子邮箱</th>
+                <td style="width:10px;" colspan="3"><input class="MyInput ReadonlyInput" readonly="readonly" type="text" name="Buyer_Email" value="@Model.Buyer_Email" style="width:100%;" /></td>
+                <th style="width:10px;">手机号码</th>
+                <td style="width:10px;"><input class="MyInput ReadonlyInput" readonly="readonly" type="text" name="Buyer_Phone" value="@Model.Buyer_Phone" style="width:160px;" /></td>
+                <td>&nbsp;</td>
+            </tr>
+
+            <tr>
+                <th>供方联系人</th>
+                <td><input class="MyInput" type="text" name="Sup_Person" value="@Model.Sup_Person" style="width:100%;" /></td>
+                <th>联系电话</th>
+                <td><input class="MyInput" type="text" name="Sup_Tel" value="@Model.Sup_Tel" style="width:120px;" /></td>
+                <th>电子邮箱</th>
+                <td colspan="3"><input class="MyInput" type="text" name="Sup_Email" value="@Model.Sup_Email" style="width:100%;" /></td>
+                <th>手机号码</th>
+                <td><input class="MyInput" type="text" name="Sup_Phone" value="@Model.Sup_Phone" style="width:160px;" /></td>
+                <td>&nbsp;</td>
+            </tr>
+
+            <tr>
+                <th>交货地点</th>
+                <td colspan="3"><input class="MyInput" type="text" name="Ship_To_Address" value="@Model.Ship_To_Address" style="width:100%;" /></td>
+                <th style="width:10px;">付款方式</th>
+                <td colspan="3" style="width:10px;"><input class="MyInput ReadonlyInput" readonly="readonly" name="Payment" id="Payment" value="@Model.Payment_Type" type="text" style="width:100%;"></td>
+                <th style="width:10px;">交货方式</th>
+                <td style="width:10px;"><input class="MyInput ReadonlyInput" readonly="readonly" name="DeliveryType" id="DeliveryType" value="@Model.Logistics_Mode" type="text" style="width:160px;"></td>
+                <td>&nbsp;</td>
+            </tr>
+
+            <tr>
+                <td colspan="10" style="padding:0px;">
+                    <table style="width:auto; float:right;">
+                        <tr>
+                            <td style="padding:0px;">
+                                <input type="hidden" name="Status" id="Status" value="@Model.Status" />
+                                <button type="submit" class="btn btn-primary btn-sm">递交更新</button>
+                            </td>
+                            <td style="padding:0px; padding-left:10px; padding-right:5px;"><button type="button" class="btn btn-danger btn-sm" onclick="DeleteForm()">删除订单</button></td>
+                        </tr>
+                    </table>
+                   
+                </td>
+                <td>&nbsp;</td>
+            </tr>
+        </table>
+        
+    </form>
+</div>
+
+<div id="RightDivContext">
+    <div style="width:100%; height:auto; padding-bottom:20px;">
+        <table class="table table-condensed table-bordered">
+            <tr class="active">
+                <td style="text-align:center; width:40px;">序</td>
+                <td style="width:200px;">产品型号</td>
+                <td style="width:200px;">产品名称</td>
+                <td style="text-align:center; width:80px;">品牌</td>
+                <td style="text-align:center; width:80px;">单位</td>
+                <td style="text-align:center; width:100px;">数量</td>
+                <td style="text-align:right; width:120px;">采购单价</td>
+                <td style="text-align:center; width:100px;">要求交期</td>
+                <td>&nbsp;</td>
+            </tr>
+
+            @foreach (var x in Model.Po_Line_List)
+            {
+                <tr>
+                    <td style="text-align:center;">@x.Line_Number</td>
+                    <td><a href="javascript:void(0);" onclick="ShowMatPartModel('@x.MatID')" class="MatSn_Font">@x.MatInfo.MatSn</a></td>
+                    <td>@x.MatInfo.MatName</td>
+                    <td style="text-align:center;">@x.MatInfo.MatBrand</td>
+                    <td style="text-align:center;">@x.MatInfo.MatUnit</td>
+                    <td style="text-align:center;"><input type="number" id="Qty_@x.POLID" onchange="Set_PoLine('@x.POLID')" step="1" min="1" class="MyInput" value="@x.Qty" style="text-align:center; width:100%;" /></td>
+                    <td style="text-align:right;"><input type="number" id="CostPrice_@x.POLID" onchange="Set_PoLine('@x.POLID')"  step="0.0001" min="0" class="MyInput" value="@x.CostPrice.ToString("0.0000")" style="text-align:right; width:100%;" /></td>
+                    <td style="text-align:center;"><input type="text" id="Delivery_DT_@x.POLID" onchange="Set_PoLine('@x.POLID')"  class="MyInput form_date" data-date-format="yyyy-mm-dd" value="@x.Delivery_DT.ToString("yyyy-MM-dd")" style="text-align:center; width:100%;" /></td>
+                    <td>&nbsp;</td>
+                </tr>
+        }
+        </table>
+    </div>
+</div>
+
+<script>
+    function Set_PoLine(POLID)
+    {
+        var Qty = $("#Qty_" + POLID).val();
+        var CostPrice = $("#CostPrice_" + POLID).val();
+        var Delivery_DT = $("#Delivery_DT_" + POLID).val();
+
+        $.post("/PO/PoHead_Edit_Line_Set/" + POLID, { Qty: Qty, CostPrice: CostPrice, Delivery_DT: Delivery_DT }, function (result) {
+            if(result != "")
+            {
+                alert(result);
+            }
+        });
+    }
+</script>
+
+
+<form id="DeleteForm" action="~/PO/PoHead_Edit_Delete_Post/@Model.POID" method="post">
+    <input type="hidden" name="Status" id="Status" value="@Model.Status" />
+    <script>
+        function DeleteForm()
+        {
+            if(confirm("确定删除？"))
+            {
+                $("#DeleteForm").submit();
+            }
+        }
+    </script>
+</form>
+
+<script>
+    $('.form_date').datetimepicker({
+        language: 'zh-CN',
+        weekStart: 1,
+        todayBtn: 1,
+        autoclose: 1,
+        todayHighlight: 1,
+        startView: 2,
+        minView: 2,
+        forceParse: 0
+    });
+</script>

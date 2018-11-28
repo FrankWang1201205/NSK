@@ -1,0 +1,199 @@
+﻿@model Po_Head
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("创建");</script>
+
+<div class="DeductionDiv TopSearchDiv" style="padding-left:0px;">
+    <table style="width:900px; margin:auto;" class="text-nowrap">
+        <tr>
+            <td style="width:50px;"><a href="~/PO/PlanToPo" class="btn btn-danger btn-sm" type="button" style="width:80px;">放弃</a></td>
+            <td style="width:50px; padding-left:10px;"><button onclick="ShowWaitModel()" class="btn btn-primary btn-sm" type="button">确认递交</button></td>
+            <td style="vertical-align:bottom;">&nbsp;</td>
+        </tr>
+    </table>
+</div>
+
+
+<!--wait-->
+<script>
+    function ShowWaitModel() {
+        DisAndEnabledBtn(1);
+        $('#MyWaitModel').modal({ backdrop: 'static' });
+        setTimeout("SubmitForm()", 1000);
+    }
+
+    function SubmitForm() {
+        $("#SubmitForm").submit();
+    }
+</script>
+<div class="modal fade" id="MyWaitModel">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:300px;">
+            <div class="modal-body">
+                <p style="color:blue; text-align:center;">
+                    <br />
+                    <img src="~/Content/Images/Load.gif" /><br /><br />
+                    正在生成正式订单，请稍等...
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<!--wait-->
+
+<div id="RightDivContext">
+
+    <form id="SubmitForm" action="~/PO/PlanToPo_Preview_Post/@Model.Month" method="post">
+        <div style="display:none;">
+            <input name="SupID" id="SupID" value="@Model.SupID" />
+            <br />
+            @foreach (var x in Model.Po_Line_List)
+            {
+                <input name="POLID" id="POLID" value="@x.POLID" />
+                <input name="MatID_@x.POLID" id="MatID_@x.POLID" value="@x.MatID" />
+                <input name="Qty_@x.POLID" id="Qty_@x.POLID" value="@x.Qty" />
+                <input name="Delivery_DT_@x.POLID" id="Delivery_DT_@x.POLID" value="@x.Delivery_DT.ToString("yyyy-MM-dd")" />
+                <br />
+            }
+        </div>
+
+        <div style="width:900px; padding:30px; border:2px solid #e4e4e4; margin:auto; background-color:white; box-shadow: 10px 10px 15px #888888;">
+            <table class="FormTable_Sim text-nowrap">
+                <tr>
+                    <td style="vertical-align:top;">
+                        <h4>@Model.Main_ComName</h4>
+                        <h6>@Model.Main_Address</h6>
+                        <h6>采购联系人：@Model.Buyer</h6>
+                        <h6>联系电话：
+                        @if (!string.IsNullOrEmpty(Model.Buyer_Tel))
+                        {
+                            <span style="padding-right:10px;">@Model.Buyer_Tel</span>
+                        }
+                        <span>@Model.Buyer_Phone</span>
+                        </h6>
+                        <h6>电子邮箱：@Model.Buyer_Email</h6>
+                    </td>
+                    <td>&nbsp;</td>
+                    <td style="vertical-align:top; width:20px;">
+                        <h4 style="font-weight:bold; font-size:22px;">采 购 订 单</h4>
+                        <h6>订单编号：@Model.Po_No<span style="color:silver;">系统自动编号</span></h6>
+                        <h6>订单日期：@DateTime.Now.ToString("yyyy-MM-dd")</h6>
+                        <h6>供应商代码：@Model.Sup_Code</h6>
+                    </td>
+                </tr>
+            </table>
+
+            <table class="FormTable_Sim FormTable_Sim_Border text-nowrap">
+                <tr>
+                    <td style="vertical-align:top; border-color:#808080;">
+                        <h6 style="font-weight:bold;">供货方信息：</h6>
+                        <h6>名称：@Model.Sup_Name</h6>
+                        <h6>地址：@Model.Sup_Address</h6>
+                        <h6>联系人：@Model.Sup_Person</h6>
+                        <h6>电话：
+                            @if (!string.IsNullOrEmpty(Model.Sup_Tel))
+                            {
+                                <span style="padding-right:10px;">@Model.Sup_Tel</span>
+                            }
+                            <span>@Model.Sup_Phone</span>
+                        </h6>
+                        <h6>邮箱：@Model.Sup_Email</h6>
+                    </td>
+                    <td style="vertical-align:top; border-color:#808080; width:200px; padding-right:50px;">
+                        <h6 style="font-weight:bold;">请按照以下信息开具增值税发票：</h6>
+                        <h6>发票抬头：@Model.Main_ComName</h6>
+                        <h6>地址电话：@Model.Main_InvoiceAddress <span style="padding-left:10px;">@Model.Main_MainInvoiceTel</span></h6>
+                        <h6>纳税人识别号：@Model.Main_TaxpayerIdentificationNo</h6>
+                        <h6>开户银行：@Model.Main_MainBankInfo</h6>
+                        <h6>银行账号：@Model.Main_MainBankAccount</h6>
+                    </td>
+                </tr>
+            </table>
+
+            <h4 style="font-weight:bold; font-size:14px; padding-top:5px;">一、采购货物详细信息</h4>
+            <table class="table table-condensed table-bordered">
+                <tr class="active">
+                    <td style="text-align:center;">序</td>
+                    <td style="width:120px;">产品编号</td>
+                    <td>产品描述</td>
+                    <td style="text-align:center; width:80px;">单位</td>
+                    <td style="text-align:center; width:80px;">数量</td>
+                    <td style="text-align:right; width:100px;">单价</td>
+                    <td style="text-align:center; width:100px;">交期</td>
+                </tr>
+
+                @foreach (var x in Model.Po_Line_List)
+            {
+                    <tr>
+                        <td style="text-align:center;">@x.Line_Number</td>
+                        <td>@x.MatInfo.MatSn</td>
+                        <td>
+                            <strong>@x.MatInfo.MatName</strong><span style="padding-left:20px;">@x.MatInfo.MatBrand</span><br />
+                            <span>@x.MatInfo.MatSpecifications</span>
+                        </td>
+                        <td style="text-align:center;">@x.MatInfo.MatUnit</td>
+                        <td style="text-align:center;">@x.Qty</td>
+                        <td style="text-align:right;">@x.CostPrice.ToString("0.0000")</td>
+                        <td style="text-align:center;">@x.Delivery_DT.ToString("yyyy-MM-dd")</td>
+                    </tr>
+            }
+
+                <tr>
+                    <td colspan="6" style="text-align:right; padding-top:5px; padding-bottom:5px;">合计金额：<strong style="font-size:14px;">@Model.Total_Amount.ToString("N2")</strong></td>
+                    <td style="border-left:0px;">&nbsp;</td>
+                </tr>
+
+                <tr>
+                    <td>*</td>
+                    <td>****</td>
+                    <td>****</td>
+                    <td>****</td>
+                    <td>****</td>
+                    <td>****</td>
+                    <td>****</td>
+                </tr>
+            </table>
+
+
+            <h4 style="font-weight:bold; font-size:14px; padding-top:5px;">二、交货及付款方式</h4>
+            <h6>1. 交货地点：<strong>@Model.Ship_To_Address</strong></h6>
+            <h6>2. 交货方式：<strong>@Model.Logistics_Mode</strong></h6>
+            <h6>3. 付款方式：<strong>@Model.Payment_Type</strong></h6>
+            <h6>4. 本订单所显示的价格包含<strong>17%增值税专用发票</strong> ，供方需提供增值税发票。</h6>
+
+            <h4 style="font-weight:bold; font-size:14px; padding-top:5px;">三、质量、包装及验收标准</h4>
+            <h6>1. 供货方保证产品为厂家原装合格产品，并且按照生产厂商或相关合同规定提供售后服务</h6>
+            <h6>2. 供货方必须提供不做回收且适合运输的包装，以防止货物在运输途中受损</h6>
+            <h6>3. 采购方有权在在收货后开箱检查货物的数量和质量，并在7天内向供货方提出异议</h6>
+
+            <p>&nbsp;</p>
+            <table style="width:100%;" class="FormTable">
+                <tr>
+                    <td style="width: 50%; text-align: left; line-height: 25px; font-weight:bold; padding-left:70px;">
+                        供货方确认 ___________________<br />
+                        <span style="padding-left:70px;">(盖 章)</span>
+                    </td>
+
+
+                    <td style="width: 50%; text-align: left; line-height: 25px; font-weight:bold; text-align:center;">
+                        公司盖章签字 ___________________<br />
+                        <span style="padding-left:60px;">(盖 章)</span>
+                        <img src="~/@Model.Main_ElectronicStamp" style="width: 150px;  margin-top: -60px; margin-left:0px;   z-index:99; " />
+                    </td>
+                </tr>
+            </table>
+
+            <p>&nbsp;</p>
+        </div>
+    </form>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+
+</div>
+
+
+
+

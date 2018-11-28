@@ -1,0 +1,61 @@
+﻿@{ 
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("WebUI");</script>
+
+<div id="RightDivContext">
+    <div style="padding:30px; height:auto; overflow:hidden;">
+        <button class="btn btn-primary" type="button">Button</button>
+        <button class="btn btn-default btn-sm" type="button" disabled>Button</button>
+        <button class="btn btn-default btn-sm" type="button">Button</button>
+        <button class="btn btn-primary btn-sm" type="button">Button</button>
+        <button class="btn btn-warning btn-sm" type="button">Button</button>
+        <button class="btn btn-danger btn-sm" type="button">Button</button>
+        <button class="btn btn-success btn-sm" type="button">Button</button>
+        <button class="btn btn-primary btn-xs" type="button">Button</button>
+
+        <hr />
+        <button onclick="ShowModel()" class="btn btn-primary btn-sm" type="button">模态框</button>
+        <hr />
+        <div style="font-size:22px;">
+            <span class="glyphicon glyphicon-search"></span>
+            <span class="glyphicon glyphicon-list-alt"></span>
+            <span class="glyphicon glyphicon-refresh"></span>
+            <span class="glyphicon glyphicon-check"></span>
+            <span class="glyphicon glyphicon-arrow-left"></span>
+            <span class="glyphicon glyphicon-arrow-right"></span>
+            <span class="glyphicon glyphicon-share-alt"></span>
+            <span class="glyphicon glyphicon-menu-left"></span>
+            <span class="glyphicon glyphicon-menu-right"></span>
+        </div>
+        <hr />
+        <div class="Textarea_Success">成功提示..</div>
+        <div class="Textarea_Remind">注意提示..</div>
+        <div class="Textarea_Error">错误提示...</div>
+    </div>
+</div>
+
+
+<!--模态框-->
+<script>
+    function ShowModel() {
+        $('#MyModel').modal({ backdrop: 'static' });
+    }
+    function CloseModel() { $('#MyModel').modal('hide'); }
+</script>
+<div class="modal fade" id="MyModel">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:680px;">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="CloseModel()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">模态框</h5>
+            </div>
+            <div class="modal-body"><h2>Content</h2></div>
+        </div>
+    </div>
+</div>
+<!--模态框-->
+
+

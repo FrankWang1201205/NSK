@@ -1,0 +1,495 @@
+﻿@model Customer
+@{
+    Layout = null;
+}
+
+<h6 style="padding-left:40px;"><strong>基本信息</strong></h6>
+
+<table class="FormTable_Sim FormTable_Sim_Input text-nowrap" style="width:400px;">
+    <tr>
+        <th style="text-align:right; width:10px;"><div style="width:75px; overflow:hidden;">* 客户代码</div></th>
+        <td style="width:10px;">
+            <input class="form-control input-sm NotEmpty" id="Cust_Code" name="Cust_Code" type="text" style="width:120px;" value="@Model.Cust_Code" />
+        </td>
+        <th style="text-align:right; width:10px;"><div style="width:75px; overflow:hidden;">* 客户名称</div></th>
+        <td colspan="3">
+            <input class="form-control input-sm NotEmpty" id="Cust_Name" name="Cust_Name" type="text" style="width:300px;" value="@Model.Cust_Name" />
+        </td>
+    </tr>
+
+    @*<tr>
+        <th style="text-align:right;">* 所属地区</th>
+        <td>
+            <select class="form-control input-sm NotEmpty" name="District" id="District" style="width:120px;">
+                <option value="">请选择</option>
+                @foreach (var x in Model.District_List)
+                {
+                    if (Model.District == x)
+                    {
+                        <option selected="selected" value="@x">@x</option>
+                    }
+                    else
+                    {
+                        <option value="@x">@x</option>
+                    }
+                }
+            </select>
+        </td>
+
+        <th style="text-align:right;">* 所属行业</th>
+        <td>
+            <select class="form-control input-sm NotEmpty" name="Industry" id="Industry" style="width:120px;">
+                <option value="">请选择</option>
+                @foreach (var x in Model.Industry_List)
+                {
+                    if (Model.Industry == x)
+                    {
+                        <option selected="selected" value="@x">@x</option>
+                    }
+                    else
+                    {
+                        <option value="@x">@x</option>
+                    }
+                }
+            </select>
+        </td>
+
+       <td colspan="2">&nbsp;</td>
+    </tr>
+
+    <tr>
+        <th style="text-align:right;"><div style="width:75px; overflow:hidden;">* 客户性质</div></th>
+        <td>
+            <select class="form-control input-sm NotEmpty" name="Cust_Type" id="Cust_Type" style="width:120px;">
+                <option value="">请选择</option>
+                @foreach (var x in Model.Cust_Type_List)
+                {
+                    if (Model.Cust_Type == x)
+                    {
+                        <option selected="selected" value="@x">@x</option>
+                    }
+                    else
+                    {
+                        <option value="@x">@x</option>
+                    }
+                }
+            </select>
+        </td>
+
+        <th style="text-align:right;"><div style="width:75px; overflow:hidden;">* 客户级别</div></th>
+        <td>
+            <select class="form-control input-sm NotEmpty" name="VIP_Type" id="VIP_Type" style="width:120px;">
+                <option value="">请选择</option>
+                @foreach (var x in Model.VIP_Type_List)
+                {
+                    if (Model.VIP_Type == x)
+                    {
+                        <option selected="selected" value="@x">@x</option>
+                    }
+                    else
+                    {
+                        <option value="@x">@x</option>
+                    }
+                }
+            </select>
+        </td>
+
+        <th style="text-align:right;"><div style="width:75px; overflow:hidden;">* 客户类型</div></th>
+        <td>
+            <select class="form-control input-sm NotEmpty" name="Cust_Trade_Type" id="Cust_Trade_Type" style="width:120px;">
+                <option value="">请选择</option>
+                @foreach (var x in Model.Cust_Trade_Type_List)
+                {
+                    if (Model.Cust_Trade_Type == x)
+                    {
+                        <option selected="selected" value="@x">@x</option>
+                    }
+                    else
+                    {
+                        <option value="@x">@x</option>
+                    }
+                }
+            </select>
+        </td>
+    </tr>
+
+    <tr>
+        <th style="text-align:right;">成立日期</th>
+        <td>
+            <div class="input-group date form_date input-group-sm" data-date="" data-date-format="yyyy-mm-dd" style="width:120px;">
+                <input class="form-control" style="border-radius:0px;" data-val="true" size="16" type="text" name="Establishment" id="Establishment" value="@Model.Establishment" placeholder="">
+                <span class="input-group-addon" style="border-radius:0px;"><span class="glyphicon glyphicon-calendar"></span></span>
+            </div>
+        </td>
+
+        <th style="text-align:right;">* 销售方式</th>
+        <td>
+            <select class="form-control input-sm NotEmpty" name="Sales_Type" id="Sales_Type" style="width:120px;">
+                <option value="">请选择</option>
+                @foreach (var x in Model.Sales_Type_List)
+                {
+                    if (Model.Sales_Type == x)
+                    {
+                        <option selected="selected" value="@x">@x</option>
+                    }
+                    else
+                    {
+                        <option value="@x">@x</option>
+                    }
+                }
+            </select>
+        </td>
+
+        <th style="text-align:right;">* 结算方式</th>
+        <td>
+            <select class="form-control input-sm NotEmpty" name="Settle_Accounts" id="Settle_Accounts" style="width:120px;">
+                <option value="">请选择</option>
+                @foreach (var x in Model.Settle_Accounts_List)
+                {
+                    if (Model.Settle_Accounts == x)
+                    {
+                        <option selected="selected" value="@x">@x</option>
+                    }
+                    else
+                    {
+                        <option value="@x">@x</option>
+                    }
+                }
+            </select>
+        </td>
+    </tr>
+
+    <tr>
+        <th style="text-align:right;">* 销售经理</th>
+        <td>
+            <select class="form-control input-sm" name="Sales_UID" id="Sales_UID" style="width:120px;">
+                <option value="">请选择</option>
+                @foreach (var x in Model.Sales_User_List)
+                {
+                    if (Model.Sales_UID == x.UID)
+                    {
+                        <option selected="selected" value="@x.UID">@x.UserFullName</option>
+                    }
+                    else
+                    {
+                        <option value="@x.UID">@x.UserFullName</option>
+                    }
+                }
+            </select>
+        </td>
+
+
+        <th style="text-align:right;">* 对账日期</th>
+        <td>
+            <select class="form-control input-sm NotEmpty" name="Statement_Day" id="Statement_Day" style="width:120px;">
+                <option value="">请选择</option>
+                @foreach (var x in Model.Statement_Day_List)
+                {
+                    if (Model.Statement_Day == x)
+                    {
+                        <option selected="selected" value="@x">@x</option>
+                    }
+                    else
+                    {
+                        <option value="@x">@x</option>
+                    }
+                }
+            </select>
+        </td>
+
+        <th style="text-align:right;">* 支付方式</th>
+        <td>
+            <select class="form-control input-sm NotEmpty" name="Payment_Type" id="Payment_Type" style="width:120px;">
+                <option value="">请选择</option>
+                @foreach (var x in Model.Payment_Type_List)
+                {
+                    if (Model.Payment_Type == x)
+                    {
+                        <option selected="selected" value="@x">@x</option>
+                    }
+                    else
+                    {
+                        <option value="@x">@x</option>
+                    }
+                }
+            </select>
+        </td>
+
+        <th style="text-align:right;">&nbsp;</th>
+        <td>&nbsp;</td>
+    </tr>
+
+    <tr>
+        <th style="text-align:right;">* 是否有合同</th>
+        <td>
+            <select class="form-control input-sm NotEmpty" name="Contract_Type" id="Contract_Type" style="width:120px;">
+                <option value="">请选择</option>
+                @foreach (var x in Model.Contract_Type_List)
+                {
+                    if (Model.Contract_Type == x)
+                    {
+                        <option selected="selected" value="@x">@x</option>
+                    }
+                    else
+                    {
+                        <option value="@x">@x</option>
+                    }
+                }
+            </select>
+        </td>
+
+        <th style="text-align:right;">合同有效期</th>
+        <td>
+            <div class="input-group date form_date input-group-sm" data-date="" data-date-format="yyyy-mm-dd" style="width:120px;">
+                @if (Model.Contract_Type == string.Empty || Model.Contract_Type == Cust_Contract_Type_Enum.无.ToString())
+                {
+                    <input class="form-control" style="border-radius:0px;" data-val="true" size="16" type="text" name="Contract_End_Date" id="Contract_End_Date" value="" placeholder="">
+                }
+                else
+                {
+                    <input class="form-control" style="border-radius:0px;" data-val="true" size="16" type="text" name="Contract_End_Date" id="Contract_End_Date" value="@Model.Contract_End_Date.ToString("yyyy-MM-dd")" placeholder="">
+                }
+                <span class="input-group-addon" style="border-radius:0px;"><span class="glyphicon glyphicon-calendar"></span></span>
+            </div>
+        </td>
+
+        <th style="text-align:right;">* 每次报价</th>
+        <td>
+            <select class="form-control input-sm NotEmpty" name="Is_Contract_RFQ" id="Is_Contract_RFQ" style="width:120px;">
+                <option value="">请选择</option>
+                @if (Model.CID == Guid.Empty)
+                {
+                    <option value="1">是</option>
+                    <option value="0">否</option>
+                }
+                else if (Model.Is_Contract_RFQ == 1)
+                {
+                    <option selected="selected" value="1">是</option>
+                    <option value="0">否</option>
+                }
+                else
+                {
+                    <option value="1">是</option>
+                    <option selected="selected" value="0">否</option>
+                }
+            </select>
+        </td>
+    </tr>
+
+    <tr>
+        <th style="text-align:right;">* 发货方式</th>
+        <td>
+            <select class="form-control input-sm NotEmpty" name="Ship_Type" id="Ship_Type" style="width:120px;">
+                <option value="">请选择</option>
+                @foreach (var x in Model.Ship_Type_List)
+                {
+                    if (Model.Ship_Type == x)
+                    {
+                        <option selected="selected" value="@x">@x</option>
+                    }
+                    else
+                    {
+                        <option value="@x">@x</option>
+                    }
+                }
+            </select>
+        </td>
+
+        <th style="text-align:right;">* 收货地址</th>
+        <td colspan="3">
+            <input class="form-control input-sm NotEmpty" id="Ship_Address" name="Ship_Address" type="text" style="width:100%;" value="@Model.Ship_Address" placeholder="" />
+        </td>
+    </tr>
+
+    <tr>
+        <th style="text-align:right;">公里数</th>
+        <td>
+            <input class="form-control input-sm" id="Ship_Address_KM" name="Ship_Address_KM" type="number" style="width:100%; text-align:center;" value="@Model.Ship_Address_KM" />
+        </td>
+        <th style="text-align:right;">* 运费支付</th>
+        <td>
+            <select class="form-control input-sm" name="Ship_Pay" id="Ship_Pay" style="width:120px;">
+                <option value="">请选择</option>
+                @foreach (var x in Model.Ship_Pay_List)
+                {
+                    if (Model.Ship_Pay == x)
+                    {
+                        <option selected="selected" value="@x">@x</option>
+                    }
+                    else
+                    {
+                        <option value="@x">@x</option>
+                    }
+                }
+            </select>
+        </td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+
+    <tr>
+        <td colspan="6" style="padding:0px; height:10px; overflow:hidden;"></td>
+    </tr>
+
+    <tr>
+        <th style="text-align:right;">* 客户来源</th>
+        <td>
+            <select class="form-control input-sm NotEmpty" name="FormBy" id="FormBy" style="width:120px;">
+                <option value="">请选择</option>
+                @foreach (var x in Model.FormBy_List)
+                {
+                    if (Model.FormBy == x)
+                    {
+                        <option selected="selected" value="@x">@x</option>
+                    }
+                    else
+                    {
+                        <option value="@x">@x</option>
+                    }
+                }
+            </select>
+        </td>
+
+        <th style="text-align:right;">* 客户产品</th>
+        <td colspan="3">
+            <input class="form-control input-sm NotEmpty" id="Cust_Product" name="Cust_Product" type="text" style="width:100%;" value="@Model.Cust_Product" />
+        </td>
+    </tr>
+
+    <tr>
+        <th style="text-align:right;">竞争品牌</th>
+        <td>
+            <input class="form-control input-sm" id="Compete_Brand" name="Compete_Brand" type="text" style="width:100%;" value="@Model.Compete_Brand" />
+        </td>
+        <th style="text-align:right;">竞争对手</th>
+        <td colspan="3">
+            <input class="form-control input-sm" id="Compete_Company" name="Compete_Company" type="text" style="width:100%;" value="@Model.Compete_Company" placeholder="请输入竞争对手名称" />
+        </td>
+    </tr>*@
+</table>
+
+@*<p>&nbsp;</p>
+<h6 style="padding-left:40px;"><strong>开票资料</strong></h6>
+<table class="FormTable_Sim FormTable_Sim_Input text-nowrap" style="width:400px;">
+    <tr>
+        <th style="text-align:right; width:10px;"><div style="width:75px; overflow:hidden;">开票抬头</div></th>
+        <td style="width:10px;">
+            <input class="form-control input-sm" id="Invoice_Title" name="Invoice_Title" type="text" style="width:300px;" value="@Model.Invoice_Title" />
+        </td>
+        <td style="text-align:right; width:10px;"><div style="width:75px; overflow:hidden;">税　号</div></td>
+        <td style="width:10px;">
+            <input class="form-control input-sm" id="Invoice_Identification" name="Invoice_Identification" type="text" style="width:175px;" value="@Model.Invoice_Identification" />
+        </td>
+    </tr>
+
+    <tr>
+        <th style="text-align:right;">开票地址</th>
+        <td>
+            <input class="form-control input-sm" id="Invoice_Address" name="Invoice_Address" type="text" style="width:100%;" value="@Model.Invoice_Address" />
+        </td>
+        <td style="text-align:right;"><div style="width:75px; overflow:hidden;">电　话</div></td>
+        <td style="width:10px;">
+            <input class="form-control input-sm" id="Invoice_Tel" name="Invoice_Tel" type="text" style="width:100%;" value="@Model.Invoice_Tel" />
+        </td>
+    </tr>
+
+    <tr>
+        <th style="text-align:right;">开户银行</th>
+        <td>
+            <input class="form-control input-sm" id="Bank_Name" name="Bank_Name" type="text" style="width:100%;" value="@Model.Bank_Name" />
+        </td>
+        <td style="text-align:right;"><div style="width:75px; overflow:hidden;">账　号</div></td>
+        <td style="width:10px;">
+            <input class="form-control input-sm" id="Bank_Account" name="Bank_Account" type="text" style="width:100%;" value="@Model.Bank_Account" />
+        </td>
+    </tr>
+
+</table>
+
+<p>&nbsp;</p>
+<h6 style="padding-left:40px;"><strong>客户联系人</strong></h6>
+
+<table class="FormTable_Sim FormTable_Sim_Input text-nowrap" style="width:400px;">
+    <tr>
+        <th style="text-align:right; width:10px;"><div style="width:75px; overflow:hidden;">* 采购员</div></th>
+        <td style="width:10px;"><input class="MyInput" id="Buyer" name="Buyer" type="text" style="width:120px;" value="@Model.Buyer" /></td>
+        <td style="text-align:right; width:10px;"><div style="width:60px; overflow:hidden;">电　话</div></td>
+        <td style="width:10px;"><input class="MyInput" id="Buyer_Tel" name="Buyer_Tel" type="text" style="width:120px;" value="@Model.Buyer_Tel" /></td>
+        <td style="text-align:right; width:10px;"><div style="width:60px; overflow:hidden;">传　真</div></td>
+        <td style="width:10px;"><input class="MyInput" id="Buyer_Fax" name="Buyer_Fax" type="text" style="width:120px;" value="@Model.Buyer_Fax" /></td>
+        <td style="text-align:right; width:10px;"><div style="width:60px; overflow:hidden;">邮　箱</div></td>
+        <td style="width:10px;"><input class="MyInput" id="Buyer_Mail" name="Buyer_Mail" type="text" style="width:200px;" value="@Model.Buyer_Mail" /></td>
+    </tr>
+
+    <tr>
+        <th style="text-align:right;"><div style="width:75px; overflow:hidden;">仓管员</div></th>
+        <td><input class="MyInput" id="Keeper" name="Keeper" type="text" style="width:120px;" value="@Model.Keeper" /></td>
+        <td style="text-align:right;"><div style="width:60px; overflow:hidden;">电　话</div></td>
+        <td><input class="MyInput" id="Keeper_Tel" name="Keeper_Tel" type="text" style="width:120px;" value="@Model.Keeper_Tel" /></td>
+        <td style="text-align:right;"><div style="width:60px; overflow:hidden;">传　真</div></td>
+        <td><input class="MyInput" id="Finance_Fax" name="Finance_Fax" type="text" style="width:120px;" value="@Model.Finance_Fax" /></td>
+        <td style="text-align:right; width:10px;"><div style="width:60px; overflow:hidden;">邮　箱</div></td>
+        <td><input class="MyInput" id="Finance_Mail" name="Finance_Mail" type="text" style="width:200px;" value="@Model.Finance_Mail" /></td>
+    </tr>
+
+    <tr>
+        <th style="text-align:right;"><div style="width:75px; overflow:hidden;">财务人员</div></th>
+        <td><input class="MyInput" id="Finance" name="Finance" type="text" style="width:120px;" value="@Model.Finance" /></td>
+        <td style="text-align:right;"><div style="width:60px; overflow:hidden;">电　话</div></td>
+        <td><input class="MyInput" id="Finance_Tel" name="Finance_Tel" type="text" style="width:120px;" value="@Model.Finance_Tel" /></td>
+        <td style="text-align:right;"><div style="width:60px; overflow:hidden;">传　真</div></td>
+        <td><input class="MyInput" id="Finance_Fax" name="Finance_Fax" type="text" style="width:120px;" value="@Model.Finance_Fax" /></td>
+        <td style="text-align:right; width:10px;"><div style="width:60px; overflow:hidden;">邮　箱</div></td>
+        <td><input class="MyInput" id="Finance_Mail" name="Finance_Mail" type="text" style="width:200px;" value="@Model.Finance_Mail" /></td>
+    </tr>
+
+    <tr>
+        <th style="text-align:right;"><div style="width:75px; overflow:hidden;">总经理</div></th>
+        <td><input class="MyInput" id="GM" name="GM" type="text" style="width:120px;" value="@Model.GM" /></td>
+        <td style="text-align:right;"><div style="width:60px; overflow:hidden;">电　话</div></td>
+        <td><input class="MyInput" id="GM_Tel" name="GM_Tel" type="text" style="width:120px;" value="@Model.GM_Tel" /></td>
+        <td style="text-align:right;"><div style="width:60px; overflow:hidden;">传　真</div></td>
+        <td><input class="MyInput" id="GM_Fax" name="GM_Fax" type="text" style="width:120px;" value="@Model.GM_Fax" /></td>
+        <td style="text-align:right; width:10px;"><div style="width:60px; overflow:hidden;">邮　箱</div></td>
+        <td><input class="MyInput" id="GM_Mail" name="GM_Mail" type="text" style="width:200px;" value="@Model.GM_Mail" /></td>
+    </tr>
+</table>
+
+<p></p>*@
+
+@if (Model.CID == Guid.Empty)
+{
+    <table class="FormTable_Sim FormTable_Sim_Input text-nowrap" style="width:400px;">
+        <tr>
+            <th style="text-align:right; width:10px;"><div style="width:75px; overflow:hidden;">&nbsp;</div></th>
+            <td><button type="button" onclick="SubmitForm()" class="btn btn-primary btn-sm" style="width:120px;">创建新客户</button></td>
+        </tr>
+    </table>
+}
+else
+{
+    <table class="FormTable_Sim FormTable_Sim_Input text-nowrap" style="width:400px;">
+        <tr>
+            <th style="text-align:right; width:10px;"><div style="width:75px; overflow:hidden;">&nbsp;</div></th>
+            <td style="width:10px;"><button type="button" onclick="Delete_Customer_Item()" class="btn btn-danger btn-sm">删除客户</button></td>
+            <td style="padding-left:5px;"><button type="button" onclick="SubmitForm()" class="btn btn-primary btn-sm">递交更新</button></td>
+        </tr>
+    </table>
+}
+
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<script>
+    $('.form_date').datetimepicker({
+        language: 'zh-CN',
+        weekStart: 1,
+        todayBtn: 1,
+        autoclose: 1,
+        todayHighlight: 1,
+        startView: 2,
+        minView: 2,
+        forceParse: 0
+    });
+</script>

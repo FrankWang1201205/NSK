@@ -1,0 +1,46 @@
+﻿@model List<WMS_In_Head>
+@{
+    Layout = null;
+}
+<style>
+    * {
+        box-sizing: border-box;
+    }
+    table {
+        border-spacing: 0;
+        border-collapse: collapse;
+        
+    }
+    table tr td{
+        padding-left:10px;
+        text-align:left;
+        font-size: 15px;
+        border-top:0;
+    }        
+  
+</style>
+
+<table class="table text-nowrap" style="width:100%;font-size:15px;">
+
+    @foreach (var x in Model.OrderBy(x => x.Task_Bat_No).ToList())
+    {
+        <tr>
+            <td style="width:200px;">@x.Task_Bat_No_Str</td>
+            <td style="width:100px;">@x.MatType</td>
+            <td style="width:100px;">@x.Logistics_Company</td>
+
+            @if (x.Status == WMS_In_Global_State_Enum.等待收货.ToString())
+            {
+                <td style="color:red;width:100px;">@x.Status</td>
+            }
+            else if (x.Status == WMS_In_Global_State_Enum.通知采购.ToString())
+            {
+                <td style="color:orange;width:100px;">@x.Status</td>
+            }
+            <td style="width:100px;">@x.Work_Person</td>
+            <td style="width:100px;">@x.Driver_Name</td>
+        </tr>
+    }
+
+</table>
+

@@ -1,0 +1,93 @@
+﻿@model PageList<Material>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Material_Filter MF = ViewData["MF"] as Material_Filter;
+    int i = 1000;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("答复询价");</script>
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/RFQ_Inquiry/RFQ_Report" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:180px;">
+                    <input type="text" name="" id="" placeholder="供应商名称" value="" class="form-control input-xs">
+                </td>
+
+                <td style="width:120px; padding-left:5px;">
+                    <input type="text" name="" id="" placeholder="内部询价批号" value="" class="form-control input-xs">
+                </td>
+
+                <td style="width:10px; padding-left:5px;">
+                    <button class="btn btn-danger btn-sm btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                </td>
+
+                <td style="width:50px;">&nbsp;</td>
+
+                <td style="vertical-align:bottom;">&nbsp;</td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:190px;">内部询价编号</th>
+            <th style="width:60px;">品牌</th>
+            <th style="width:80px; text-align:center;">询价产品</th>
+            <th style="width:80px; text-align:center;">已报价项</th>
+            <th style="width:60px; text-align:center;">供应商</th>
+            <th style="width:60px; text-align:center;">&nbsp;</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model.Rows.Take(1))
+            {
+            i++;
+            <tr>
+                <td>&nbsp;</td>
+                <td style="vertical-align:top;"><span>SR</span>@DateTime.Now.ToString("yyyyMMdd")<span>@i</span></td>
+                <td style="vertical-align:top;">NSK</td>
+                <td style="vertical-align:top; text-align:center;">89</td>
+                <td style="vertical-align:top; text-align:center;">0</td>
+                <td style="vertical-align:top; text-align:center;">3 家</td>
+                <td style="vertical-align:top; text-align:center;"><a class="btn btn-info btn-xs" href="~/RFQ_Inquiry/RFQ_Report_Sub/@Guid.Empty">查看</a></td>
+                <td style="vertical-align:top;">&nbsp;</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>

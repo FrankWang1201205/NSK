@@ -1,0 +1,97 @@
+﻿@model PageList<RFQ_Head>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    RFQ_Head_Filter MF = ViewData["MF"] as RFQ_Head_Filter;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("销售报价");</script>
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/RFQ/RFQ_Set" method="get">
+        <table style="width:100%;">
+            <tr>
+
+                <td style="width:150px; padding-left:5px;">
+                    <input type="text" name="RFQ_No" id="RFQ_No" placeholder="询价单编号" value="@MF.RFQ_No" class="form-control input-xs">
+                </td>
+
+                <td style="width:200px; padding-left:5px;">
+                    <input type="text" name="Cust_Name" id="Cust_Name" placeholder="客户名称" value="@MF.Cust_Name" class="form-control input-xs">
+                </td>
+
+                <td style="width:10px; padding-left:5px;">
+                    <button class="btn btn-danger btn-sm btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                </td>
+
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:120px;">询价单编号</th>
+            <th style="width:80px;">询价日期</th>
+            <th style="width:180px;">客户名称</th>
+            <th style="width:80px;">客户询价人</th>
+            <th style="width:60px; text-align:center;">客户类型</th>
+            <th style="width:80px;">客户经理</th>
+            <th style="width:60px; text-align:center;">产品项</th>
+            <th style="width:60px; text-align:center;">&nbsp;</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model.Rows)
+        {
+        <tr>
+            <td>&nbsp;</td>
+            <td style="vertical-align:top;">@x.RFQ_No</td>
+            <td style="vertical-align:top;">@x.Create_DT.ToString("yyyy-MM-dd")</td>
+            <td style="vertical-align:top;">@x.Cust_Name</td>
+            <td style="vertical-align:top;">@x.Buyer</td>
+            <td style="vertical-align:top; text-align:center;">@x.C_VIP_Type</td>
+            <td style="vertical-align:top;">@x.UID_FullName</td>
+            <td style="vertical-align:top; text-align:center;">@x.Line_List.Count()</td>
+            <td style="vertical-align:top; text-align:center;"><a class="btn btn-info btn-xs" href="~/RFQ/RFQ_Set_Update/@x.RID">查看</a></td>
+            <td style="vertical-align:top;">&nbsp;</td>
+        </tr>
+        }
+    </tbody>
+</table>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>
+

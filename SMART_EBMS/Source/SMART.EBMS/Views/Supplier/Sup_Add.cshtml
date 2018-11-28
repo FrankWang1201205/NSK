@@ -1,0 +1,99 @@
+﻿@{ 
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("供应商新增");</script>
+
+<div id="RightDivContext">
+    <form id="SubmitForm" action="~/Supplier/Sup_Add_Post" method="post"  style="padding:20px">
+        <div id="Part_Page_Context" style="overflow:hidden;"></div>
+    </form>
+</div>
+
+<script>
+    $(function () {
+        Reload_Part_Page();
+    });
+
+    function Reload_Part_Page()
+    {
+        $("#Part_Page_Context").text("Loading...");
+        $("#Part_Page_Context").load("/Supplier/Sup_Edit_Part/@Guid.Empty");
+    }
+
+    function MyFormSubmit()
+    {
+        if (validateFormByClass('NotEmpty') == false) { return false; }
+
+        DisAndEnabledBtn(1);
+
+        var FormObj = $("#SubmitForm");
+        var Url = $(FormObj).prop("action");
+        var PostData = $(FormObj).serialize();
+
+        Show_Check_Model();
+
+        $.post(Url, PostData, function (result) {
+            if (result == "") {
+                DisAndEnabledBtn(0);
+                Close_Check_Model();
+                Show_Success_Model();
+            } else {
+                Close_Check_Model();
+                alert(result);
+                DisAndEnabledBtn(0);
+            }
+        });
+    }
+</script>
+
+<!--新增检查-->
+<script>
+    function Show_Check_Model() {
+        $('#MyCheckModel').modal({ backdrop: 'static' });
+    }
+    function Close_Check_Model() { $('#MyCheckModel').modal('hide'); }
+</script>
+<div class="modal fade" id="MyCheckModel">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:480px;">
+            <div class="modal-header">
+                <h5 class="modal-title">新增供应商 - 数据检查</h5>
+            </div>
+            <div class="modal-body">
+                <h2 style="text-align:center;">
+                    <img src="~/Content/Images/Load.gif" />
+                </h2>
+                <h6 style="text-align:center;">正在写入供应商数据...</h6>
+            </div>
+        </div>
+    </div>
+</div>
+<!--新增检查-->
+<!--新增成功-->
+<script>
+    function Show_Success_Model() {
+        $('#MySuccessModel').modal({ backdrop: 'static' });
+    }
+</script>
+<div class="modal fade" id="MySuccessModel">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:480px;">
+            <div class="modal-header">
+                <h5 class="modal-title">系统提示</h5>
+            </div>
+            <div class="modal-body">
+                <h4 style="text-align:center; color:green;">创建成功！</h4>
+                <p>&nbsp;</p>
+                <table style="margin:auto;">
+                    <tr>
+                        <td><button type="button" class="btn btn-info" onclick="ReloadPage()">返回</button></td>
+                    </tr>
+                </table>
+                <p>&nbsp;</p>
+            </div>
+        </div>
+    </div>
+</div>
+<!--新增成功-->

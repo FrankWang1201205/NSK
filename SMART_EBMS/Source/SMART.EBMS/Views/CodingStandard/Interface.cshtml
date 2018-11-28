@@ -1,0 +1,76 @@
+﻿@model List<MyType>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int i = 0;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("Interface");</script>
+
+<div class="DeductionDiv TopSearchDiv">
+    <script>
+            function ShowSelect(VarStr) {
+                if (VarStr != "") {
+                    $(".ALLBox").hide();
+                    $("." + VarStr).show();
+                } else {
+                    $(".ALLBox").show();
+                }
+            }
+    </script>
+    <table style="margin-bottom:5px; width:100%;">
+        <tr>
+            <td style="width:200px;">
+                <select class="form-control input-sm" name="Interface_Name" id="Interface_Name" onchange="ShowSelect(this.value)">
+                    <option value="">ALL Interface</option>
+                    @foreach (var x in Model)
+                    {
+                        <option value="@x.Interface_Name">@x.Interface_Name</option>
+                    }
+                </select>
+            </td>
+            <td>&nbsp;</td>
+        </tr>
+    </table>
+</div>
+
+<div id="RightDivContext">
+    <div class="CodeRule">
+        @foreach (var x in Model)
+            {
+                i = 0;
+            <table class="table table-bordered table-condensed ALLBox @x.Interface_Name">
+                <tr>
+                    <td><h4>@x.Interface_Name</h4></td>
+                </tr>
+
+                <tr class="active">
+                    <td>Method & Parameters</td>
+                </tr>
+
+                @foreach (var xx in x.MethodNames)
+                {
+                    i++;
+                    <tr>
+                        <td>
+                            <h3><span>No.</span>@i</h3>
+                            <h5><span class="ReturnType">@xx.MethodReturnType</span><span class="MethodName">@xx.MethodName</span><span>(</span><span class="MethodParameters">@xx.MethodParameters</span><span>)</span></h5>
+                            <p>Return Type</p>
+                            <span class="NoteType">@xx.Method_Info.ReturnType</span>
+                            <p>Parameters</p>
+                            @foreach (var xxx in xx.Method_Info.GetParameters())
+                            {
+                                <span class="NoteType">@xxx.ParameterType</span><span style="padding-left:5px;">@xxx.Name</span><br />
+                            }
+                        </td>
+                    </tr>
+                }
+            </table>
+        }
+    </div>
+</div>
+
+
+
+
+

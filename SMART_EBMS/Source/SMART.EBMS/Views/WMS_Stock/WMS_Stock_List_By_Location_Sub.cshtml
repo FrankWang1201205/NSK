@@ -1,0 +1,84 @@
+﻿@model List<WMS_Stock_Group>
+@{
+    Layout = null;
+    WMS_Stock_Filter MF = ViewData["MF"] as WMS_Stock_Filter;
+
+    //List<WMS_Stock> Stock_List = ViewData["Stock_List"] as List<WMS_Stock>;
+    //List<string> Case_List = new List<string>();
+    //if (Stock_List.Where(x => x.Case != string.Empty).Any())
+    //{
+    //    Case_List = Stock_List.Select(x => x.Case).Distinct().ToList();
+    //}
+    decimal TotalPrice = 0;
+
+}
+
+<table style="width:100%;">
+    <tr>
+        <td><h4>库位：<strong style="font-size:22px;">@MF.Location</strong>，共<strong>@Model.Select(x => x.MatSn).Distinct().Count().ToString("N0")</strong>个型号</h4></td>
+    </tr>
+</table>
+
+<table class="table table-condensed table-bordered text-nowrap" style="width:100%">
+    <tr class="active">
+        <td style="width:190px;">产品型号</td>
+        <td style="text-align:right; width:50px;">箱数</td>
+        <td style="text-align:right; width:80px;">产品数</td>
+        <td style="text-align:right; width:80px;">入库时间</td>
+        <td style="text-align:right; width:120px;">单价</td>
+        <td style="text-align:right; width:120px;">总金额</td>
+    </tr>
+    @foreach (var x in Model.OrderBy(c => c.MatSn).ToList())
+    {
+        TotalPrice = x.Price * x.Quantity_Sum;
+        <tr>
+            <td class="MatSn_Font">@x.MatSn</td>
+            <td style="text-align:right">
+                @if (x.Line_Count > 0)
+                {
+                    <span>@x.Line_Count.ToString("N0")</span>
+                }
+                else
+                {
+                    <span>端数</span>
+                }
+            </td>
+
+            <td style="text-align:right">@x.Quantity_Sum.ToString("N0")</td>
+            <td style="text-align:right">@x.In_DT.Substring(0, 10)</td>
+            <td style="text-align:right">@x.Price.ToString("N2")</td>
+            <td style="text-align:right">@TotalPrice.ToString("N2")</td>
+        </tr>
+    }
+
+    <tr>
+        <td style="text-align:right;">Total:</td>
+        <td style="text-align:right;">
+            @if (Model.Sum(c => c.Line_Count) > 0)
+            {
+                <span>@Model.Sum(c => c.Line_Count).ToString("N0")</span>
+            }
+       </td>
+        <td style="text-align:right;">@Model.Sum(c => c.Quantity_Sum).ToString("N0")</td>
+        <td colspan="3">&nbsp;</td>
+    </tr>
+</table>
+
+@*@if (Case_List.Any())
+{
+    <h4>箱号列表</h4>
+    <table style="width:100%;margin-bottom:20px;">
+        <tr>
+            <td>
+                @foreach (var x in Case_List)
+                {
+                    if (!string.IsNullOrEmpty(x))
+                    {
+                        <a href="javascript:void(0)" style="float:left;margin-right:15px;margin-top:10px;" class="btn btn-default" onclick="Show_Case_Modal('@x','@MF.Location')">@x</a>
+                    }
+                }
+            </td>
+        </tr>
+    </table>
+}*@
+

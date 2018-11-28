@@ -1,0 +1,192 @@
+﻿@model PageList<WMS_Out_Head>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    WMS_Out_Filter MF = ViewData["MF"] as WMS_Out_Filter;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("任务分配");</script>
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/WMS_Out/WMS_Out_Task" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:100px;  padding-left:5px;">
+                    <select name="Global_State" id="Global_State" class="form-control input-sm" onchange="SubmitPageIndex(1)">
+                        <option value="">任务状态</option>
+                        @foreach (var x in MF.Global_State_List.Where(c => c != WMS_Out_Global_State_Enum.已出库.ToString()))
+                        {
+                            if (MF.Global_State == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:120px;padding-left:15px;">
+                    <select name="Logistics_Mode" id="Logistics_Mode" class="form-control input-sm" onchange="SubmitPageIndex(1)">
+                        <option value="">运输方式</option>
+                        @foreach (var x in MF.Logistics_Mode_List)
+                        {
+                            if (MF.Logistics_Mode == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:150px; padding-left:15px;">
+                    <input type="text" name="Customer_Name" id="Customer_Name" placeholder="客户" value="@MF.Customer_Name" class="form-control input-sm">
+                </td>
+
+                <td style="width:120px; padding-left:15px;">
+                    <input type="text" name="Create_Person" id="Create_Person" placeholder="上传人" value="@MF.Create_Person" class="form-control input-sm">
+                </td>
+
+                <td style="width:120px; padding-left:15px;">
+                    <input type="text" name="Work_Down_Person" id="Work_Down_Person" placeholder="配货作业人" value="@MF.Work_Down_Person" class="form-control input-sm">
+                </td>
+
+                <td style="width:120px; padding-left:15px;">
+                    <input type="text" name="Work_Out_Person" id="Work_Out_Person" placeholder="验货作业人" value="@MF.Work_Out_Person" class="form-control input-sm">
+                </td>
+
+                <td style="width:250px; padding-left:15px;">
+                    <div class="input-group input-group-sm" style="width:250px; ">
+                        <input type="text" name="Task_Bat_No" id="Task_Bat_No" placeholder="任务编号" value="@MF.Task_Bat_No" class="form-control ">
+                        <div class="input-group-btn">
+                            <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                        </div>
+                    </div>
+                </td>
+
+                <td style="float:right;width:30px;">&nbsp;</td>
+
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:220px;">任务编号</th>
+            <th style="width:70px;">上传日期</th>
+            <th style="width:70px;">上传人</th>
+            <th style="width:70px;">运输方式</th>
+            <th style="width:200px;">客户名称</th>
+            <th style="width:60px;text-align:right">品项</th>
+            <th style="width:60px;text-align:right">数量</th>
+            <th style="width:70px;text-align:right">任务状态</th>
+            <th style="width:70px;">配货作业人</th>
+            <th style="width:70px;">验货作业人</th>
+            <th style="width:70px;">驾驶员</th>
+            <th style="width:70px;">&nbsp;</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model.Rows)
+        {
+            <tr>
+                <td>&nbsp;</td>
+                <td style="vertical-align:top;">
+                    <a href="~/WMS_Out/WMS_Out_Task_Preview_Pick/@x.Head_ID" target="_blank">@x.Task_Bat_No_Str</a>
+                </td>
+                <td style="vertical-align:top;">@x.Create_DT.ToString("yyyy-MM-dd")</td>
+                <td style="vertical-align:top;">@x.Create_Person</td>
+                <td style="vertical-align:top;">@x.Logistics_Mode</td>
+                <td style="vertical-align:top;">@x.Customer_Name</td>
+                <td style="vertical-align:top;text-align:right">@x.MatSn_Count.ToString("N0")</td>
+                <td style="vertical-align:top;text-align:right">@x.Quantity_Sum.ToString("N0")</td>
+                <td style="vertical-align:top;text-align:right">@x.Status</td>
+                <td style="vertical-align:top;">@x.Work_Down_Person</td>
+                <td style="vertical-align:top;">@x.Work_Out_Person</td>
+                <td style="vertical-align:top;">@x.Driver_Name</td>
+                <td style="vertical-align:top;text-align:center">
+                    <button class="btn btn-info btn-xs" onclick="ShowSetItem('@x.Head_ID')">派工</button>
+                </td>
+                <td>&nbsp;</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>
+
+<!--派工-->
+<script>
+    function ShowSetItem(Head_ID) {
+        ReloadSetItem(Head_ID);
+        $('#MySetModel').modal({ backdrop: 'static' });
+    }
+
+    function CloseSetItem() { $('#MySetModel').modal('hide'); }
+
+    function ReloadSetItem(Head_ID) {
+        $("#SetContext").load("/WMS_Out/WMS_Out_Task_Set/" + Head_ID);
+    }
+</script>
+<div class="modal fade" id="MySetModel">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:350px;">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="CloseSetItem()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">派工</h5>
+            </div>
+            <div class="modal-body" id="SetContext"></div>
+        </div>
+    </div>
+</div>
+<!--派工-->

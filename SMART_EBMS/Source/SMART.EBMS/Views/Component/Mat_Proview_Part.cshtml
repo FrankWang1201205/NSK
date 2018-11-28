@@ -1,0 +1,285 @@
+﻿@model Material
+@{
+    Layout = null;
+}
+
+<ul class="TopMenuNavSub_Sim" style="margin-left:0px; padding-left:0px;">
+    <li><a id="TopSub_AA" onclick="SubShow(this)" href="javascript:void(0);" style="margin-left:0px;" class="TopMenuNavSub_Sim-act">产品信息</a></li>
+    <li><a id="TopSub_BB" onclick="SubShow(this)" href="javascript:void(0);">定价变动</a></li>
+    <li><a id="TopSub_CC" onclick="SubShow(this)" href="javascript:void(0);">库存明细</a></li>
+</ul>
+
+<div style="height:10px; width:100%; overflow:hidden;">&nbsp;</div>
+
+<div id="Div_TopSub_AA" class="Div_TopSub" style="width:100%; height:auto; overflow:hidden;">
+    <table style="width:100%;">
+        <tr>
+            <td style="vertical-align:top;  width:120px;">
+                    @if (!string.IsNullOrEmpty(Model.MatImgPath))
+                    {
+                        <div style="border: 1px solid #e5e5e5; width: 100%;  text-align: center; background-color: white; "><img style="width:120px;" src="~/@Model.MatImgPath" /></div>
+                    }
+                    else
+                    {
+                        <div style="border: 1px solid #e5e5e5; width: 100%; height:120px; line-height:120px; text-align: center; background-color: white; color:silver; ">No Photo</div>
+                    }
+
+                <p>&nbsp;</p>
+                <table style="width:90%; color:#808080;">
+                    <tr><td colspan="2">产品创建</td></tr>
+                    <tr>
+                        <td>@Model.CreateTime.ToString("yyyy-MM-dd")</td>
+                        <td style="text-align:right;">@Model.CreatePerson</td>
+                    </tr>
+
+                    @if (!string.IsNullOrEmpty(Model.LastUpdatePerson))
+                    {
+                        <tr>
+                            <td colspan="2" style="padding-top:15px;">最近更新</td>
+                        </tr>
+                        <tr>
+                            <td>@Model.LastUpdateTime.ToString("yyyy-MM-dd")</td>
+                            <td style="text-align:right;">@Model.LastUpdatePerson</td>
+                        </tr>
+                    }
+                </table>
+            </td>
+            <td style="vertical-align:top; padding-left:10px;">
+                <table id="ShowTable" class="FormTable_Sim FormTable_Sim_Border text-nowrap" style="width:100%;">
+                    <tr><td colspan="8" style="overflow:hidden; height:2px;  padding:0px;"></td></tr>
+
+                    <tr>
+                        <td colspan="8" style="background-color:#e5e5e5; padding-top:4px; padding-bottom:4px;"><strong>基本信息</strong></td>
+                    </tr>
+
+                    <tr>
+                        <td style="text-align:right; width:10px;">型　号</td>
+                        <td colspan="7">
+                            <span class="MatSn_Font" style="font-size:14px;">@Model.MatSn</span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="text-align: right; ">名　称</td>
+                        <td colspan="7">@Model.MatName</td>
+                    </tr>
+
+                    <tr>
+                        <td style="text-align: right; ">规　格</td>
+                        <td colspan="7">@Model.MatSpecifications</td>
+                    </tr>
+
+                    <tr>
+                        <td style="text-align: right;">品　牌</td>
+                        <td style="width:100px;">@Model.MatBrand</td>
+                        <td style="text-align: right; width:10px;">产　地</td>
+                        <td style="width:100px;">@Model.PC_Place</td>
+                        <td style="text-align: right;  width:10px;">单　位</td>
+                        <td style="width:100px;">@Model.MatUnit</td>
+                        <td style="text-align: right;  width:10px;">当前库存</td>
+                        <td style="width:100px;"><strong>@Model.WMS_Stock_Qty</strong></td>
+                    </tr>
+
+                    <tr>
+                        <td style="text-align: right; ">重量(KG)</td>
+                        <td>@Model.Weight</td>
+                        <td style="text-align: right;">起订量</td>
+                        <td>@Model.MOQ</td>
+                        <td style="text-align: right;">装箱数</td>
+                        <td>@Model.Pack_Qty</td>
+                        <td style="text-align:right;">重点备货</td>
+                        <td>
+                            @if (Model.Is_Stock == 1)
+                            {
+                                <span>是</span>
+                            }
+                            else
+                            {
+                                <span>否</span>
+                            }
+                        </td>
+                    </tr>
+
+
+                    <tr>
+                        <td style="text-align:right; ">PC</td>
+                        <td>@Model.PC</td>
+                        <td style="text-align: right;">生产周期</td>
+                        <td><span>@Model.PC_Day</span> <span>天</span></td>
+                        <td style="text-align: right;">指令月</td>
+                        <td>@Model.PC_Mon</span></td>
+                        <td style="text-align: right;">生产月</td>
+                        <td>@Model.PC_Mon_Type</td>
+                    </tr>
+
+                    <tr><td colspan="8" style="overflow:hidden; height:2px;  padding:0px;"></td></tr>
+
+
+                    <tr>
+                        <td colspan="8" style="background-color:#e5e5e5; padding-top:4px; padding-bottom:4px;"><strong>定价信息</strong></td>
+                    </tr>
+
+                    <tr>
+                        <td style="text-align:right; ">定价品</td>
+                        <td>@Model.Price_Is_AM</td>
+                        <td colspan="6">&nbsp;</td>
+                    </tr>
+
+                    <tr>
+                        <td style="text-align:right;">AM定价</td>
+                        <td>
+                            @if (Model.Price_Is_AM == Price_Is_AM_Emun.是.ToString())
+                            {
+                                <span>@Model.Price_AM.ToString("0.0000")</span>
+                            }
+                            else
+                            {
+                                <span style="color:silver;">n.a</span>
+                            }
+                        </td>
+                        <td style="text-align:right;">折扣率</td>
+                        <td>
+                            @if (Model.Price_Is_AM == Price_Is_AM_Emun.是.ToString())
+                            {
+                                <span>@Model.Price_AM_Rate</span><span>%</span>
+                            }
+                            else
+                            {
+                                <span style="color:silver;">n.a</span>
+                            }
+                        </td>
+                        <td style="text-align:right;">未税契约单价</td>
+                        <td>
+                            @if (Model.Price_Is_AM == Price_Is_AM_Emun.是.ToString())
+                            {
+                                <span style="color:silver;">n.a</span>
+                            }
+                            else
+                            {
+                                <span>@Model.Price_Cost_Ref_QY.ToString("0.0000")</span>
+                            }
+
+                        </td>
+                        <td style="text-align:right;">未税参考进价</td>
+                        <td>@Model.Price_Cost_Ref.ToString("0.0000")</td>
+                    </tr>
+
+                    <tr>
+                        <td style="text-align:right;">含税参考进价</td>
+                        <td><strong>@Model.Price_Cost_Ref_Vat.ToString("0.0000")</strong></td>
+                        <td colspan="4">&nbsp;</td>
+                        <td style="text-align:right;">未税目标进价</td>
+                        <td>@Model.Price_Cost_Target.ToString("0.0000")</td>
+                    </tr>
+
+                    <tr><td colspan="8" style="overflow:hidden; height:2px; background-color:#f5f5f5; padding:0px;"></td></tr>
+
+                    <tr>
+                        <td style="text-align:right;">零售价</td>
+                        <td>@Model.Price_Retail.ToString("0.0000")</td>
+                        <td style="text-align:right;">批发价 1</td>
+                        <td>@Model.Price_Trade_A.ToString("0.0000")</td>
+                        <td style="text-align:right;">批发价 2</td>
+                        <td>@Model.Price_Trade_B.ToString("0.0000")</td>
+                        <td style="text-align:right;">不含税价</td>
+                        <td>@Model.Price_Trade_NoTax.ToString("0.0000")</td>
+                    </tr>
+                    <tr><td colspan="8" style="overflow:hidden; height:2px;  padding:0px;"></td></tr>
+
+
+                    <tr>
+                        <td colspan="8" style="background-color:#e5e5e5; padding-top:4px; padding-bottom:4px;"><strong>订货信息</strong></td>
+                    </tr>
+
+                    <tr>
+                        <td colspan="8" style="padding:0px;">
+                            @if(Model.Mat_CODE_List.Any() == false)
+                            {
+                                <p style="text-align:center; color:silver; padding-top:5px;">无</p>
+                            }
+                            else
+                            {
+                                <table class="table table-condensed table-bordered">
+                                    <tr class="active">
+                                        <td style="width:30px;">#</td>
+                                        <td style="width:100px;">CODE</td>
+                                        <td style="width:100px;">订货窗口</td>
+                                        <td style="width:100px; text-align:right;">未税订货价格</td>
+                                        <td>&nbsp;</td>
+                                    </tr>
+
+                                    @foreach (var x in Model.Mat_CODE_List)
+                                    {
+                                        <tr>
+                                            <td>@x.Line_Number</td>
+                                            <td>@x.CODE</td>
+                                            <td>@x.Order_Window</td>
+                                            <td style="text-align:right;">@x.Order_Price.ToString("0.0000")</td>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                    }
+                                </table>
+                            }
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="padding-top:10px;">
+                <pre style="background-color: white; font-family:'Microsoft YaHei UI'; border: 0px; padding: 0px;  width: 100%; font-size: 12px; max-height:100px; overflow-y:auto; word-break:break-all;">@Model.MatSummary</pre>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div id="Div_TopSub_BB" class="Div_TopSub" style="width:100%; height:auto; min-height:300px; overflow:hidden; display:none;"></div>
+
+<div id="Div_TopSub_CC" class="Div_TopSub" style="width:100%; height:auto; min-height:300px; overflow:hidden; display:none;">
+    <table id="ShowTable" class="FormTable_Sim text-nowrap" style="width:100%;">
+        <tr>
+            <td style="text-align: right; width: 80px;">当前库存：</td>
+            <td colspan="7">
+                <span style="font-size:14px;">@Model.WMS_Stock_Qty</span>
+            </td>
+        </tr>
+    </table>
+
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+</div>
+
+<p style="text-align:right; color:#e5e5e5;">@Model.MatID</p>
+
+<script>
+    function SubShow(Obj) {
+        $(".TopMenuNavSub_Sim a").removeClass('TopMenuNavSub_Sim-act');
+        $(Obj).addClass('TopMenuNavSub_Sim-act');
+        $(".Div_TopSub").hide();
+
+        var ID = $(Obj).attr("id");
+        $("#Div_" + ID).show();
+
+        if (ID == "TopSub_BB")
+        {
+            Reload_Mat_Proview_Part_Price(ID);
+        }
+
+    }
+
+    //定价变动
+    function Reload_Mat_Proview_Part_Price(ID)
+    {
+        var Div_Obj = $("#Div_" + ID);
+        $(Div_Obj).text("Loading...");
+        $(Div_Obj).load("/Component/Mat_Proview_Part_Price/@Model.MatID");
+    }
+
+
+
+</script>
+

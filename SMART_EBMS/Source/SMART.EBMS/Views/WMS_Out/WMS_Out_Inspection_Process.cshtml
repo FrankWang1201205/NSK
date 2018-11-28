@@ -1,0 +1,224 @@
+﻿@model PageList<WMS_Out_Head>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    WMS_Out_Filter MF = ViewData["MF"] as WMS_Out_Filter;
+    User U = ViewData["User"] as User;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("验货包装");</script>
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/WMS_Out/WMS_Out_Inspection_Process" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:100px;  padding-left:5px;">
+                    <select name="Logistics_Mode" id="Logistics_Mode" class="form-control input-sm" onchange="SubmitPageIndex(1)">
+                        <option value="">运输方式</option>
+                        @foreach (var x in MF.Logistics_Mode_List)
+                        {
+                            if (MF.Logistics_Mode == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:120px; padding-left:15px;">
+                    <input type="text" name="Create_Person" id="Create_Person" placeholder="上传人" value="@MF.Create_Person" class="form-control input-sm">
+                </td>
+                <td style="width:120px; padding-left:15px;">
+                    <input type="text" name="Work_Out_Person" id="Work_Out_Person" placeholder="作业人" value="@MF.Work_Out_Person" class="form-control input-sm">
+                </td>
+
+                <td style="width:250px; padding-left:15px;">
+                    <div class="input-group input-group-sm" style="width: 250px; ">
+                        <input type="text" name="Task_Bat_No" id="Task_Bat_No" placeholder="任务编号" value="@MF.Task_Bat_No" class="form-control ">
+                        <div class="input-group-btn">
+                            <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                        </div>
+                    </div>
+                </td>
+
+                <td style="float:right;">&nbsp;</td>
+
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:220px;">任务编号</th>
+            <th style="width:70px;">运输方式</th>
+            <th style="width:200px;">客户名称</th>
+            <th style="width:60px;text-align:right">品项</th>
+            <th style="width:60px;text-align:right">配货数量</th>
+            <th style="width:70px;">任务状态</th>
+            <th style="width:70px;">上传人</th>
+            <th style="width:70px;">验货方式</th>
+            <th style="width:50px;text-align:right">总箱数</th>
+            <th style="width:70px;">作业人</th>
+            <th style="width:70px;">驾驶员</th>
+            <th style="width:50px;">&nbsp;</th>
+            @if (U.RoleTitle == User_RoleTitle_Emun.系统管理员.ToString() || U.RoleTitle == User_RoleTitle_Emun.公司经理.ToString())
+            {
+                <th style="width:80px;">&nbsp;</th>
+            }
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model.Rows)
+        {
+            <tr>
+                <td>&nbsp;</td>
+                <td style="vertical-align:top;">
+                    @if (string.IsNullOrEmpty(x.Scan_Mat_Type) || x.Total_Cases <= 0 || string.IsNullOrEmpty(x.Work_Out_Person))
+                    {
+                        <span>@x.Task_Bat_No_Str</span>
+                    }
+                    else
+                    {
+                        <a href="~/WMS_Out/WMS_Out_Task_Preview/@x.Head_ID" target="_blank">@x.Task_Bat_No_Str</a>
+                    }
+                </td>
+
+                <td style="vertical-align:top;">@x.Logistics_Mode</td>
+                <td style="vertical-align:top;">@x.Customer_Name</td>
+                <td style="vertical-align:top;text-align:right">@x.MatSn_Count.ToString("N0")</td>
+                <td style="vertical-align:top;text-align:right">@x.Quantity_Sum.ToString("N0")</td>
+                <td style="vertical-align:top;">@x.Status</td>
+                <td style="vertical-align:top;">@x.Create_Person</td>
+                <td style="vertical-align:top;">@x.Scan_Mat_Type</td>
+                <td style="vertical-align:top;text-align:right">@x.Total_Cases.ToString("N0")</td>
+                <td style="vertical-align:top;">@x.Work_Out_Person</td>
+                <td style="vertical-align:top;">@x.Driver_Name</td>
+                <td style="vertical-align:top;text-align:center">
+                    <button type="button" class="btn btn-info btn-xs" onclick="ShowModal('@x.Head_ID')">设置</button>
+                </td>
+                @if (U.RoleTitle == User_RoleTitle_Emun.系统管理员.ToString() || U.RoleTitle == User_RoleTitle_Emun.公司经理.ToString())
+                {
+                    <td style="vertical-align:top;text-align:center">
+                        <button class="btn btn-danger btn-xs" type="button" onclick="Cancel_Task('@x.Head_ID')">撤销验货单</button>
+                    </td>
+                }
+                <td>&nbsp;</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>
+
+<script>
+    $('.Time_Select').datetimepicker({
+        language: 'zh-CN',
+        weekStart: 1,
+        todayBtn: 1,
+        autoclose: 1,
+        format: "yyyy-mm-dd",
+        todayHighlight: 1,
+        startView: 2,
+        startDate: "2018-01-01",
+        minView: 2,
+        forceParse: 0
+    });
+
+    function Select_Customer_Item(CID, Cust_Name) {
+        $("#Link_Cus_ID").val(CID);
+        $("#Cust_Name").val(Cust_Name);
+        $("#CustList_Select").hide();
+    }
+</script>
+
+
+<!--设置收货方式-->
+<script>
+    function ShowModal(Head_ID) {
+        ReloadShowItem(Head_ID);
+        $('#MyShowModal').modal({ backdrop: 'static' });
+    }
+
+    function CloseShowItem() { $('#MyShowModal').modal('hide'); }
+
+    function ReloadShowItem(Head_ID) {
+        $("#ShowContext").text("Loading...");
+        $("#ShowContext").load("/WMS_Out/WMS_Out_Inspection_Process_Sub/" + Head_ID);
+    }
+</script>
+<div class="modal fade" id="MyShowModal">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:350px;">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="CloseShowItem()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">设置</h5>
+            </div>
+            <div class="modal-body" id="ShowContext"></div>
+        </div>
+    </div>
+</div>
+<!--设置收货方式-->
+
+
+<form id="Cancel_Form" action="~/WMS_Out/WMS_Out_Inspection_Process_Cancel_Post" method="post">
+    <input type="hidden" id="Head_ID" name="Head_ID" value=""/>
+    <script>
+        function Cancel_Task(Head_ID) {
+            if (confirm("确认取消此任务单？") == false) {
+                return false;
+            }
+
+            $("#Head_ID").val(Head_ID);
+            $("#Cancel_Form").submit();
+        }
+    </script>
+</form>
+

@@ -1,0 +1,62 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    User U = ViewData["User"] as User;
+}
+<div style="padding-top:80px; padding-left:90px;">
+    <table style="width:auto; font-size:26px; color:#2D6AA2;" class="text-nowrap">
+        <tr>
+            <td style="vertical-align:bottom;">Welcome</td>
+            <td style="padding-left:20px; vertical-align:bottom;">@U.UserFullName <span style="font-size:16px; padding-left:20px;">@U.RoleTitle</span></td>
+        </tr>
+
+        <tr>
+            <td style="vertical-align:bottom;">&nbsp;</td>
+            <td style="padding-left:20px; vertical-align:bottom; font-size:16px; padding-top:15px;">
+                <p>最近登陆： @U.LastLoginDate.ToString("yyyy-MM-dd HH:mm")</p>
+            </td>
+            <td style="padding-left:20px; vertical-align:bottom; font-size:16px; padding-top:15px; font-size:14px;">
+                <p>
+                    
+                </p>
+            </td>
+        </tr>
+
+        <tr>
+            <td>&nbsp;</td>
+            <td style="padding-left:20px; padding-top:10px;">
+                <table style="font-size:14px;">
+                    <tr>
+                        <td style="padding-bottom:20px;">
+                            <a href="#"><img src="~/Content/Images/Index_A01.png" style="padding:14px; width:60px;  border-radius:5px; border:2px solid #c3c3c3" /></a>
+                        </td>
+                        <td style="vertical-align:middle; padding-left:10px; padding-bottom:30px;">
+                            <a href="~/Index/MyUserInfo">修改<br />账号信息</a>
+                        </td>
+                    </tr>
+                    
+                </table>
+            </td>
+            <td>&nbsp;</td>
+        </tr>
+    </table>
+
+    @*<table style="width:auto; font-size:26px;">
+        <tr>
+            <td style="font-size:16px;line-height:35px;">
+                <ul>
+                    <li><strong style="color:#2D6AA2;">最新消息：</strong></li>
+                    <li id="News1">◉ 任务编号：201806050001，已于2018-06-05到货，请查看！<span style="padding-left:20px;padding-right:20px;font-weight:bold;color:red;">new</span><button type="button" class="btn btn-info btn-xs" onclick="Change_Status('1')">已阅读</button></li>
+                    <li id="News2">◉ 任务编号：201806050002，已超过预计到货时间（2018-06-05），请与供应商及时沟通！<span style="padding-left:20px;padding-right:20px;font-weight:bold;color:red;">new</span><button type="button" class="btn btn-info btn-xs" onclick="Change_Status('2')">已阅读</button></li>
+                </ul>
+            </td>
+        </tr>
+    </table>*@
+</div>
+
+<script>
+    function Change_Status(No) {
+        if(confirm("是否阅读？")){
+            $("#News" + No).hide();
+        }
+    }
+</script>

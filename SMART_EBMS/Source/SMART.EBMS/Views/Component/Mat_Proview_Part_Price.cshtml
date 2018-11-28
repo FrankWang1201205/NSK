@@ -1,0 +1,152 @@
+﻿@model List<Mat_Price_Change>
+@{
+    Layout = null;
+}
+
+<table class="table table-bordered table-condensed">
+    <tr class="active">
+        <td>项</td>
+        <td style="text-align:center;">定价品</td>
+        <td style="text-align:right;">AM定价</td>
+        <td style="text-align:right;">折扣率</td>
+        <td style="text-align:right;">未税契约单价</td>
+        <td style="text-align:right;">未税参考进价</td>
+        <td style="text-align:right;">未税目标进价</td>
+        <td style="text-align:right;">零售价</td>
+        <td style="text-align:right;">批发价 1</td>
+        <td style="text-align:right;">批发价 2</td>
+        <td style="text-align:right;">不含税价</td>
+    </tr>
+
+    @if(Model.Any() == false)
+    {
+        <tr><td colspan="11" style="color:silver; text-align:center;">暂无变动信息！</td></tr>
+    }
+
+    @foreach (var x in Model)
+    {
+        <tr>
+            <td style="text-align:right;">变动后价格</td>
+            <td style="text-align:center;">
+                @if(x.Mat_New.Price_Is_AM != x.Mat_OLD.Price_Is_AM)
+                {
+                    <span style="color:blue;">@x.Mat_New.Price_Is_AM</span>
+                }
+                else
+                {
+                    <span>@x.Mat_New.Price_Is_AM</span>
+                }
+            </td>
+            <td style="text-align:right;">
+                @if (x.Mat_New.Price_AM != x.Mat_OLD.Price_AM)
+                {
+                    <span style="color:blue;">@x.Mat_New.Price_AM.ToString("0.0000")</span>
+                }
+                else
+                {
+                    <span>@x.Mat_New.Price_AM.ToString("0.0000")</span>
+                }
+            </td>
+            <td style="text-align:right;">
+                @if (x.Mat_New.Price_AM_Rate != x.Mat_OLD.Price_AM_Rate)
+                {
+                    <span style="color:blue;">@x.Mat_New.Price_AM_Rate.ToString("0.00")</span>
+                }
+                else
+                {
+                    <span>@x.Mat_New.Price_AM_Rate.ToString("0.00")</span>
+                }
+            </td>
+            <td style="text-align:right;">
+                @if (x.Mat_New.Price_Cost_Ref_QY != x.Mat_OLD.Price_Cost_Ref_QY)
+                {
+                    <span style="color:blue;">@x.Mat_New.Price_Cost_Ref_QY.ToString("0.0000")</span>
+                }
+                else
+                {
+                    <span>@x.Mat_New.Price_Cost_Ref_QY.ToString("0.0000")</span>
+                }
+            </td>
+            <td style="text-align:right;">
+                @if (x.Mat_New.Price_Cost_Ref != x.Mat_OLD.Price_Cost_Ref)
+                {
+                    <span style="color:blue;">@x.Mat_New.Price_Cost_Ref.ToString("0.0000")</span>
+                }
+                else
+                {
+                    <span>@x.Mat_New.Price_Cost_Ref.ToString("0.0000")</span>
+                }
+            </td>
+            <td style="text-align:right;">
+                @if(x.Mat_New.Price_Cost_Target != x.Mat_OLD.Price_Cost_Target)
+                {
+                    <span style="color:blue;">@x.Mat_New.Price_Cost_Target.ToString("0.0000")</span>
+                }
+                else
+                {
+                    <span>@x.Mat_New.Price_Cost_Target.ToString("0.0000")</span>
+                }
+            </td>
+            <td style="text-align:right;">
+                @if (x.Mat_New.Price_Retail != x.Mat_OLD.Price_Retail)
+                {
+                    <span style="color:blue;">@x.Mat_New.Price_Retail.ToString("0.0000")</span>
+                }
+                else
+                {
+                    <span>@x.Mat_New.Price_Retail.ToString("0.0000")</span>
+                }
+            </td>
+            <td style="text-align:right;">
+                @if (x.Mat_New.Price_Trade_A != x.Mat_OLD.Price_Trade_A)
+                {
+                    <span style="color:blue;">@x.Mat_New.Price_Trade_A.ToString("0.0000")</span>
+                }
+                else
+                {
+                    <span>@x.Mat_New.Price_Trade_A.ToString("0.0000")</span>
+                }
+            </td>
+            <td style="text-align:right;">
+                @if (x.Mat_New.Price_Trade_B != x.Mat_OLD.Price_Trade_B)
+                {
+                    <span style="color:blue;">@x.Mat_New.Price_Trade_B.ToString("0.0000")</span>
+                }
+                else
+                {
+                    <span>@x.Mat_New.Price_Trade_B.ToString("0.0000")</span>
+                }
+            </td>
+            <td style="text-align:right;">
+                @if (x.Mat_New.Price_Trade_NoTax != x.Mat_OLD.Price_Trade_NoTax)
+                {
+                    <span style="color:blue;">@x.Mat_New.Price_Trade_NoTax.ToString("0.0000")</span>
+                }
+                else
+                {
+                    <span>@x.Mat_New.Price_Trade_NoTax.ToString("0.0000")</span>
+                }
+            </td>
+        </tr>
+
+        <tr style="color:#808080"  class="active">
+            <td style="text-align:right;">原始价格</td>
+            <td style="text-align:center;">@x.Mat_OLD.Price_Is_AM</td>
+            <td style="text-align:right;">@x.Mat_OLD.Price_AM.ToString("0.0000")</td>
+            <td style="text-align:right;">@x.Mat_OLD.Price_AM_Rate.ToString("0.00")</td>
+            <td style="text-align:right;">@x.Mat_OLD.Price_Cost_Ref_QY.ToString("0.0000")</td>
+            <td style="text-align:right;">@x.Mat_OLD.Price_Cost_Ref.ToString("0.0000")</td>
+            <td style="text-align:right;">@x.Mat_OLD.Price_Cost_Target.ToString("0.0000")</td>
+            <td style="text-align:right;">@x.Mat_OLD.Price_Retail.ToString("0.0000")</td>
+            <td style="text-align:right;">@x.Mat_OLD.Price_Trade_A.ToString("0.0000")</td>
+            <td style="text-align:right;">@x.Mat_OLD.Price_Trade_B.ToString("0.0000")</td>
+            <td style="text-align:right;">@x.Mat_OLD.Price_Trade_NoTax.ToString("0.0000")</td>
+        </tr>
+
+        <tr>
+            <td colspan="100" style="text-align:right; padding-right:5px; padding-bottom:20px;">更新时间：@x.Create_DT.ToString("yyy-MM-dd HH:mm") <span style="padding-left:5px;">更新人：@x.Person</span></td>
+        </tr>
+    }
+</table>
+
+

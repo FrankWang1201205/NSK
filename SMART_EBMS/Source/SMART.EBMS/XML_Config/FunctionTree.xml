@@ -1,0 +1,239 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Tree>
+  <FunctionTree_OFF ModularName="产品" ModularIcon="glyphicon glyphicon-bookmark">
+    <SubMenu Name="产品查询">
+      <TopMenu URL="MaterialTemp/Mat_Add_Single" TopName="产品资料" RoleTitle=""/>
+      <TopMenu URL="MaterialTemp/Mat_Batch" TopName="库存信息" RoleTitle=""/>
+    </SubMenu>
+  </FunctionTree_OFF>
+
+  <FunctionTree ModularName="任务" ModularIcon="glyphicon glyphicon-bookmark">
+    <SubMenu Name="任务通知">
+      <TopMenu URL="WMS_Task_Notice/WMS_Task_Notice" TopName="任务通知" RoleTitle=""/>
+    </SubMenu>
+    <SubMenu Name="收货入库">
+      <TopMenu URL="WMS_Task_In/WMS_In_Start" TopName="任务导入" RoleTitle="公司经理,采购主管,采购专员,销售经理,客服专员"/>
+      <TopMenu URL="WMS_Task_In/WMS_In_Process" TopName="收货进程" RoleTitle="公司经理,采购主管,采购专员,销售经理,客服专员"/>
+      <TopMenu URL="WMS_Task_In/WMS_In_Record" TopName="收货记录" RoleTitle="公司经理,采购主管,采购专员,销售经理,客服专员"/>
+    </SubMenu>
+    <SubMenu Name="配货出库">
+      <TopMenu URL="WMS_Task_Out/WMS_Out_Start" TopName="任务导入" RoleTitle="公司经理,采购主管,采购专员,销售经理,客服专员"/>
+      <TopMenu URL="WMS_Task_Out/WMS_Out_Process" TopName="出库进程" RoleTitle="公司经理,采购主管,采购专员,销售经理,客服专员"/>
+      <TopMenu URL="WMS_Task_Out/WMS_Out_Record" TopName="出库记录" RoleTitle="公司经理,采购主管,采购专员,销售经理,客服专员"/>
+    </SubMenu>
+  
+  </FunctionTree>
+
+  <FunctionTree_OFF ModularName="产品" ModularIcon="glyphicon glyphicon-th-list">
+    <SubMenu_OFF Name="产品查询">
+      <TopMenu URL="MatSearch/SearchList" TopName="系统产品" RoleTitle=""/>
+      <TopMenu URL="MatSearch/CustMatList" TopName="客户产品" RoleTitle=""/>
+    </SubMenu_OFF>
+
+    <SubMenu_OFF Name="产品资料">
+      <TopMenu URL="Material/Mat_Add_Single" TopName="单品创建" RoleTitle=""/>
+      <TopMenu URL="Material/Mat_Batch" TopName="批量创建" RoleTitle=""/>
+      <TopMenu URL="Material/Mat_Update" TopName="产品更新" RoleTitle=""/>
+      <TopMenu URL="Material/Mat_Price" TopName="价格维护" RoleTitle=""/>
+      <TopMenu URL="Brand/Brand_Update" TopName="品牌维护" RoleTitle=""/>
+      <TopMenu URL="Material/Mat_Name" TopName="产品名称" RoleTitle=""/>
+      <TopMenu URL="Catalog/Cat_Config" TopName="目录维护" RoleTitle=""/>
+    </SubMenu_OFF>
+ 
+    <SubMenu_OFF Name="产品图片">
+      <TopMenu URL="MatImg/Imglibrary" TopName="图片维护" RoleTitle=""/>
+      <TopMenu URL="MatImg/ImgLinkMat" TopName="图片关联" RoleTitle=""/>
+    </SubMenu_OFF>
+
+    <SubMenu_OFF Name="官网展示">
+      <TopMenu URL="WebSite/PublicList" TopName="上架管理" RoleTitle=""/>
+      <TopMenu URL="WebSite/TopList" TopName="置顶显示" RoleTitle=""/>
+      <TopMenu URL="WebSite/PromotionList" TopName="调价促销" RoleTitle=""/>
+    </SubMenu_OFF>
+  </FunctionTree_OFF>
+
+  <FunctionTree_OFF ModularName="销售" ModularIcon="glyphicon glyphicon-bookmark">
+    <SubMenu Name="报价管理">
+      <TopMenu URL="RFQ/RFQ_New" TopName="新增询价" RoleTitle=""/>
+      <TopMenu URL="RFQ/RFQ_Set" TopName="销售报价" RoleTitle=""/>
+      <TopMenu URL="RFQ/RFQ_Aud" TopName="报价审核" RoleTitle=""/>
+    </SubMenu>
+    <SubMenu_OFF Name="订单管理">
+      <TopMenu URL="SO/_A" TopName="创建订单" RoleTitle=""/>
+      <TopMenu URL="SO/_B" TopName="更新订单" RoleTitle=""/>
+      <TopMenu URL="SO/_C" TopName="查看订单" RoleTitle=""/>
+    </SubMenu_OFF>
+    <SubMenu_Off Name="发运交付">
+      <TopMenu URL="Delivery/_A" TopName="创建指令" RoleTitle=""/>
+      <TopMenu URL="Delivery/_B" TopName="更新指令" RoleTitle=""/>
+      <TopMenu URL="Delivery/_C" TopName="查询指令" RoleTitle=""/>
+    </SubMenu_Off>
+    <SubMenu_Off Name="销售开票">
+      <TopMenu URL="SoInvoice/_A" TopName="创建申请" RoleTitle=""/>
+      <TopMenu URL="SoInvoice/_B" TopName="查看更新" RoleTitle=""/>
+    </SubMenu_Off>
+    <SubMenu_Off Name="退货换货">
+      <TopMenu URL="SoReturn/_A" TopName="下达指令" RoleTitle=""/>
+      <TopMenu URL="SoReturn/_B" TopName="更新指令" RoleTitle=""/>
+      <TopMenu URL="SoReturn/_C" TopName="查询指令" RoleTitle=""/>
+    </SubMenu_Off>
+    <SubMenu Name="客户资料">
+      <TopMenu URL="Customer/Cu_Search" TopName="客户查询" RoleTitle=""/>
+      <TopMenu URL="Customer/Cu_Add" TopName="客户新增" RoleTitle=""/>
+      <TopMenu URL="Customer/Cu_Update" TopName="客户更新" RoleTitle=""/>
+      <TopMenu_Off URL="Customer/Cu_Update_Group" TopName="集团管理" RoleTitle=""/>
+    </SubMenu>  
+  </FunctionTree_OFF>
+
+  <FunctionTree_OFF ModularName="采购" ModularIcon="glyphicon glyphicon-edit">
+    <SubMenu Name="产品比对">
+      <TopMenu URL="Purchase/Purchase_Temp_List" TopName="价格比对" RoleTitle=""/>
+      <TopMenu URL="Purchase/Purchase_Temp_MatSn_List" TopName="型号比对" RoleTitle=""/>
+    </SubMenu>
+
+    <SubMenu_OFF Name="内部询价">
+      <TopMenu URL="RFQ_Inquiry/RFQ_Apply" TopName="受理询价" RoleTitle=""/>
+      <TopMenu URL="RFQ_Inquiry/RFQ_Report" TopName="答复询价" RoleTitle=""/>
+      <TopMenu URL="RFQ_Inquiry/RFQ_Inq_Search" TopName="记录查询" RoleTitle=""/>
+    </SubMenu_OFF>
+
+    <SubMenu_OFF Name="采购下单">
+      <TopMenu URL="PO/PlanToPo" TopName="创建" RoleTitle=""/>
+      <TopMenu URL="PO/SentToSup" TopName="下达" RoleTitle=""/>
+      <TopMenu URL="PO/ConfirmPo" TopName="确认" RoleTitle=""/>
+      <TopMenu URL="PO/PoHead_List" TopName="更新" RoleTitle=""/>
+      <TopMenu URL="PO/PoHead_Search" TopName="查看" RoleTitle=""/>
+    </SubMenu_OFF>
+
+    <SubMenu_OFF Name="采购交付">
+      <TopMenu URL="POTrack/Wait_Bill_Lading" TopName="待交付" RoleTitle=""/>
+      <TopMenu URL="POTrack/_B" TopName="已交付" RoleTitle=""/>
+    </SubMenu_OFF>
+    
+    <SubMenu_OFF Name="货款请付">
+      <TopMenu URL="Payment/_A" TopName="待请付" RoleTitle=""/>
+      <TopMenu URL="Payment/_B" TopName="已请付" RoleTitle=""/>
+    </SubMenu_OFF>
+  
+</FunctionTree_OFF>
+
+  <FunctionTree ModularName="仓库" ModularIcon="glyphicon glyphicon-th">
+    <SubMenu Name="入库作业">
+      <TopMenu URL="WMS_In/WMS_In_Task" TopName="任务分配" RoleTitle="公司经理,采购主管,仓管主管"/>
+      <TopMenu URL="WMS_In/WMS_In_Operate" TopName="收货入库" RoleTitle="公司经理,采购主管,仓管主管,仓管专员"/>
+      <TopMenu URL="WMS_In/WMS_Person_Search" TopName="作业人管理" RoleTitle="公司经理,采购主管,仓管主管"/>
+    </SubMenu>
+    
+    <SubMenu Name="上架移库">
+      <TopMenu URL="WMS_Up/WMS_Up_Start" TopName="上架通知" RoleTitle="公司经理,采购主管,仓管主管"/>
+      <TopMenu URL="WMS_Up/WMS_Up_Process" TopName="上架进程" RoleTitle="公司经理,采购主管,仓管主管"/>
+      <TopMenu URL="WMS_Up/WMS_Up_Record" TopName="上架记录" RoleTitle="公司经理,采购主管,仓管主管"/>
+      <TopMenu URL="WMS_Up/WMS_Move_Task" TopName="移库通知" RoleTitle="公司经理,采购主管,仓管主管"/>
+      <TopMenu URL="WMS_Up/WMS_Move_Process" TopName="移库进程" RoleTitle="公司经理,采购主管,仓管主管"/>
+      <TopMenu URL="WMS_Up/WMS_Move_Record" TopName="移库记录" RoleTitle="公司经理,采购主管,仓管主管"/>
+    </SubMenu>
+
+    <SubMenu Name="出库作业">
+      <TopMenu URL="WMS_Out/WMS_Out_Task" TopName="任务分配" RoleTitle="公司经理,采购主管,仓管主管"/>
+      <TopMenu URL="WMS_Out/WMS_Out_Pick_Process" TopName="配货作业" RoleTitle="公司经理,采购主管,仓管主管,仓管专员"/>
+      <TopMenu URL="WMS_Out/WMS_Out_Pick_Process_Record" TopName="配货记录" RoleTitle="公司经理,采购主管,仓管主管"/>
+      <TopMenu URL="WMS_Out/WMS_Out_Inspection_Process" TopName="验货包装" RoleTitle="公司经理,采购主管,仓管主管,仓管专员"/>
+      <TopMenu URL="WMS_Out/WMS_Out_Despatch_Process" TopName="出库发运" RoleTitle="公司经理,采购主管,仓管主管,仓管专员"/>
+      <TopMenu URL="WMS_Out/WMS_Out_Record" TopName="出库记录" RoleTitle="公司经理,采购主管,仓管主管"/>
+
+    </SubMenu>
+
+     <SubMenu Name="配货动盘">
+      <TopMenu URL="WMS_Out_Stocktaking/WMS_Out_Stocktaking_Pick" TopName="配货动盘" RoleTitle="公司经理,采购主管,仓管主管,仓管专员"/>
+      <TopMenu URL="WMS_Out_Stocktaking/WMS_Profit_Or_Loss_Other_Check" TopName="动盘盈亏核验" RoleTitle="公司经理,采购主管,仓管主管"/>
+      <TopMenu URL="WMS_Out_Stocktaking/WMS_Profit_Or_Loss_Other" TopName="动盘盈亏记录" RoleTitle="公司经理,采购主管,仓管主管"/>
+    </SubMenu>
+    
+    <SubMenu Name="盘库作业">
+      <TopMenu_OFF URL="WMS_Stocktaking/WMS_Stocktaking_Task_Temp" TopName="底盘任务" RoleTitle="公司经理,采购主管,仓管主管"/>
+      <TopMenu URL="WMS_Stocktaking/WMS_Stocktaking_Task" TopName="盘库任务" RoleTitle="公司经理,采购主管,仓管主管,仓管专员"/>
+      <TopMenu URL="WMS_Stocktaking/WMS_Stocktaking_Task_Record" TopName="盘库记录" RoleTitle="公司经理,采购主管,仓管主管"/>
+      <TopMenu_OFF URL="WMS_Stocktaking/WMS_Stock_Record_Temp" TopName="临时导入" RoleTitle="公司经理,采购主管"/>
+      <TopMenu_OFF URL="WMS_Stocktaking/WMS_Stocktaking_Task_First" TopName="首次盘库" RoleTitle=""/>
+      <TopMenu_OFF URL="WMS_Stocktaking/WMS_Stocktaking_Task_First_MatSn" TopName="端数型号" RoleTitle=""/>
+    </SubMenu>
+    
+    <SubMenu Name="盈亏记录">
+      <TopMenu URL="WMS_Profit_Loss/WMS_Profit_Or_Loss_Check" TopName="盈亏核验" RoleTitle="公司经理,采购主管,仓管主管,财务会计"/>
+      <TopMenu URL="WMS_Profit_Loss/WMS_Profit_Or_Loss" TopName="盈亏记录" RoleTitle="公司经理,采购主管,仓管主管,财务会计"/>
+    </SubMenu>
+    
+    <SubMenu Name="库存查询">
+      <TopMenu URL="WMS_Stock/WMS_Stock_List" TopName="库存产品" RoleTitle=""/>
+      <TopMenu URL="WMS_Stock/WMS_Stock_List_By_Location" TopName="库位产品" RoleTitle=""/>
+      <TopMenu URL="WMS_Stock/WMS_Stock_In_Record" TopName="入库记录" RoleTitle="公司经理,采购主管,仓管主管"/>
+      <TopMenu URL="WMS_Stock/WMS_Stock_Out_Record" TopName="出库记录" RoleTitle="公司经理,采购主管,仓管主管"/>
+    </SubMenu>
+    
+    <SubMenu Name="库位管理">
+      <TopMenu URL="WMS_Loc/Loc_Search" TopName="库位查询" RoleTitle="公司经理,采购主管,仓管主管"/>
+      <TopMenu URL="WMS_Loc/Loc_Update" TopName="库位更新" RoleTitle="公司经理,采购主管,仓管主管"/>
+    </SubMenu>
+  </FunctionTree>
+
+  <FunctionTree ModularName="报表" ModularIcon="glyphicon glyphicon-object-align-bottom">
+    <SubMenu Name="快递费用">
+      <TopMenu URL="Logistics_Cost/Logistics_Cost" TopName="快递费用" RoleTitle=""/>
+      <TopMenu URL="Logistics_Cost/Logistics_Cost_WMS_Out" TopName="出库快递费用" RoleTitle=""/>
+      <TopMenu URL="Logistics_Cost/Driver_Cost" TopName="驾驶员费用" RoleTitle=""/>
+    </SubMenu>
+  </FunctionTree>
+
+  <FunctionTree ModularName="资料" ModularIcon="glyphicon glyphicon-bookmark">
+    <SubMenu Name="产品资料">
+      <TopMenu URL="MaterialTemp/Mat_Add_Single" TopName="单品创建" RoleTitle="公司经理,采购主管,采购专员,销售经理,客服专员"/>
+      <TopMenu URL="MaterialTemp/Mat_Batch" TopName="批量创建" RoleTitle="公司经理,采购主管,采购专员,销售经理,客服专员"/>
+      <TopMenu URL="MaterialTemp/Mat_Update" TopName="产品更新" RoleTitle="公司经理,采购主管,采购专员,销售经理,客服专员"/>
+      <TopMenu URL="Brand/Brand_Update" TopName="品牌维护" RoleTitle="公司经理,采购主管,采购专员,销售经理,客服专员"/>
+      <TopMenu URL="Material/Mat_Name" TopName="产品名称" RoleTitle="公司经理,采购主管,采购专员,销售经理,客服专员"/>
+      <TopMenu URL="MaterialTemp/WMS_Mat_Search" TopName="产品查询" RoleTitle=""/>
+    </SubMenu>
+
+    <SubMenu Name="客户资料">
+      <TopMenu URL="Customer/Cu_Search" TopName="客户查询" RoleTitle="公司经理,采购主管,采购专员,销售经理,客服专员"/>
+      <TopMenu URL="Customer/Cu_Add" TopName="客户新增" RoleTitle="公司经理,采购主管,采购专员,销售经理,客服专员"/>
+      <TopMenu URL="Customer/Cu_Update" TopName="客户更新" RoleTitle="公司经理,采购主管,采购专员,销售经理,客服专员"/>
+    </SubMenu>
+
+    <SubMenu Name="供方资料">
+      <TopMenu URL="Supplier/Sup_Search" TopName="供应商查询" RoleTitle="公司经理,采购主管,采购专员,销售经理,客服专员"/>
+      <TopMenu URL="Supplier/Sup_Add" TopName="供应商新增" RoleTitle="公司经理,采购主管,采购专员,销售经理,客服专员"/>
+      <TopMenu URL="Supplier/Sup_Update" TopName="供应商更新" RoleTitle="公司经理,采购主管,采购专员,销售经理,客服专员"/>
+    </SubMenu>
+
+    <SubMenu Name="运输单位">
+      <TopMenu URL="Logistics/Logistics_Search" TopName="查看更新" RoleTitle="公司经理,采购主管,仓管主管"/>
+    </SubMenu>
+  </FunctionTree>
+
+  <FunctionTree ModularName="系统" ModularIcon="glyphicon glyphicon-tasks">
+    <SubMenu Name="系统设置">
+      <TopMenu URL="System/MainCom_Update" TopName="企业资料" RoleTitle="公司经理,采购主管"/>
+      <TopMenu URL="System/Department" TopName="部门设置" RoleTitle="公司经理,采购主管"/>
+      <TopMenu URL="System/SMTP_Email" TopName="系统邮箱" RoleTitle="公司经理,采购主管"/>
+    </SubMenu>
+    
+    <SubMenu Name="用户管理">
+      <TopMenu URL="User/User_Search" TopName="用户查询" RoleTitle="公司经理,采购主管"/>
+      <TopMenu URL="User/User_Add" TopName="用户新增" RoleTitle="公司经理,采购主管"/>
+      <TopMenu URL="User/User_Update" TopName="用户更新" RoleTitle="公司经理,采购主管"/>
+      <TopMenu URL="User/User_LoginRecord" TopName="登录记录" RoleTitle="公司经理,采购主管"/>
+    </SubMenu>
+
+    <SubMenu_OFF Name="开发工具">
+      <TopMenu URL="DevelopmentTool/Clean_Data" TopName="数据清理" RoleTitle=""/>
+    </SubMenu_OFF>
+
+    <SubMenu_OFF Name="编码规则">
+      <TopMenu URL="CodingStandard/WebUI" TopName="WebUI" RoleTitle=""/>
+      <TopMenu URL="CodingStandard/Interface" TopName="Interface" RoleTitle=""/>
+      <TopMenu URL="CodingStandard/Model" TopName="Model" RoleTitle=""/>
+      <TopMenu URL="CodingStandard/INIT" TopName="INIT" RoleTitle=""/>
+    </SubMenu_OFF>
+  </FunctionTree>
+</Tree>

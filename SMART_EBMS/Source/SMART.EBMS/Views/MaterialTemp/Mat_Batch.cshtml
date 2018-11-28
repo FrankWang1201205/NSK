@@ -1,0 +1,147 @@
+﻿@model PageList<Brand>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Brand_Filter MF = ViewData["MF"] as Brand_Filter;
+    string ExcelFileName = "多品牌产品型号上传模板.xlsx";
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("批量创建");</script>
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/MaterialTemp/Mat_Batch" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="color:blue;">点击品牌，进入批量创建页面</td>
+                <td style="width:150px;padding-left:15px">
+                    <!-- Split button -->
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary btn-sm btn-sm-top" data-toggle="dropdown">批量导入</button>
+                        <button type="button" class="btn btn-primary btn-sm btn-sm-top dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="caret"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a href="javascript:void(0)" onclick="Show_Upload_Model()">上传 - 产品数据</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="~/DownLoad/@ExcelFileName" target="_blank">下载 - 数据模板</a></li>
+                        </ul>
+                    </div>
+                </td>
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+
+            </tr>
+        </table>
+    </form>
+</div>
+
+<div id="RightDivContext">
+    <div style="padding:20px; padding-top:0px;">
+        @foreach (var x in Model.Rows.OrderBy(x => x.Brand_Name).ToList())
+        {
+            <a class="BrandBox" href="~/MaterialTemp/Mat_Batch_Sub/@x.BID">@x.Brand_Name</a>
+        }
+    </div>
+</div>
+
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<!--导入Excel-->
+<script>
+    function Show_Upload_Model() {
+        $('#MyUploadModel').modal({ backdrop: 'static' });
+    }
+
+    function Close_Upload_Model() {
+
+        $('#MyUploadModel').modal('hide');
+    }
+</script>
+<div class="modal fade" id="MyUploadModel">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:480px;">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="Close_Upload_Model()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">批量导入</h5>
+            </div>
+            <div class="modal-body">
+                <form id="MyUploadForm" action="~/MaterialTemp/Mat_Batch_Post" method="post" enctype="multipart/form-data">
+                    <table style="width:100%; border:1px solid silver;">
+                        <tr>
+                            <td style="width:50px;padding:10px;padding-right:0px;">上传文件</td>
+                            <td style="width:100px; padding:10px;">
+                                <input type="file" onchange="ShowFileName()" data-val="true" name="ExcelFile" id="ExcelFile" />
+                                <script>
+                                    function CheckUpload() {
+
+                                        if (validateFormByClass("Not_Empty")==false) {
+                                            return false;
+                                        }
+
+                                        if ($("#ExcelFile").val() == "") {
+                                            alert("请选择Excel文件");
+                                            return false;
+                                        } else {
+                                            ShowLoad();
+                                            $("#MyUploadForm").submit();
+                                            return true;
+                                        }
+                                    }
+
+                                    function ShowLoad() {
+                                        $("#LoadImg").show();
+                                        $("#MyUploadForm").hide();
+                                    }
+                                </script>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td id="MyUpLoad" style="padding:10px;  vertical-align:bottom;">
+                                <button type="button" onclick="CheckUpload()" class="btn btn-primary btn-sm">确定上传</button>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+
+                <div style="padding-top:15px; line-height:20px;">
+                    1.Excel单元格不能含有公式，文件小于4M<br />2.每次上传最大支持10000条产品信息！
+                </div>
+
+                <div style="width:100%; padding-top:10px; text-align:center; display:none; margin:auto;" id="LoadImg">
+                    <img src="~/Content/Images/Load.gif" /><br /><br />
+                    <span style="padding-left:5px; color:blue;">系统正在上传和检查Excel数据，请稍后...</span>
+                </div>
+
+                <p></p>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!--导入Excel-->

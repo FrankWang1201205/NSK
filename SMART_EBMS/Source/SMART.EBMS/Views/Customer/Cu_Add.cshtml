@@ -1,0 +1,53 @@
+﻿@{ 
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("客户新增");</script>
+
+<div id="Success_Add" class="Textarea_Success" style="display:none;">客户资料新增成功</div>
+
+<div id="RightDivContext">
+    <form id="SubmitForm" action="~/Customer/Cu_Add_Post" method="post" style="padding:20px;">
+       <div id="Part_Page_Context" style="overflow:hidden;"></div>
+    </form>
+
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+</div>
+
+
+<script>
+    $(function () {
+        Reload_Part_Page();
+    });
+
+    function Reload_Part_Page()
+    {
+        $("#Part_Page_Context").text("Loading...");
+        $("#Part_Page_Context").load("/Customer/Cu_Edit_Part/@Guid.Empty");
+    }
+
+    function SubmitForm()
+    {
+        if (validateFormByClass('NotEmpty') == false) { return false; }
+        DisAndEnabledBtn(1);
+
+        var FormObj = $("#SubmitForm");
+        var Url = $(FormObj).prop("action");
+        var PostData = $(FormObj).serialize();
+
+        $.post(Url, PostData, function (result) { 
+            if (result == "")
+            {
+                $("#Success_Add").show();
+                setTimeout("ReloadPage()", 1000);
+            } else {
+                alert(result);
+                DisAndEnabledBtn(0);
+            }
+        });
+    }
+</script>
+

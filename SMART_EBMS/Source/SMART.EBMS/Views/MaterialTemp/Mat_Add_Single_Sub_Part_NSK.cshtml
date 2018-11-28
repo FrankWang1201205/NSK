@@ -1,0 +1,130 @@
+﻿@model Material
+@{
+    Layout = null;
+}
+
+
+<h6 style="padding-left:40px;"><strong>基本信息</strong></h6>
+
+<table class="FormTable_Sim FormTable_Sim_Input text-nowrap" style="width:400px;">
+    <tr>
+        <th style="text-align:right; width:10px; vertical-align:top;"><div style="width:75px; overflow:hidden; padding-top:5px;">* 产品型号</div></th>
+        <td style="padding-bottom:10px;" class="MatSn_Font">
+            <input class="NotEmpty" autocomplete="off" name="MatSn" id="MatSn" value="@Model.MatSn" style="width:250px; font-size:14px;" maxlength="@Model.MatSn_Length_Max" onchange="Check_MatSn_Code()" />
+            <table style="width:400px;">
+                <tr>
+                    <td></td>
+                </tr>
+                <tr>
+                    @for (int j = 1; j <= Model.MatSn_Length_Max; j++)
+                    {
+                    <td style="padding:0px"><input class="MyInput MatSn_Code" id="MatSn_Code_@j" onchange="Check_MatSn_Code_Box()" maxlength="1" style="text-align:center; padding:0px; width:25px; border:1px solid #bababa;" value="" /></td>
+                        if (j == 18 || j == 20 || j == 22)
+                        {
+                    <td>&nbsp;</td>
+                        }
+                    }
+                </tr>
+
+                <tr>
+                    @for (int j = 1; j <= Model.MatSn_Length_Max; j++)
+                    {
+                    <td style="padding:0px; text-align:center; color:#686868;">@j</td>
+                        if (j == 18 || j == 20 || j == 22)
+                        {
+                    <td>&nbsp;</td>
+                        }
+                    }
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+<table class="FormTable_Sim FormTable_Sim_Input text-nowrap" style="width:400px;">
+    <tr>
+        <th style="text-align:right; width:10px;"><div style="width:75px; overflow:hidden;">*产品名称</div></th>
+        <td>
+            <select class="form-control input-sm" id="MatName" name="MatName" style="width:150px;" type="text">
+                @foreach (var x in Model.Mat_Name_List)
+                {
+                    if (Model.MatName == x.ToString())
+                    {
+                        <option selected value="@x">@x</option>
+                    }
+                    else
+                    {
+                        <option value="@x">@x</option>
+                    }
+                }
+            </select>
+        </td>
+
+        <th style="text-align:right;">* 品　牌</th>
+        <td>
+            <input class="form-control input-sm" readonly="readonly" name="MatBrand" id="MatBrand" style="width:120px;" type="text" value="@Model.MatBrand" />
+            <input class="form-control input-sm" readonly="readonly" name="Link_BID" id="Link_BID" style="width:120px;" type="hidden" value="@Model.Link_BID" />
+        </td>
+        <th style="text-align:right;">装箱数</th>
+        <td><input class="form-control input-sm" style="width:100px; text-align:center;" name="Pack_Qty" id="Pack_Qty" type="number" value="@Model.Pack_Qty" /></td>
+
+    </tr>
+
+    <tr>
+        <th style="text-align:right; width:10px; vertical-align:top;"><div style="width:75px; overflow:hidden; padding-top:5px;">产品代号</div></th>
+        <td style="padding-bottom:10px;" class="MatSn_Font">
+            <input autocomplete="off" name="Other_MatSn" id="Other_MatSn" value="@Model.Other_MatSn" style="width:250px; font-size:14px;"/>
+        </td>
+    </tr>
+
+    <tr>
+        <th style="padding-top:15px;text-align:right; width:10px;"><div style="width:75px; overflow:hidden;"></div></th>
+        <td colspan="5" style="padding:0px;padding-top:15px;padding-left:10px;"><button type="button" onclick="MyMatItem_FormSubmit()" class="btn btn-primary btn-sm" style="width:100px;">创建产品</button></td>
+    </tr>
+</table>
+
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<!--产品型号-->
+<script>
+    function Check_MatSn_Code() {
+        var MatSn = $("#MatSn").val();
+        MatSn = $.trim(MatSn);
+        $("#MatSn").val(MatSn);
+
+        var MatSn_Sub = "";
+        var MatSn_Length_Min = parseInt("@Model.MatSn_Length_Min");
+        var MatSn_Length_Max = parseInt("@Model.MatSn_Length_Max");
+        $('.MatSn_Code').each(function (i) {
+            MatSn_Sub = MatSn.charAt(i);
+
+            if (MatSn_Sub == " " || MatSn_Sub == "") {
+                $(this).css("backgroundColor", "#FFF");
+            } else {
+                $(this).css("backgroundColor", "#96FED1");
+            }
+
+            if (MatSn_Sub == "" && MatSn_Length_Min == MatSn_Length_Max && i == MatSn_Length_Max - 1) {
+                $(this).css("backgroundColor", "yellow");
+            }
+
+            $(this).val($.trim(MatSn_Sub));
+        });
+    }
+
+    function Check_MatSn_Code_Box() {
+        var MatSn = "";
+        var MatSn_Sub = "";
+        $('.MatSn_Code').each(function (i) {
+            MatSn_Sub = $(this).val();
+            if (MatSn_Sub == "") { MatSn_Sub = " "; }
+            MatSn = MatSn + MatSn_Sub;
+        });
+
+        MatSn = $.trim(MatSn);
+        $("#MatSn").val(MatSn);
+        Check_MatSn_Code();
+    }
+</script>
+<!--产品型号-->

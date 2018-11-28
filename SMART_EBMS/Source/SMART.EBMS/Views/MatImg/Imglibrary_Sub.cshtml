@@ -1,0 +1,108 @@
+﻿@model MatImage
+@{
+    Layout = null;
+    List<string> BList = ViewData["BList"] as List<string>;
+}
+
+<style>
+    #Img_Info td {
+        padding-bottom: 20px;
+        padding-left: 10px;
+    }
+</style>
+<form id="FileForm" action="~/MatImg/Imglibrary_Sub_Post" method="post" enctype="multipart/form-data" onsubmit="return CheckForm()">
+    <table style="padding:10px;">
+        <tr style="vertical-align:top;">
+            <td colspan="2"><p id="FileUploadText" style="display:none;">正在上传图片或图纸...</p></td>
+        </tr>
+        <tr>
+            <td style="vertical-align:top;padding-top:3px;">
+                <table id="Img_Info">
+                    <tr>
+                        <td style="text-align:right">* 产品名称</td>
+                        <td style="width:250px;">
+                            <input name="MatName" id="MatName" value=""  class="form-control input-sm NotEmpty" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:right">* 品牌</td>
+                        <td style="width:250px;">
+                            <select name="MatBrand" id="MatBrand" class="form-control input-sm NotEmpty" style="width:120px;">
+                                <option value="">请选择品牌</option>
+                                @foreach (var x in BList)
+                                {
+                                    <option value="@x">@x</option>
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td>
+                            <button type="submit" class="btn btn-primary btn-sm" style="width:80px">递交</button>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td style="padding-left:30px; vertical-align:top;">
+                <table style="width:150px; overflow:hidden; border:0px solid #808080;">
+                    <tr>
+                        <td>
+                            <div style="width:196px; height:196px; overflow:hidden; line-height:190px; text-align:center; color:white; background-color:#dbdbdb; border:2px solid #FFF;">
+                                <img id="MyImgPreview" src="" style="width:100%; height:100%; border:1px solid #dbdbdb; overflow:hidden;" />
+                            </div>
+                            <div style="display:none;">
+                                <input type="file" name="ImagePath" id="ImagePath" onchange="Show_PhotePreview(this.id, 'MyImgPreview');" />
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <button type="button" onclick="Select_Image('ImagePath')" style="width: 100%;" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-picture"></span> <span style="padding-left:5px">选择产品图片</span></button>
+                            <span id="ImgName" style="width:100%; display:block; word-break:break-all; overflow:hidden;"></span>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+</form>
+<p>&nbsp;</p>
+<script>
+    function CheckForm() {
+        if (validateFormByClass('NotEmpty') == false) {
+            return false;
+        }
+
+        var NewPath =$('#MyImgPreview')[0].src;
+
+        if ($("#ImagePath").val() == "")
+        {
+            alert("请上传产品图片！");
+            return false;
+        }
+        
+        $("#FileUploadText").show();
+        DisAndEnabledBtn(1);
+    }
+
+
+    function Select_Image(SourceID) {
+        $("#" + SourceID).click();
+    }
+
+    function Show_PhotePreview(SourceID, TargetID) {
+        if (typeof (FileReader) != 'undefined') {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                var img = document.getElementById(TargetID);
+                img.src = this.result;
+            }
+            reader.readAsDataURL(document.getElementById(SourceID).files[0]);
+        }
+
+        var ImgName = $("#" + SourceID).val();
+        $("#ImgName").text(ImgName);
+    }
+</script>

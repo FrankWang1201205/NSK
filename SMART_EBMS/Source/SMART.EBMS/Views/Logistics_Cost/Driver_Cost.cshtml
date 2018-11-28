@@ -1,0 +1,145 @@
+﻿@model PageList<WMS_Track>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Logistics_Cost_Filter MF = ViewData["MF"] as Logistics_Cost_Filter;
+
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("驾驶员费用");</script>
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/Logistics_Cost/Driver_Cost" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:110px;">
+                    <select name="TrackingType" id="TrackingType" class="form-control input-sm" onchange="SubmitPageIndex('1')">
+                        <option value="">类型</option>
+                        @foreach (var x in Enum.GetNames(typeof(Tracking_Type_Enum)))
+                        {
+                            if (MF.TrackingType == x)
+                            {
+                                <option selected value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:10px;padding-left:5px;">
+                    <input autocomplete="off" style="width:90px;" class="form-control input-sm Time_Select" name="Time_Start" type="text" id="Time_Start" placeholder="起始时间" value="@MF.SD" />
+                </td>
+
+                <td style="width:10px; text-align:center;">
+                    ~
+                </td>
+
+                <td style="width:10px;">
+                    <input autocomplete="off" style="width:90px;" class="form-control input-sm Time_Select" name="Time_End" type="text" id="Time_End" placeholder="结束时间" value="@MF.ED" />
+                </td>
+
+                <td style="width:250px; padding-left:5px;">
+                    <div class="input-group input-group-sm" style="width: 250px; ">
+                        <input type="text" name="Keyword" id="Keyword" placeholder="驾驶员" value="@MF.Keyword" class="form-control ">
+                        <div class="input-group-btn">
+                            <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                        </div>
+                    </div>
+                </td>
+
+                <td style="padding-left:15px;">
+                    <a class="btn btn-default btn-sm" href="~/Logistics_Cost/Driver_Cost_To_Excel?Time_Start=@MF.SD&Time_End=@MF.ED&Keyword=@MF.Keyword&TrackingType=@MF.TrackingType"><span class="glyphicon glyphicon-list-alt"></span> 导出清单</a>
+                </td>
+
+                <td style="float:right;width:30px;">&nbsp;</td>
+              
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:90px;">驾驶员</th>
+            <th style="width:135px;">车牌号</th>
+            <th style="width:70px;text-align:right">公里数</th>
+            <th style="width:70px;text-align:right">金额</th>
+            <th style="width:80px;">创建时间</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model.Rows)
+        {
+            <tr>
+                <td>&nbsp;</td>
+                <td style="vertical-align:top;">@x.Driver_Name</td>
+                <td style="vertical-align:top;">@x.Tracking_No</td>
+                <td style="vertical-align:top;text-align:right">@x.Kilometers.ToString("N2")</td>
+                <td style="vertical-align:top;text-align:right">@x.Logistics_Cost.ToString("N2")</td>
+                <td style="vertical-align:top;">@x.Create_DT.ToString("yyyy-MM-dd")</td>
+                <td>&nbsp;</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+
+    $('.Time_Select').datetimepicker({
+        language: 'zh-CN',
+        weekStart: 1,
+        todayBtn: 1,
+        autoclose: 1,
+        format: "yyyy-mm-dd",
+        todayHighlight: 1,
+        startView: 2,
+        startDate: "2018-01-01",
+        minView: 2,
+        forceParse: 0
+    });
+</script>

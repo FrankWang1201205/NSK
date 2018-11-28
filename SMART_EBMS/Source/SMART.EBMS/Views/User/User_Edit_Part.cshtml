@@ -1,0 +1,285 @@
+﻿@model User
+@{
+    Layout = null;
+}
+
+<table class="FormTable_Sim FormTable_Sim_Input text-nowrap" style="width:400px;">
+    <tr>
+        <th style="text-align:right; width:10px;"><div style="width:60px; overflow:hidden;">* 员工代码</div></th>
+        <td style="width:10px;">
+            <input class="form-control input-sm NotEmpty" id="UserName" name="UserName" type="text" style="width:120px;" value="@Model.UserName" />
+        </td>
+        <th style="text-align:right; width:10px;"><div style="width:60px; overflow:hidden;">* 员工姓名</div></th>
+        <td style="width:10px;">
+            <input class="form-control input-sm NotEmpty" id="UserFullName" name="UserFullName" type="text" style="width:120px;" value="@Model.UserFullName" />
+        </td>
+        <th style="text-align:right; width:10px;"><div style="width:60px; overflow:hidden;">* 性　别</div></th>
+        <td>
+            <select class="form-control input-sm NotEmpty" name="Sex" id="Sex" style="width:120px;">
+                <option value="">请选择</option>
+                @foreach (var x in Model.Sex_List)
+                {
+                    if (Model.Sex == x)
+                    {
+                        <option selected="selected" value="@x">@x</option>
+                    }
+                    else
+                    {
+                        <option value="@x">@x</option>
+                    }
+                }
+            </select>
+        </td>
+    </tr>
+
+    <tr>
+        <th style="text-align:right;">* 出生日期</th>
+        <td>
+            <div class="input-group date form_date input-group-sm" data-date="" data-date-format="yyyy-mm-dd" style="width:120px;">
+                @if (Model.U_Pro.UID == Guid.Empty)
+                {
+                    <input class="form-control NotEmpty" style="border-radius:0px;" data-val="true" size="16" type="text" name="Birth_DT" id="Birth_DT" value="" placeholder="">
+                }
+                else
+                {
+                    <input class="form-control NotEmpty" style="border-radius:0px;" data-val="true" size="16" type="text" name="Birth_DT" id="Birth_DT" value="@Model.U_Pro.Birth_DT.ToString("yyyy-MM-dd")" placeholder="">
+                }
+                <span class="input-group-addon" style="border-radius:0px;"><span class="glyphicon glyphicon-calendar"></span></span>
+            </div>
+        </td>
+
+
+        <th style="text-align:right;">* 籍　贯</th>
+        <td>
+            <input class="form-control input-sm NotEmpty" id="Origin" name="Origin" type="text" style="width:120px;" value="@Model.Origin" />
+        </td>
+
+        <th style="text-align:right;">* 学　历</th>
+        <td>
+            <select class="form-control input-sm NotEmpty" name="Education" id="Education" style="width:120px;">
+                <option value="">请选择</option>
+                @foreach (var x in Model.ALL_Education_List)
+                {
+                    if (Model.Education == x)
+                    {
+                        <option selected="selected" value="@x">@x</option>
+                    }
+                    else
+                    {
+                        <option value="@x">@x</option>
+                    }
+                }
+            </select>
+        </td>
+    </tr>
+
+    <tr>
+        <th style="text-align:right;">* 入职日期</th>
+        <td>
+            <div class="input-group date form_date input-group-sm" data-date="" data-date-format="yyyy-mm-dd" style="width:120px;">
+                @if (Model.U_Pro.UID == Guid.Empty)
+                {
+                    <input class="form-control NotEmpty" style="border-radius:0px;" data-val="true" size="16" type="text" name="Entry_DT" id="Entry_DT" value="" placeholder="">
+                }
+                else
+                {
+                    <input class="form-control NotEmpty" style="border-radius:0px;" data-val="true" size="16" type="text" name="Entry_DT" id="Entry_DT" value="@Model.U_Pro.Entry_DT.ToString("yyyy-MM-dd")" placeholder="">
+                }
+                <span class="input-group-addon" style="border-radius:0px;"><span class="glyphicon glyphicon-calendar"></span></span>
+            </div>
+        </td>
+
+        <th style="text-align:right;">* 员工性质</th>
+        <td>
+            <select class="form-control input-sm NotEmpty" name="U_Type" id="U_Type" style="width:120px;">
+                <option value="">请选择</option>
+                @foreach (var x in Model.ALL_U_Type_List)
+                {
+                    if (Model.U_Type == x)
+                    {
+                        <option selected="selected" value="@x">@x</option>
+                    }
+                    else
+                    {
+                        <option value="@x">@x</option>
+                    }
+                }
+            </select>
+        </td>
+
+        <th style="text-align:right;">* 当前状态</th>
+        <td>
+            <select class="form-control input-sm NotEmpty" name="U_Status" id="U_Status" style="width:120px;">
+                <option value="">请选择</option>
+                @foreach (var x in Model.ALL_U_Status_List)
+                {
+                    if (Model.U_Status == x)
+                    {
+                        <option selected="selected" value="@x">@x</option>
+                    }
+                    else
+                    {
+                        <option value="@x">@x</option>
+                    }
+                }
+            </select>
+        </td>
+
+
+    </tr>
+
+    <tr>
+        <th style="text-align:right;">* 所属部门</th>
+        <td>
+            <select class="form-control input-sm NotEmpty" name="Department" id="Department" style="width:120px;">
+                <option value="">请选择</option>
+                @foreach (var x in Model.ALL_DepName_List)
+                {
+                    if (Model.Department == x)
+                    {
+                        <option selected="selected" value="@x">@x</option>
+                    }
+                    else
+                    {
+                        <option value="@x">@x</option>
+                    }
+                }
+            </select>
+        </td>
+
+        <td style="text-align:right;">分支机构</td>
+        <td colspan="3">
+            <input class="form-control input-sm" id="Branch" name="Branch" type="text" style="width:100%;" value="@Model.Branch" />
+        </td>
+    </tr>
+
+    <tr>
+        <td style="text-align:right;">* 手机号码</td>
+        <td>
+            <input class="form-control input-sm NotEmpty" id="MobilePhone" name="MobilePhone" type="text" style="width:120px;" value="@Model.MobilePhone" />
+        </td>
+        <td style="text-align:right;">电子邮箱</td>
+        <td colspan="3">
+            <input class="form-control input-sm" id="Email" name="Email" type="text" style="width:100%;" value="@Model.Email" />
+        </td>
+    </tr>
+
+    <tr>
+        <td style="text-align:right;">* 座机号码</td>
+        <td>
+            <input class="form-control input-sm NotEmpty" id="Tel" name="Tel" type="text" style="width:120px;" value="@Model.Tel" />
+        </td>
+        <td style="text-align:right;">身份证编号</td>
+        <td colspan="3">
+            <input class="form-control input-sm" id="Identity_Card" name="Identity_Card" type="text" style="width:100%;" value="@Model.U_Pro.Identity_Card" />
+        </td>
+    </tr>
+
+    <tr>
+        <td style="text-align:right;">* 当前角色</td>
+        <td>
+            <select class="form-control input-sm NotEmpty" name="RoleTitle" id="RoleTitle" style="width:120px;">
+                @if (Model.RoleTitle == User_RoleTitle_Emun.系统管理员.ToString())
+                {
+                    <option value="@User_RoleTitle_Emun.系统管理员.ToString()">@User_RoleTitle_Emun.系统管理员.ToString()</option>
+                }
+                else
+                {
+                    <option value="">请选择</option>
+                }
+
+                @if (Model.RoleTitle != User_RoleTitle_Emun.系统管理员.ToString())
+                {
+                    foreach (var x in Model.ALL_Role_List.Where(x => x != User_RoleTitle_Emun.系统管理员.ToString()).ToList())
+                    {
+                        if (Model.RoleTitle == x)
+                        {
+                            <option selected="selected" value="@x">@x</option>
+                        }
+                        else
+                        {
+                            <option value="@x">@x</option>
+                        }
+                    }
+                }
+            </select>
+        </td>
+
+        <td style="text-align:right;">社保编号</td>
+        <td colspan="3">
+            <input class="form-control input-sm" id="Identity_Social" name="Identity_Social" type="text" style="width:100%;" value="@Model.U_Pro.Identity_Social" />
+        </td>
+    </tr>
+
+    <tr>
+        <td style="text-align:right;">家庭电话</td>
+        <td><input class="form-control input-sm" id="Family_Tel" name="Family_Tel" type="text" style="width:120px;" value="@Model.U_Pro.Family_Tel" /></td>
+        <td style="text-align:right;">家庭地址</td>
+        <td colspan="3"><input class="form-control input-sm" id="Family_Address" name="Family_Address" type="text" style="width:100%;" value="@Model.U_Pro.Family_Address" /></td>
+    </tr>
+
+    <tr>
+        <td style="text-align:right;">紧急联络人</td>
+        <td><input class="form-control input-sm" id="EMD" name="EMD" type="text" style="width:120px;" value="@Model.U_Pro.EMD" /></td>
+        <td style="text-align:right;">联络电话</td>
+        <td colspan="3"><input class="form-control input-sm" id="EMD_Tel" name="EMD_Tel" type="text" style="width:100%;" value="@Model.U_Pro.EMD_Tel" /></td>
+    </tr>
+
+    <tr>
+        <td style="text-align:right;">* 初始密码</td>
+        <td>
+            @if (Model.UID == Guid.Empty)
+            {
+                <input class="form-control input-sm NotEmpty" id="Password" name="Password" type="text" style="width:120px;" value="888888" />
+            }
+            else
+            {
+                <input class="form-control input-sm NotEmpty" id="Password" name="Password" type="text" style="width:120px;" value="@Model.Password" />
+            }
+        </td>
+        <td style="text-align:right;">备注信息</td>
+        <td colspan="3">
+            <input class="form-control input-sm" id="Remark" name="Remark" type="text" style="width:100%;" value="@Model.U_Pro.Remark" />
+        </td>
+    </tr>
+</table>
+
+<p>&nbsp;</p>
+<table class="FormTable_Sim FormTable_Sim_Input text-nowrap" style="width:400px;">
+    <tr>
+        <th style="text-align:right; width:10px;"><div style="width:60px; overflow:hidden;">&nbsp;</div></th>
+        <td>
+            <table>
+                <tr>
+                    @if (Model.UID == Guid.Empty)
+                    {
+                        <td style="padding:0px;"><button type="button" onclick="MyFormSubmit()" class="btn btn-primary btn-sm" style="width:100px;">创建新员工</button></td>
+                    }
+                    else
+                    {
+                        <td style="padding:0px;"><button type="button" onclick="DeleteUser()" class="btn btn-danger btn-sm" style="width:100px;">删除员工</button></td>
+                        <td style="padding:0px; padding-left:10px;"><button type="button" onclick="MyFormSubmit()" class="btn btn-primary btn-sm" style="width:100px;">递交更新</button></td>
+                    }
+                </tr>
+            </table>
+
+        </td>
+    </tr>
+</table>
+
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<script>
+    $('.form_date').datetimepicker({
+        language: 'zh-CN',
+        weekStart: 1,
+        todayBtn: 1,
+        autoclose: 1,
+        todayHighlight: 1,
+        startView: 2,
+        minView: 2,
+        forceParse: 0
+    });
+</script>

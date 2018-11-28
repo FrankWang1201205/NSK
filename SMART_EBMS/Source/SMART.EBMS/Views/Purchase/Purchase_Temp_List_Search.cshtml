@@ -1,0 +1,89 @@
+﻿@model List<Purchase_Temp_Search>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("型号比对");</script>
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+<div class="DeductionDiv TopSearchDiv">
+    <table style="width:100%;">
+        <tr>
+            @*<td style="width:10px;">
+                    <a href="~/Purchase/Purchase_Temp_Batch_Search_To_Excel" target="_blank" class="btn btn-info btn-sm">导出查询结果</a>
+                </td>*@
+
+            <td style="width:10px;padding-left:20px">
+                <button type="button" class="btn btn-danger btn-sm" onclick="Print_MatSn()">批量打印</button>
+            </td>
+
+            <td style="float:right;width:30px;">&nbsp;</td>
+
+            <td style="text-align:right;">
+                <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+            </td>
+        </tr>
+    </table>
+</div>
+
+<form id="PrintForm" action="~/Purchase/Purchase_Temp_MatSn_List_Search_Print" method="post">
+    <table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+        <thead>
+            <tr>
+                <th style="width:10px;">&nbsp;</th>
+                <th style="width:40px; text-align:center; padding:0px;"><input checked type="checkbox" id="ALL" onclick="checkBoxCheckAll('ALL', 'PTS_ID')" /></th>
+
+                <th style="width:220px;">产品型号</th>
+                <th style="width:70px;">品牌</th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var x in Model)
+            {
+            <tr>
+                <td>&nbsp;</td>
+                <td style="text-align:center;"><input type="checkbox" checked value="@x.PTS_ID" name="PTS_ID" class="PTS_ID" id="PTS_ID_@x.PTS_ID" /></td>
+
+                <td style="vertical-align:top;"><span class="MatSn_Font">@x.MatSn</span></td>
+                <td style="vertical-align:top;">@x.MatBrand</td>
+                <td>&nbsp;</td>
+            </tr>
+            }
+        </tbody>
+    </table>
+</form>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+
+    function Print_MatSn() {
+        if (checkBoxCheckLength("PTS_ID") <= 0) {
+            alert("请选择产品型号！");
+            return false;
+        }
+
+        $("#PrintForm").submit();
+    }
+</script>
+

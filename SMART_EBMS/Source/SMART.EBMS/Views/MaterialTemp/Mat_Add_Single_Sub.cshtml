@@ -1,0 +1,110 @@
+﻿@model Brand
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("单品创建");</script>
+
+
+<div id="RightDivContext">
+    <form id="MyMatItem_Form" action="~/MaterialTemp/Mat_Add_Single_Sub_Post" method="post" style="padding:20px;">
+        <div id="Part_Page_Context" style="overflow:hidden;"></div>
+    </form>
+</div>
+
+
+<script>
+    $(function () {
+        Reload_Part_Page();
+    });
+
+    function Reload_Part_Page() {
+        $("#Part_Page_Context").text("Loading...");
+        $("#Part_Page_Context").load("/MaterialTemp/Mat_Add_Single_Sub_Part/@Model.BID");
+    }
+
+    function MyMatItem_FormSubmit() {
+
+        if ($("#MatSn").val() == "") {
+            alert("请填写产品型号");
+            return false;
+        }
+
+        var Obj_Is_Stock = $("#Is_Stock");
+        if ($(Obj_Is_Stock).val() == "99") {
+            $(Obj_Is_Stock).focus();
+            $(Obj_Is_Stock).css("backgroundColor", "#D2E9FF");
+            return false;
+        } else {
+            $(Obj_Is_Stock).css("backgroundColor", "#FFF");
+        }
+
+        if (validateFormByClass('NotEmpty') == false) { return false; }
+
+        DisAndEnabledBtn(1);
+
+        var FormObj = $("#MyMatItem_Form");
+        var Url = $(FormObj).prop("action");
+        var PostData = $(FormObj).serialize();
+
+        $("#Update_Check_Div").hide();
+        $("#Update_Pass_Div").hide();
+        $("#Update_Check_Div").show();
+        Show_Success_Model();
+
+        $.post(Url, PostData, function (result) {
+            if (result == "") {
+                DisAndEnabledBtn(0);
+                $("#Update_Check_Div").toggle();
+                $("#Update_Pass_Div").toggle();
+            } else {
+                alert(result);
+                Close_Success_Model();
+                DisAndEnabledBtn(0);
+            }
+        });
+    }
+</script>
+
+
+<!--新增成功-->
+<script>
+    function Show_Success_Model() {
+        $('#MySuccessModel').modal({ backdrop: 'static' });
+    }
+
+    function Close_Success_Model() { $('#MySuccessModel').modal('hide'); }
+
+</script>
+<div class="modal fade" id="MySuccessModel">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:480px;">
+            <div class="modal-header">
+                <h5 class="modal-title">系统提示</h5>
+            </div>
+            <div class="modal-body">
+                <div id="Update_Check_Div" style="display:none;">
+                    <h2 style="text-align:center;">
+                        <img src="~/Content/Images/Load.gif" />
+                    </h2>
+                    <h6 style="text-align:center;">正在写入产品数据...</h6>
+                </div>
+
+                <div id="Update_Pass_Div" style="display:none;">
+                    <h4 style="text-align:center; color:green;">创建成功！</h4>
+                    <p>&nbsp;</p>
+                    <table style="margin:auto;">
+                        <tr>
+                            <td><button type="button" class="btn btn-info" onclick="ReloadPage()">继续创建</button></td>
+                            <td style="padding-left:15px;"><a href="~/MaterialTemp/Mat_Add_Single" class="btn btn-default" type="button" onclick="">返回上级</a></td>
+                        </tr>
+                    </table>
+                </div>
+               
+                <p>&nbsp;</p>
+                </div>
+        </div>
+    </div>
+</div>
+<!--新增成功-->

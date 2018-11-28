@@ -1,0 +1,37 @@
+﻿@model WMS_Stock_Task
+@{
+    Layout = null;
+}
+
+<form action="~/WMS_Stocktaking/WMS_Stocktaking_Task_First_Sub_Post/@Model.Task_ID" method="post" enctype="multipart/form-data" onsubmit="return validateFormByClass('NotEmpty_Single')">
+    <table class="FormTable_Sim text-nowrap">
+        <tr>
+            <td style="width:10px;text-align:right">作业人</td>
+            <td style="width:10px;"><input class="form-control input-sm NotEmpty_Single" id="Work_Person" name="Work_Person" type="text" style="width:200px;" value="@Model.Work_Person" /></td>            
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td style="width:10px;">
+                <button type="submit" class="btn btn-primary btn-sm" style="width:60px;">递交</button>
+                <button type="button" onclick="Delete_Task()" class="btn btn-danger btn-sm" style="margin-left:20px;">删除盘库任务</button>
+            </td>
+        </tr>
+    </table>
+</form>
+
+
+<script>
+    function Delete_Task() {
+        if (confirm("确认删除？") == false) {
+            return false;
+        }
+
+        $.post("/WMS_Stocktaking/WMS_Stocktaking_Task_Delete_Post/@Model.Task_ID", function (result) {
+            if (result != "") {
+                alert(result);
+            } else {
+                ReloadPage();
+            }
+        });
+    }
+</script>

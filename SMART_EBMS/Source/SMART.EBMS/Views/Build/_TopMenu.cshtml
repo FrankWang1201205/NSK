@@ -1,0 +1,12 @@
+﻿@{ 
+    User U = ViewData["User"] as User;
+    string Controller = ViewContext.RouteData.Values["controller"].ToString();
+    string Action = ViewContext.RouteData.Values["action"].ToString();
+}
+<div class="TopMenu DeductionDiv">
+    <ul>
+        <li class="TopMenuAct"><a id="MTB_Build" href="~/Build/Index">Build...</a></li>
+        <li class="TopMenuHelp" onclick="ShowHelp('@Controller-@Action')"><img src="~/Content/Images/help.png" /><span>Help</span></li>
+    </ul>
+</div>
+<div class="SubTopMenuDivHelpSub"><div id="SubTopMenuDivHelpContext"></div></div>

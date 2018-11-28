@@ -1,0 +1,80 @@
+﻿@model RFQ_Head_Line
+@{
+    Layout = null;
+}
+
+<table class="FormTable_Sim text-nowrap">
+    <tr>
+        <th style="width:10px;">客户 - 询价型号</th>
+        <td><input type="text" readonly name="Cust_Mat_Sn" class="form-control input-xs MatSn_Font" style="width:100%;" value="@Model.Cust_Mat_Sn" /></td>
+        <th style="width:10px;">品　牌</th>
+        <td style="width:10px;"><input type="text" readonly class="form-control input-xs" name="BID_Name" value="@Model.BID_Name" style="width:100px;" /></td>
+        <td>&nbsp;</td>
+    </tr>
+
+    <tr>
+        <th style="width:10px;">客户 - 产品描述</th>
+        <td colspan="3"><input type="text" readonly class="form-control input-xs" name="Cust_Mat_Describe" value="@Model.Cust_Mat_Describe" style="width:100%;" placeholder="客户询价产品描述信息" /></td>
+        <td>&nbsp;</td>
+    </tr>
+
+    <tr>
+        <th style="width:10px;">系统 - 产品型号</th>
+        <td colspan="3"><input type="text" readonly class="form-control input-xs MatSn_Font" name="Mat_Sn" id="Mat_Sn" value="@Model.Mat_Sn" style="width:100%;" placeholder="" /></td>
+        <td style="width:10px; padding-left:0px;"><button type="button" onclick="Mat_Cancel()" class="btn btn-default btn-sm"><i class="icon-remove"></i></button></td>
+    </tr>
+</table>
+
+
+<hr />
+
+<table class="Table_Clean">
+    <tr>
+        <td>
+            <input onclick="Reload_MatList()" onkeyup="Reload_MatList()" id="MatSn_Keyword" name="MatSn_Keyword" class="form-control input-sm MatSn_Font" style="border-radius:0px; width:250px;" value="@Model.Cust_Mat_Sn" placeholder="输入产品型号关键词，选择匹配产品" autocomplete="off" />
+        </td>
+        <td>
+            <button onclick="Reload_MatList()" type="button" class="btn btn-info btn-sm" style="border-radius:0px;"><i class="icon-search"></i></button>
+        </td>
+    </tr>
+</table>
+
+<div id="MatList_Select" style="width:100%; height:200px; border:1px solid #e4e4e4; overflow-y:scroll;"></div>
+
+
+<script>
+    function Reload_MatList() {
+        $("#MatList_Select").show();
+        var MatSn_Keyword = $("#MatSn_Keyword").val();
+        $("#MatList_Select").load("/RFQ/RFQ_Set_Update_Mat_List/@Model.BID", { MatSn_Keyword: MatSn_Keyword });
+    }
+
+
+    function Mat_Select(MatID, MatSn) {
+        var Line_Obj = $("#Mat_Sn_@Model.Line_ID");
+        var Line_MatID_Obj = $("#MatID_@Model.Line_ID");
+        $.post("/RFQ/RFQ_Set_Update_Mat_List_Select/@Model.Line_ID", { MatID: MatID }, function (result) {
+            if (result == "") {
+                $("#Mat_Sn").val(MatSn);
+                $(Line_Obj).text(MatSn);
+                $(Line_MatID_Obj).val(MatID);
+            } else {
+                alert(result);
+            }
+        })
+    }
+
+    function Mat_Cancel() {
+        var Line_Obj = $("#Mat_Sn_@Model.Line_ID");
+            var Line_MatID_Obj = $("#MatID_@Model.Line_ID");
+            $.post("/RFQ/RFQ_Set_Update_Mat_List_Cancel/@Model.Line_ID",  function (result) {
+            if (result == "") {
+                $("#Mat_Sn").val("");
+                $(Line_Obj).text("");
+                $(Line_MatID_Obj).val("@Guid.Empty");
+            } else {
+                alert(result);
+            }
+        })
+    }
+</script>

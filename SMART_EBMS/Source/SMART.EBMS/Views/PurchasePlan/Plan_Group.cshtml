@@ -1,0 +1,62 @@
+﻿@model PurchasePlan_Group
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("新增计划");</script>
+
+<div class="DeductionDiv TopSearchDiv">
+    <table style="width:100%;" class="text-nowrap">
+        <tr>
+            <td style="width:10px; font-size:14px; font-weight:bold;">@Model.Month / 已核准预测</td>
+            <td style="width:50px;">&nbsp;</td>
+            <td style="width:120px;"><a href="~/PurchasePlan/Plan_Group_Sub" class="btn btn-primary btn-sm">新增计划</a></td>
+            <td>&nbsp;</td>
+        </tr>
+    </table>
+</div>
+
+<div id="RightDivContext">
+    <table class="table table-bordered table-condensed table-nowrap" style="width:100%; background-color:white;">
+        <thead>
+            <tr class="active">
+                <td style="width:10px;">&nbsp;</td>
+                <td style="width:120px;">申报日期</td>
+                <td style="width:120px;">预测编号</td>
+                <td style="width:100px;">销售经理</td>
+                <td style="width:100px;">核准人</td>
+                <td style="width:120px; text-align:center;">申报产品</td>
+                <td></td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var x in Model.SalesPlanList)
+            {
+                <tr>
+                    <td>&nbsp;</td>
+                    <td style="vertical-align:top;">@x.End_Line_DT.ToString("yyyy-MM-dd")</td>
+                    <td style="vertical-align:top;">@x.Sys_No</td>
+                    <td style="vertical-align:top;">@x.Sales_Person</td>
+                    <td style="vertical-align:top;">@x.Aud_Person</td>
+                    <td style="vertical-align:top; text-align:center;">@x.Line_Count <span>项</span></td>
+                    <td style="vertical-align:top;">&nbsp;</td>
+                </tr>
+        }
+
+
+            <tr>
+                <td style="border:0px;">&nbsp;</td>
+                <td colspan="5" style="vertical-align:top; text-align:right; padding-right:0px; border:0px; padding-bottom:0px;">
+                    <table class="table table-condensed;" style="float:right; width:auto;">
+                        <tr><td style="border-top:0px; vertical-align:bottom;">共申报：</td><td style="border-top:0px;"><strong style="font-size:14px;">@Model.Mat_Count</strong> <span>项</span></td></tr>
+                        <tr><td style="vertical-align:bottom;">已下达：</td><td><strong style="font-size:14px; color:green;">@Model.Mat_Count_Is_Sent</strong> <span>项</span></td></tr>
+                        <tr><td style="vertical-align:bottom;">未下达：</td><td><strong style="font-size:16px; color:red;">@Model.Mat_Count_Is_Not_Sent</strong> <span>项</span></td></tr>
+                    </table>
+                </td>
+                <td style="vertical-align:top; border:0px; padding-bottom:0px;">&nbsp;</td>
+            </tr>
+
+        </tbody>
+    </table>
+</div>

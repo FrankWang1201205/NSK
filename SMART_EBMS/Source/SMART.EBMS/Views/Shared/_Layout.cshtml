@@ -1,0 +1,101 @@
+﻿@using StackExchange.Profiling;
+@{
+    string controller = ViewContext.RouteData.Values["controller"].ToString();
+    string action = ViewContext.RouteData.Values["action"].ToString();
+    User U = ViewData["User"] as User;
+
+    ViewBag.Title = "SMART";
+    IMainCompanyService IMainCom = new MainCompanyService();
+    string Company_Name = IMainCom.Get_MainCompany_Name(U.LinkMainCID);
+}
+<!DOCTYPE html>
+<html>
+@Html.Partial("_JsAndCss")
+<body>
+    <div id="MaskLoadDiv" style="width:100%; height:2px; overflow:hidden; position:absolute;"><div id="MaskLoadLine" style="width:0%; height:2px; overflow:hidden; background-color:#37b700;"></div></div>
+    <div class="DeductionDiv" style="width:100%; height:32px; overflow:hidden; background-color:#2C3D5A;">
+        <table class="text-nowrap" style="color:white; font-family:Arial; width:100%; line-height:35px;">
+            <tr>
+                <td style="width:100px; vertical-align:middle; padding-left:10px; font-size:14px;">@Company_Name</td>
+                <td style="width:100px; vertical-align:middle; padding-left:20px;">智慧分销管理系统 - 开发版</td>
+                <td>&nbsp;</td>
+                <td style="width:100px; vertical-align:middle; padding-right:10px; text-align:right;"><a href="~/Index/MyUserInfo" style="color:white; ">@U.UserFullName</a></td>
+                <td style="width:100px; vertical-align:middle; padding-right:20px; text-align:right;"><a href="~/Login/LoginOut" style="color:white; ">退出登陆</a></td>
+            </tr>
+        </table>
+    </div>
+
+    <table style="width:100%; overflow:hidden;">
+        <tr>
+            <td id="RightDiv" style="vertical-align:top; width:100px; height:1024px; overflow:hidden; background-color:#2C3D5A;">
+                <a href="~/index/Framework" style="width:100px; height:29px; display:block; background-color:#5F718F; border-bottom: 1px solid #1F2E46; overflow:hidden;"><img style="width:60%; margin-top:8px; margin-left:12px;" src="~/Content/Images/SmartLogo.png?=@DateTime.Now" /></a>
+                @foreach (var M in GetFunctionTree.User_Tree(U).ML)
+                {
+                    <h4 class="LeftMenuTitle" id="Mod_@M.ModularCode" onclick="ShowLeftMenu('@M.ModularCode')"><span style="font-size:12px;" class="@M.ModularIcon"></span><span style="margin-left:6px;">@M.ModularName</span></h4>
+                        <ul class="LeftMenu" id="LeftMenu_@M.ModularCode">
+                            @foreach (var xx in M.Sub_Menu_List.Where(x=>x.Active == 1))
+                            {
+                                <li><a id="LeftMenu_Sub_@xx.Code" href="~/@xx.DefURL">@xx.Name</a></li>
+                            }
+                        </ul>
+                }
+            </td>
+            <td style="vertical-align:top;padding:0px; margin:0px;">@RenderBody()</td>
+        </tr>
+    </table>
+
+    <script>
+        $(function () {
+            var ModularCode = localStorage.getItem("ModularCode");
+            $("#LeftMenu_" + ModularCode).show();
+        })
+
+        function ShowLeftMenu(ModularCode) {
+            var ModularCodeSave = localStorage.getItem("ModularCode");
+            $(".LeftMenu").hide();
+            if (ModularCodeSave == ModularCode) {
+                $("#LeftMenu_" + ModularCode).hide();
+                localStorage.setItem("ModularCode", 0);
+            } else {
+                $("#LeftMenu_" + ModularCode).show();
+                localStorage.setItem("ModularCode", ModularCode);
+            }
+        }
+
+        function SetLeftMenu_Sub_Class(Code) {
+            $("#LeftMenu_Sub_" + Code).css('background-color', '#D6E3F8');
+            $("#LeftMenu_Sub_" + Code).css('color', '#51617C');
+        }
+    </script>
+
+
+    <!--预览产品图片-->
+    <div class="modal fade" id="MyMatImgModel">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" style="width:480px;">
+                <div class="modal-header">
+                    <button type="button" class="close" onclick="CloseMatImgModel()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title">产品图片</h5>
+                </div>
+                <div class="modal-body" style="height:500px; overflow-y:auto; padding:0px; padding-top:5px; text-align:center;">
+                    <img src="" id="MatImg" style="width:95%" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--预览产品图片-->
+    <!--查看产品资料-->
+    <div class="modal fade" id="MyMatPartModel">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" style="width:860px;">
+                <div class="modal-header">
+                    <button type="button" class="close" onclick="CloseMatPartModel()"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body" id="MatPartContext" style="padding-top:0px;"></div>
+            </div>
+        </div>
+    </div>
+    <!--查看产品资料-->
+    @MiniProfiler.RenderIncludes()
+</body>
+</html>

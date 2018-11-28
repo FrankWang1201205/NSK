@@ -1,0 +1,40 @@
+﻿@model List<WMS_Out_Scan>
+@{
+    Layout = null;
+    WMS_Out_Head Head = ViewData["Head"] as WMS_Out_Head;
+}
+
+<table style="width:100%;">
+    <tr>
+        <td><h5><strong style="font-size:20px;" class="MatSn_Font">@Model.FirstOrDefault().MatSn</strong></h5></td>
+        @if (Head.Status == WMS_Out_Global_State_Enum.待验货.ToString())
+        {
+            <td style="text-align:right;">
+                <button style="text-align:right" type="button" class="btn btn-danger btn-sm" onclick="Reset_Task_Bat_MatSn('@Model.FirstOrDefault().MatSn')">重置扫描</button>
+            </td>
+        }
+    </tr>
+</table>
+
+<table class="table table-condensed table-bordered text-nowrap">
+    <tr class="active">
+        <td style="width:190px;">产品型号</td>
+        <td style="text-align:right; width:10px;">扫码数</td>
+        <td>&nbsp;</td>
+    </tr>
+    @foreach (var x in Model.OrderBy(c=>c.MatSn).ToList())
+    {
+        <tr>
+            <td class="MatSn_Font">@x.MatSn</td>
+            <td style="text-align:right">@x.Scan_Quantity.ToString("N0")</td>
+            <td>&nbsp;</td>
+        </tr>
+    }
+
+        <tr>
+            <td style="text-align:right;">Total:</td>
+          
+            <td style="text-align:right;">@Model.Sum(c => c.Scan_Quantity).ToString("N0")</td>
+        <td>&nbsp;</td>
+        </tr>
+</table>

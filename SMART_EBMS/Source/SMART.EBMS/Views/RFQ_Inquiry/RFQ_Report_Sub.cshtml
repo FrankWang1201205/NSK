@@ -1,0 +1,99 @@
+﻿@model PageList<Material>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Material_Filter MF = ViewData["MF"] as Material_Filter;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("答复询价");</script>
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/RFQ_Inquiry/RFQ_Report_Sub/@Guid.Empty" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:20px; padding-left:0px;">
+                    <button type="button" onclick="ShowModel()" class="btn btn-primary btn-sm">保存并发送</button>
+                </td>
+
+                <td style="width:50px;">&nbsp;</td>
+                <td style="vertical-align:bottom;">&nbsp;</td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<div id="RightDivContext">
+    <div style="padding:20px; padding-top:0px;">
+        <table id="DataTable" class="table table-condensed table-bordered table-nowrap" style="width:100%; background-color:white;">
+            <thead>
+                <tr class="active">
+                    <td style="width:200px;">产品型号</td>
+                    <td style="width:150px;">产品名称</td>
+                    <td style="width:60px;">品牌</td>
+                    <td style="width:90px; text-align:center;">询价数量</td>
+                    <td style="width:100px;">内部询价人</td>
+                    <td>&nbsp;</td>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var x in Model.Rows.Take(5))
+                {
+                    <tr>
+                        <td style="vertical-align:top;"><a href="javascript:void(0);" onclick="ShowMatPartModel('@x.MatID')" class="MatSn_Font">@x.MatSn</a></td>
+                        <td style="vertical-align:top;">@x.MatName</td>
+                        <td style="vertical-align:top;">@x.MatBrand</td>
+                        <td style="vertical-align:top; text-align:center;">5</td>
+                        <td style="vertical-align:top;">陈易	</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td colspan="6">
+                            <table class="Table_Clean text-nowrap">
+                                <tr>
+                                    <td style="width:10px;">来源：</td>
+                                    <td><input class="MyInput ReadonlyInput"  style="width:250px;" value="浙江海格泰轴承机电设备有限公司" /></td>
+                                    <td style="width:10px; padding-left:20px;">单价：</td>
+                                    <td><input class="MyInput" type="number" style="width:100px; text-align:right;" value="@x.Price_Cost_Ref_Vat.ToString("0.0000")" /></td>
+                                    <td style="width:10px; padding-left:20px;">数量：</td>
+                                    <td><input class="MyInput" type="number" style="width:80px; text-align:center;" value="1" /></td>
+                                    <td style="width:10px; padding-left:20px;">货期：</td>
+                                    <td><input class="MyInput" type="number" style="width:80px; text-align:center;" value="1" /></td>
+                                </tr>
+
+                                <tr>
+                                    <td style="width:10px;">来源：</td>
+                                    <td><input class="MyInput ReadonlyInput" style="width:250px;" value="上海亚济轴承科技有限公司" /></td>
+                                    <td style="width:10px; padding-left:20px;">单价：</td>
+                                    <td><input class="MyInput" type="number" style="width:100px; text-align:right;" value="@x.Price_Cost_Ref_Vat.ToString("0.0000")" /></td>
+                                    <td style="width:10px; padding-left:20px;">数量：</td>
+                                    <td><input class="MyInput" type="number" style="width:80px; text-align:center;" value="1" /></td>
+                                    <td style="width:10px; padding-left:20px;">货期：</td>
+                                    <td><input class="MyInput" type="number" style="width:80px; text-align:center;" value="1" /></td>
+                                </tr>
+
+                                <tr>
+                                    <td style="width:10px;">来源：</td>
+                                    <td><input class="MyInput ReadonlyInput" style="width:250px;" value="深圳轴承科技有限公司" /></td>
+                                    <td style="width:10px; padding-left:20px;">单价：</td>
+                                    <td><input class="MyInput" type="number" style="width:100px; text-align:right;" value="@x.Price_Cost_Ref_Vat.ToString("0.0000")" /></td>
+                                    <td style="width:10px; padding-left:20px;">数量：</td>
+                                    <td><input class="MyInput" type="number" style="width:80px; text-align:center;" value="1" /></td>
+                                    <td style="width:10px; padding-left:20px;">货期：</td>
+                                    <td><input class="MyInput" type="number" style="width:80px; text-align:center;" value="1" /></td>
+                                </tr>
+
+                                <tr>
+                                    <td colspan="100">&nbsp;</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+

@@ -1,0 +1,200 @@
+﻿@model PageList<Supplier>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Supplier_Filter MF = ViewData["MF"] as Supplier_Filter;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("供应商查询");</script>
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/Supplier/Sup_Search" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:100px;">
+                    <select class="form-control input-xs" name="Type" id="Type" onchange="SubmitPageIndex(1)">
+                        <option value="">供应商性质</option>
+                        @foreach (var x in MF.Type_List)
+                        {
+                            if (MF.Type == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+
+                <td style="width:100px; padding-left:5px;">
+                    <select class="form-control input-xs" name="District" id="District" onchange="SubmitPageIndex(1)">
+                        <option value="">所属地区</option>
+                        @foreach (var x in MF.District_List)
+                        {
+                            if (MF.District == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+
+                <td style="width:100px; padding-left:5px;">
+                    <select class="form-control input-xs" name="Qualification" id="Qualification" onchange="SubmitPageIndex(1)">
+                        <option value="">供应商资质</option>
+                        @foreach (var x in MF.Qualification_List)
+                        {
+                            if (MF.Qualification == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:100px; padding-left:5px;">
+                    <select class="form-control input-xs" name="Act_Status" id="Act_Status" onchange="SubmitPageIndex(1)">
+                        <option value="">当前状态</option>
+                        @foreach (var x in MF.Act_Status_List)
+                        {
+                            if (MF.Act_Status == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:100px; padding-left:5px;">
+                    <select class="form-control input-xs" name="Sup_Level" id="Sup_Level" onchange="SubmitPageIndex(1)">
+                        <option value="">优先等级</option>
+                        @foreach (var x in MF.Level_List)
+                        {
+                            if (MF.Sup_Level == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                @*<td style="width:100px; padding-left:5px;">
+                    <select class="form-control input-xs" name="Sup_Brand" id="Sup_Brand" onchange="SubmitPageIndex(1)">
+                        <option value="">品牌</option>
+                        @foreach (var x in MF.Sup_Brand_List)
+                        {
+                            if (MF.Sup_Brand == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>*@
+
+                <td style="width:200px; padding-left:5px;">
+                    <input type="text" name="Cust_Name" id="Cust_Name" placeholder="供应商代码或名称" value="@MF.Keyword" class="form-control input-xs">
+                </td>
+
+                <td style="width:10px; padding-left:5px;">
+                    <button class="btn btn-danger btn-sm btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                </td>
+
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:80px;">供应商代码</th>
+            <th style="width:100px;">供应商简称</th>
+            <th style="width:200px;">供应商名称</th>
+            <th style="width:80px;">性质</th>
+            <th style="width:80px;">地区</th>
+            <th style="width:80px;">资质</th>
+            <th style="width:80px;">状态</th>
+            <th style="width:80px;">优先等级</th>
+            <th style="width:80px; text-align:center;">创建日期</th>
+            <th style="width:50px">&nbsp;</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model.Rows)
+            {
+            <tr>
+                <td>&nbsp;</td>
+                <td style="vertical-align:top;">@x.SupplierCode</td>
+                <td style="vertical-align:top;">@x.Sup_Short_Name</td>
+                <td style="vertical-align:top;">@x.Sup_Name</td>
+                <td style="vertical-align:top;">@x.Type</td>
+                <td style="vertical-align:top;">@x.District</td>
+                <td style="vertical-align:top;">@x.Qualification</td>
+                <td style="vertical-align:top;">@x.Act_Status</td>
+                <td style="vertical-align:top;">@x.Sup_Level</td>
+                <td style="text-align:center; vertical-align:top;">@x.Create_DT.ToString("yyyy-MM-dd")</td>
+                <td style="text-align:center"><a class="btn btn-info btn-xs" href="~/Supplier/Sup_Preview/@x.SupID" target="_blank">查看</a></td>
+                <td>&nbsp;</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>

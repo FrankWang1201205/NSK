@@ -1,0 +1,77 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("受理询价");</script>
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/Material/Mat_Update" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:120px; padding-left:5px;">
+                    <select name="" id="" class="form-control input-sm" onchange="SubmitPageIndex(1)">
+                        <option value="">内部询价人</option>
+                        <option value="陈易">陈易</option>
+                        <option value="李晓兰	">李晓兰	</option>
+                    </select>
+                </td>
+                <td style="width:50px;">&nbsp;</td>
+
+                <td style="vertical-align:bottom;">&nbsp;</td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:80px;">报价单</th>
+            <th style="width:100px;">品牌</th>
+            <th style="width:80px;">产品项</th>
+            <th style="width:180px;">内部询价人</th>
+            <th style="width:60px; text-align:center;">&nbsp;</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>&nbsp;</td>
+            <td style="vertical-align:top;">NSK</td>
+            <td style="vertical-align:top;">2 份</td>
+            <td style="vertical-align:top;">25</td>
+            <td style="vertical-align:top;">陈易 李晓兰</td>
+            <td style="vertical-align:top; text-align:center;"><a class="btn btn-info btn-xs" href="~/RFQ_Inquiry/RFQ_Apply_Sub/@Guid.Empty">查看</a></td>
+            <td style="vertical-align:top;">&nbsp;</td>
+        </tr>
+
+        <tr>
+            <td>&nbsp;</td>
+            <td style="vertical-align:top;">NTN</td>
+            <td style="vertical-align:top;">1 份</td>
+            <td style="vertical-align:top;">3</td>
+            <td style="vertical-align:top;">陈易</td>
+            <td style="vertical-align:top; text-align:center;"><a class="btn btn-info btn-xs" href="~/RFQ_Inquiry/RFQ_Apply_Sub/@Guid.Empty">查看</a></td>
+            <td style="vertical-align:top;">&nbsp;</td>
+        </tr>
+    </tbody>
+</table>
+
+
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>

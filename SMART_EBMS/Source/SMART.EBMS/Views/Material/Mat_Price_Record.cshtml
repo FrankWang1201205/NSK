@@ -1,0 +1,97 @@
+﻿@model PageList<Mat_Excel>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Material_Filter MF = ViewData["MF"] as Material_Filter;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("价格维护");</script>
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/Material/Mat_Price_Record/@MF.Link_BID" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:10px;">
+                    <a class="btn btn-info btn-sm" href="~/Material/Mat_Price_Sub/@MF.Link_BID"><i class="icon-double-angle-left"></i> 返回</a>
+                </td>
+
+                <td style="width:100px; padding-left:5px;">
+                    <input type="text" readonly="readonly" name="MatBrand" id="MatBrand" value="@MF.MatBrand" class="form-control input-xs">
+                </td>
+
+
+                <td style="width:200px; padding-left:5px;">
+                    <input type="text" name="Keyword" id="Keyword" placeholder="上传文件名称" value="@MF.Keyword" class="form-control input-xs">
+                </td>
+
+                <td style="width:10px; padding-left:5px;">
+                    <button class="btn btn-danger btn-sm btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                </td>
+
+                <td style="width:50px;">&nbsp;</td>
+
+                <td style="vertical-align:bottom;">&nbsp;</td>
+
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:80px;">上传日期</th>
+            <th style="width:80px;">上传人</th>
+            <th style="width:250px;">文件名称</th>
+            <th style="width:50px; text-align:center;">&nbsp;</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model.Rows)
+            {
+            <tr>
+                <td>&nbsp;</td>
+                <td style="vertical-align:top;">@x.Create_DT.ToString("yyyy-MM-dd")</td>
+                <td style="vertical-align:top;">@x.Upload_Person</td>
+                <td style="vertical-align:top;"><a href="~/Material/Mat_Price_Record_ToExcel/@x.MEID" target="_blank">@x.File_Name</a></td>
+                <td style="vertical-align:top; text-align:center;"><a class="btn btn-info btn-xs" href="~/Material/Mat_Price_Record_Sub/@x.MEID">查看</a></td>
+                <td style="vertical-align:top;">&nbsp;</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>

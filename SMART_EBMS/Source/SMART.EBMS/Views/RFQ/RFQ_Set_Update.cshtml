@@ -1,0 +1,242 @@
+﻿@model RFQ_Head
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("销售报价");</script>
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MySubmitForm" action="~/RFQ/RFQ_Set_Update_Post/@Model.RID" method="post" onsubmit="DisAndEnabledByID(1)">
+        <table class="FormTable_Sim FormTable_Sim_Input text-nowrap" style="width:800px;">
+            <tr>
+                <td colspan="2" style="padding-top:0px;"><div style="font-size:14px; font-weight:bold; width:225px; overflow:hidden; text-overflow:ellipsis; border-bottom:1px solid #ababab;" title="@Model.Cust_Name">@Model.Cust_Name</div></td>
+                <th style="width:10px;">询价单编号</th>
+                <td style="width:120px;"><input class="MyInput ReadonlyInput" type="text" value="@Model.RFQ_No" readonly="readonly" style="width:120px;" /></td>
+                <th style="width:10px;">询价日期</th>
+                <td style="width:120px;"><input class="MyInput ReadonlyInput" type="text" value="@Model.Create_DT.ToString("yyyy-MM-dd")" readonly="readonly" style="width:120px;" /></td>
+                <th style="width:20px;">结算方式</th>
+                <td style="width:250px;">
+                    <select name="C_Settle_Accounts" class="MyInput" style="width:200px;">
+                        <option selected="selected" value="@Model.C_Settle_Accounts">@Model.C_Settle_Accounts</option>
+                        @foreach (var x in Model.C_Settle_Accounts_List.Where(c => c != Model.C_Settle_Accounts).ToList())
+                        {
+                            <option value="@x">@x</option>
+                        }
+                    </select>
+                </td>
+                <th style="width:20px;">客户来源</th>
+                <td style="width:150px;">
+                    <select name="C_FormBy" class="MyInput" style="width:150px;">
+                        <option selected="selected" value="@Model.C_FormBy">@Model.C_FormBy</option>
+                        @foreach (var x in Model.C_FormBy_List.Where(c => c != Model.C_FormBy).ToList())
+                        {
+                            <option value="@x">@x</option>
+                        }
+                    </select>
+                </td>
+                <td>.</td>
+            </tr>
+
+            <tr>
+                <th style="width:20px;">客户询价人</th>
+                <td style="width:150px;"><input class="MyInput" type="text" name="Buyer" id="Buyer" value="@Model.Buyer" style="width:100%;" /></td>
+                <th>联系电话</th>
+                <td><input class="MyInput" type="text" name="Buyer_Tel" id="Buyer_Tel" value="@Model.Buyer_Tel" style="width:100%;" /></td>
+                <th>传　真</th>
+                <td><input class="MyInput" type="text" name="Buyer_Fax" id="Buyer_Fax" value="@Model.Buyer_Fax" style="width:100%;" /></td>
+                <th>邮　箱</th>
+                <td><input class="MyInput" type="text" name="Buyer_Mail" id="Buyer_Mail" value="@Model.Buyer_Mail" style="width:100%;" /></td>
+                <th style="width:20px;">所属行业</th>
+                <td style="width:150px;">
+                    <select name="C_Industry" class="MyInput" style="width:150px;">
+                        <option selected="selected" value="@Model.C_Industry">@Model.C_Industry</option>
+                        @foreach (var x in Model.C_Industry_List.Where(c => c != Model.C_Industry).ToList())
+                        {
+                            <option value="@x">@x</option>
+                        }
+                    </select>
+                </td>
+                <td>.</td>
+            </tr>
+
+            <tr>
+                <th>我方报价人</th>
+                <td><input class="MyInput" type="text" name="UID_FullName" id="UID_FullName" value="@Model.UID_FullName" style="width:100%;" /></td>
+                <th>联系电话</th>
+                <td><input class="MyInput" type="text" name="UID_Tel" id="UID_Tel" value="@Model.UID_Tel" style="width:100%;" /></td>
+                <th>传　真</th>
+                <td><input class="MyInput" type="text" name="UID_Fax" id="UID_Fax" value="@Model.UID_Fax" style="width:100%;" /></td>
+                <th>邮　箱</th>
+                <td><input class="MyInput" type="text" name="UID_Email" id="UID_Email" value="@Model.UID_Email" style="width:100%;" /></td>
+                <th>客户类型</th>
+                <td><input class="MyInput ReadonlyInput" readonly="readonly" type="text" name="C_VIP_Type" id="C_VIP_Type" value="@Model.C_VIP_Type" style="width:100%;" /></td>
+                <td>.</td>
+            </tr>
+
+            <tr>
+                <th>询价备注</th>
+                <td colspan="5"><input class="MyInput" type="text" name="RFQ_Remark" id="RFQ_Remark" value="@Model.RFQ_Remark" style="width:100%;" /></td>
+                <th>竞争对手</th>
+                <td><input class="MyInput" type="text" name="Compete_Company" id="Compete_Company" value="@Model.Compete_Company" style="width:100%;" /></td>
+                <th>竞争品牌</th>
+                <td><input class="MyInput" type="text" name="Compete_Brand" id="Compete_Brand" value="@Model.Compete_Brand" style="width:100%;" /></td>
+                <td>.</td>
+            </tr>
+
+            <tr>
+                <td>&nbsp;</td>
+                <td colspan="5" style="padding-top:5px; padding-bottom:0px;">
+                    <table class="Table_Clean" style="width:100%;">
+                        <tr>
+                            <td style="width:10px; padding:0px;"><button type="submit" class="btn btn-primary btn-sm btn-xs-m"><i class="icon-save"></i> 递交更新</button></td>
+                            <td style="width:10px; padding:0px; padding-left:10px;"><button type="button" class="btn btn-success btn-sm btn-xs-m"><i class="icon-share-alt"></i> 发送审批</button></td>
+                            <td>&nbsp;</td>
+                            <td style="width:10px; padding:0px; padding-left:5px;"><button type="button" class="btn btn-danger btn-sm btn-xs-m" onclick="Delete_RFQ()">删除询价单</button></td>
+                        </tr>
+                    </table>
+                </td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>.</td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<div class="MySetWidth" style="width:100%; overflow:hidden; height:1000px;">
+    <table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+        <thead>
+            <tr>
+                <th style="width:30px; text-align:center;">#</th>
+                <th style="width:250px;">询价型号 & 产品描述</th>
+                <th style="width:60px;">品牌</th>
+                <th style="width:30px; border-right:0px;">匹配</th>
+                <th style="width:180px; border-left:0px;">系统产品型号</th>
+                <th style="width:60px; text-align:center;">单　位</th>
+                <th style="width:70px; text-align:center;">数　量</th>
+                <th style="width:100px; text-align:center;">单　价</th>
+                <th style="width:75px; text-align:center;">最近交易价</th>
+                <th style="width:75px; text-align:center;">最近报价</th>
+                <th style="width:75px; text-align:center;">内部参考价</th>
+                <th style="width:100px;">内部询价</th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @foreach (var x in Model.Line_List)
+            {
+                <tr id="TR_Line_@x.Line_ID">
+                    <td style="text-align:center; vertical-align:top;">@x.Line_Number</td>
+                    <td style="vertical-align:top;">
+                        <strong class="MatSn_Font" style="font-size:14px;">@x.Cust_Mat_Sn</strong>
+                        @if (!string.IsNullOrEmpty(x.Cust_Mat_Describe))
+                        {
+                            <br />
+                            <span>@x.Cust_Mat_Describe</span>
+                        }
+
+                        @if (!string.IsNullOrEmpty(x.Line_Remark))
+                        {
+                            <br />
+                            <span style="color:blue;">@x.Line_Remark</span>
+                        }
+                    </td>
+                    <td style="vertical-align:top;">@x.BID_Name</td>
+                    <td style="vertical-align:top; text-align:center;"><button type="button" class="btn btn-info btn-xs" onclick="Show_Mat_Model('@x.Line_ID')"><i class="icon-search"></i></button></td>
+                    <td style="vertical-align:top;">
+                        <a href="javascript:void(0)" onclick="ShowMatPart_By_Line_ID('@x.Line_ID')"><strong class="MatSn_Font" style="color:green;" id="Mat_Sn_@x.Line_ID">@x.Mat_Sn</strong></a>
+                        <input type="hidden" id="MatID_@x.Line_ID" value="@x.MatID" />
+                        @if (!string.IsNullOrEmpty(x.Cust_Mat_Sn_INFO_STR))
+                        {
+                            <br />
+                            <span style="color:orangered">@x.Cust_Mat_Sn_INFO_STR</span>
+                        }
+                    </td>
+                    <td style="vertical-align:top; text-align:center;">@x.Cust_Mat_Unit</td>
+                    <td style="vertical-align:top;"><input onchange="Set_Line('@x.Line_ID')" id="Qty_@x.Line_ID" type="number" value="@x.Qty" style="width:100%; text-align:center;" /></td>
+                    <td style="vertical-align:top;"><input onchange="Set_Line('@x.Line_ID')" id="Sales_Price_@x.Line_ID" type="number" value="@x.Sales_Price.ToString("0.00")" style="width:100%; text-align:right;" /></td>
+                    <td style="vertical-align:top; text-align:right; color:silver;">n.a</td>
+                    <td style="vertical-align:top; text-align:right; color:silver;">n.a</td>
+                    <td style="vertical-align:top; text-align:right;">
+                        <span style="float:left;">零</span><span style="float:right;">@x.Mat_Info.Price_Retail.ToString("0.00")</span><br />
+                        <span style="float:left;">批1</span><span style="float:right;">@x.Mat_Info.Price_Trade_A.ToString("0.00")</span><br />
+                        <span style="float:left;">批2</span><span style="float:right;">@x.Mat_Info.Price_Trade_B.ToString("0.00")</span>
+                    </td>
+                    <td style="vertical-align:top;"><button type="button">发送询价</button></td>
+                    <td>&nbsp;</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div style="height:30px; overflow:hidden;" class="DeductionDiv"></div>
+
+<!--初始化页面-->
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            ordering: false,
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>
+<!--初始化页面-->
+<!--匹配产品-->
+<script>
+    function Show_Mat_Model(Line_ID) {
+        $("#Line_Mat_Model").modal({ backdrop: 'static' });
+        Reload_Mat_Context(Line_ID);
+    }
+
+    function Close_Mat_Model() {
+        $("#Line_Mat_Model").modal('hide');
+    }
+
+    function Reload_Mat_Context(Line_ID) {
+        $("#Line_Mat_Model_Context").text("Loading...");
+        $("#Line_Mat_Model_Context").load("/RFQ/RFQ_Set_Update_Mat/" + Line_ID);
+    }
+</script>
+
+<div class="modal fade" id="Line_Mat_Model">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:580px;">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="Close_Mat_Model()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">匹配系统产品型号</h5>
+            </div>
+            <div class="modal-body" id="Line_Mat_Model_Context"></div>
+        </div>
+    </div>
+</div>
+<!--更新报价行-->
+<!--删除询价单-->
+<script>
+    function Delete_RFQ() {
+        if (confirm("确认删除？")) {
+            $("#Delete_Form").submit();
+        }
+    }
+</script>
+<form id="Delete_Form" action="~/RFQ/RFQ_Set_Update_Delete_Post/@Model.RID" method="post"></form>
+<!--删除询价单-->
+
+<!--产品信息-->
+<script>
+    function ShowMatPart_By_Line_ID(Line_ID) {
+        var MatID = $("#MatID_" + Line_ID).val();
+        ShowMatPartModel(MatID);
+    }
+</script>
+<!--产品信息-->

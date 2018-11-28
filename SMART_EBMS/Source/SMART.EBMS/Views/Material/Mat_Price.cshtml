@@ -1,0 +1,45 @@
+﻿@model PageList<Brand>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Brand_Filter MF = ViewData["MF"] as Brand_Filter;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("价格维护");</script>
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/Material/Mat_Batch" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="color:blue;">点击品牌，进入批量价格更新页面</td>
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<div id="RightDivContext">
+    <div style="padding:20px; padding-top:0px;">
+        @foreach (var x in Model.Rows)
+        {
+            <a class="BrandBox" href="~/Material/Mat_Price_Sub/@x.BID">@x.Brand_Name</a>
+        }
+    </div>
+</div>
+
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>

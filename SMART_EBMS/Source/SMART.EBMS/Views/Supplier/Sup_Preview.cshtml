@@ -1,0 +1,166 @@
+﻿@model Supplier
+@{
+    Layout = null;
+}
+
+<html>
+@Html.Partial("_JsAndCss")
+
+<body style="width:1100px; margin:auto; background-color:white; overflow-y:scroll; padding-left:100px;">
+    <p>&nbsp;</p>
+    <h5><strong>@Model.Sup_Name</strong></h5>
+
+    <table class="FormTable_Sim FormTable_Sim_Border text-nowrap" style="width:860px; font-size:12px;">
+        <tr>
+            <td colspan="4" style="background-color:#e5e5e5; padding-top:4px; padding-bottom:4px;"><strong>基本信息</strong></td>
+        </tr>
+
+        <tr>
+            <td style="text-align:right; width:100px;">供应商代码</td>
+            <td style="width:120px; font-size:14px; font-weight:bold;">@Model.SupplierCode</td>
+
+            <td style="text-align:right; width:100px;">录入日期</td>
+            <td>@Model.Create_DT.ToString("yyyy-MM-dd") <span style="padding-left:10px;">@Model.Create_Person</span></td>
+        </tr>
+
+        <tr>
+            <td style="text-align:right; width:100px;">所属地区</td>
+            <td>@Model.District</td>
+            <td style="text-align:right;">公司地址</td>
+            <td>@Model.Address</td>
+        </tr>
+
+        <tr>
+            <th style="text-align:right;">供应商资质</th>
+            <td>@Model.Qualification</td>
+            <td style="text-align:right;">主营业务</td>
+            <td>@Model.Main_Business_Json</td>
+        </tr>
+
+        <tr>
+            <th style="text-align:right;">供应商性质</th>
+            <td>@Model.Type</td>
+            <td style="text-align:right;">品　牌</td>
+            <td>@Model.Main_Brand_Json</td>
+        </tr>
+
+        <tr>
+            <th style="text-align:right;">优先等级</th>
+            <td>@Model.Sup_Level</td>
+            <td style="text-align:right;">付款方式</td>
+            <td>@Model.Payment_Json</td>
+        </tr>
+
+        <tr>
+            <th style="text-align:right;">税　率</th>
+            <td>@Model.Tax_Rate<span>%</span></td>
+            <td style="text-align:right;">结算方式</td>
+            <td>@Model.Settle_Accounts_Json</td>
+        </tr>
+
+        <tr>
+            <th style="text-align:right;">供应商状态</th>
+            <td>
+                @if(Model.Act_Status == Sup_Act_Status_Enum.OPEN.ToString())
+                {
+                    <span style="color:green;">@Model.Act_Status</span>
+                }
+                else
+                {
+                    <span style="color:red;">@Model.Act_Status</span>
+                }
+            </td>
+            <td style="text-align:right;">锁定原因</td>
+            <td>
+                @if(Model.Act_Status == Sup_Act_Status_Enum.CLOSE.ToString())
+                {
+                    <span>@Model.Act_Status_Reason</span>
+                }
+                else
+                {
+                    <span style="color:silver;">无</span>
+                }
+            </td>
+        </tr>
+          
+    </table>
+
+    <table class="FormTable_Sim FormTable_Sim_Border text-nowrap" style="width:860px; font-size:12px;">
+        <tr>
+            <td colspan="4" style="background-color:#e5e5e5; padding-top:4px; padding-bottom:4px;"><strong>开票资料</strong></td>
+        </tr>
+
+        <tr>
+            <td style="text-align:right; width:100px;">开票抬头</td>
+            <td style="width:300px;">@Model.Invoice_Title</td>
+            <td style="text-align:right; width:100px;">税　号</td>
+            <td>@Model.Invoice_Identification</td>
+        </tr>
+
+        <tr>
+            <td style="text-align:right;">开票地址</td>
+            <td>@Model.Invoice_Address</td>
+            <td style="text-align:right;">电　话</td>
+            <td>@Model.Invoice_Tel</td>
+        </tr>
+
+        <tr>
+            <td style="text-align:right;">开户银行</td>
+            <td>@Model.Bank_Name</td>
+            <td style="text-align:right;">账　号</td>
+            <td>@Model.Bank_Account</td>
+        </tr>
+    </table>
+
+    <table class="FormTable_Sim FormTable_Sim_Border text-nowrap" style="width:860px; font-size:12px;">
+        <tr>
+            <td colspan="8" style="background-color:#e5e5e5; padding-top:4px; padding-bottom:4px;"><strong>客户联系人</strong></td>
+        </tr>
+
+        <tr class="active">
+            <td style="width:100px; text-align:right; background-color:#f8f8f8;">职　位</td>
+            <td style="width:150px; background-color:#f8f8f8;">姓　名</td>
+            <td style="width:120px; background-color:#f8f8f8;">电　话</td>
+            <td style="width:120px; background-color:#f8f8f8;">传　真</td>
+            <td style="background-color:#f8f8f8;">邮　箱</td>
+        </tr>
+
+        <tr>
+            <td style="text-align:right;">业务专员</td>
+            <td>@Model.Sales_Man</td>
+            <td>@Model.Sales_Man_Tel</td>
+            <td>@Model.Sales_Man_Fax</td>
+            <td>@Model.Sales_Man_Mail</td>
+        </tr>
+
+        <tr>
+            <td style="text-align:right;">业务经理</td>
+            <td>@Model.Sales_Manager</td>
+            <td>@Model.Sales_Manager_Tel</td>
+            <td>@Model.Sales_Manager_Fax</td>
+            <td>@Model.Sales_Manager_Mail</td>
+        </tr>
+
+        <tr>
+            <td style="text-align:right;">财务人员</td>
+            <td>@Model.Finance</td>
+            <td>@Model.Finance_Tel</td>
+            <td>@Model.Finance_Fax</td>
+            <td>@Model.Finance_Mail</td>
+        </tr>
+
+        <tr>
+            <td style="text-align:right;">总经理</td>
+            <td>@Model.GM</td>
+            <td>@Model.GM_Tel</td>
+            <td>@Model.GM_Fax</td>
+            <td>@Model.GM_Mail</td>
+        </tr>
+
+    </table>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+
+</body>
+</html>

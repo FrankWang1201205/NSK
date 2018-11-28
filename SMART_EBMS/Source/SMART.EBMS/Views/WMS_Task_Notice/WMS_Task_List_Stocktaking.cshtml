@@ -1,0 +1,40 @@
+﻿@model List<WMS_Stock_Task>
+@{
+    Layout = null;
+}
+
+<style>
+     * {
+        box-sizing: border-box;
+    }
+    table {
+        border-spacing: 0;
+        border-collapse: collapse;
+        
+    }
+    table tr td{
+        padding-left:10px;
+        text-align:left;
+        font-size: 15px;
+        border-top:0;
+    }  
+    table tr:nth-child(even) {
+        background: whitesmoke;
+    }
+</style>
+
+
+<table class="table text-nowrap table-hover" style="width:100%;font-size:15px;">
+
+    <tbody>
+        @foreach (var x in Model)
+        {
+            <tr>
+                <td style="width:150px;">@x.Create_DT.ToString("yyyy-MM-dd")</td>
+                <td style="width:130px;">@x.Location</td>
+                <td style="width:130px;">@x.Status</td>
+                <td style="width:130px;">@x.Work_Person</td>
+            </tr>
+        }
+    </tbody>
+</table>

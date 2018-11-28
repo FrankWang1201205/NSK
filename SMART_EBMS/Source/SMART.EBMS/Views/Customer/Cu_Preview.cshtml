@@ -1,0 +1,201 @@
+﻿@model Customer
+@{
+    Layout = null;
+    Customer_Group CG = ViewData["CG"] as Customer_Group;
+}
+
+<html>
+@Html.Partial("_JsAndCss")
+<body style="width:1100px; margin:auto; background-color:white; overflow-y:scroll; padding-left:100px;">
+    <p>&nbsp;</p>
+
+    <h5><strong>@Model.Cust_Name</strong></h5>
+    <table class="FormTable_Sim FormTable_Sim_Border text-nowrap" style="width:860px; font-size:12px;">
+        <tr>
+            <td colspan="6" style="background-color:#e5e5e5; padding-top:4px; padding-bottom:4px;"><strong>基本信息</strong></td>
+        </tr>
+
+        <tr>
+            <td style="text-align:right;">客户代码</td>
+            <td style="font-size:14px; font-weight:bold;">@Model.Cust_Code</td>
+            <td style="text-align:right;">录入日期</td>
+            <td>@Model.Create_DT.ToString("yyyy-MM-dd") <span style="padding-left:10px;">@Model.Create_Person</span></td>
+            @*<td style="text-align:right;">所属集团</td>
+            <td>@Model.Group_Name</td>*@
+            <td colspan="2">&nbsp;</td>
+        </tr>
+
+        <tr>
+            <td style="text-align:right; width:80px;">所属地区</td>
+            <td style="width:120px;">@Model.District</td>
+            <td style="text-align:right; width:100px;">所属行业</td>
+            <td style="width:120px;">@Model.Industry</td>
+            <td colspan="2">&nbsp;</td>
+        </tr>
+
+        <tr>
+            <td style="text-align:right; width:100px;">客户性质</td>
+            <td>@Model.Cust_Type</td>
+            <td style="text-align:right; width:100px;">客户级别</td>
+            <td>@Model.VIP_Type</td>
+            <td style="text-align:right; width:100px;">客户类型</td>
+            <td>@Model.Cust_Trade_Type</td>
+        </tr>
+
+        <tr>
+            <td style="text-align:right;">成立日期</td>
+            <td>@Model.Establishment</td>
+            <td style="text-align:right;">销售方式</td>
+            <td>@Model.Sales_Type</td>
+            <td style="text-align:right;">结算方式</td>
+            <td>@Model.Settle_Accounts</td>
+        </tr>
+
+        <tr>
+            <td style="text-align:right;">销售经理</td>
+            <td>@Model.Sales_UID_Name</td>
+            <td style="text-align:right;">对账日期</td>
+            <td>@Model.Statement_Day</td>
+            <td style="text-align:right;">支付方式</td>
+            <td>@Model.Payment_Type</td>
+        </tr>
+
+        <tr>
+            <td style="text-align:right;">销售合同</td>
+            <td>@Model.Contract_Type</td>
+            <td style="text-align:right;">合同有效期</td>
+            <td>
+                @if (Model.Contract_Type == "" || Model.Contract_Type == Cust_Contract_Type_Enum.无.ToString())
+                {
+                    <span>&nbsp;</span>
+                }
+                else
+                {
+                    <span>@Model.Contract_End_Date.ToString("yyyy-MM-dd")</span>
+                }
+            </td>
+            <td style="text-align:right;">每次报价</td>
+            <td>
+                @if (Model.Is_Contract_RFQ == 1)
+                {
+                    <span>是</span>
+                }
+                else
+                {
+                    <span>否</span>
+                }
+            </td>
+        </tr>
+
+        <tr>
+            <td style="text-align:right;">发货方式</td>
+            <td>@Model.Ship_Type</td>
+            <td style="text-align:right;">收货地址</td>
+            <td colspan="3">@Model.Ship_Address</td>
+        </tr>
+
+        <tr>
+            <td style="text-align:right;">公里数</td>
+            <td>@Model.Ship_Address_KM</td>
+            <td style="text-align:right;">运费支付</td>
+            <td colspan="3">@Model.Ship_Pay</td>
+        </tr>
+
+        <tr>
+            <td style="text-align:right;">客户来源</td>
+            <td>@Model.FormBy</td>
+            <td style="text-align:right;">客户产品</td>
+            <td colspan="3">@Model.Cust_Product</td>
+        </tr>
+
+        <tr>
+            <td style="text-align:right;">竞争品牌</td>
+            <td>@Model.Compete_Brand</td>
+            <td style="text-align:right;">竞争对手</td>
+            <td colspan="3">@Model.Compete_Company</td>
+        </tr>
+
+    </table>
+
+
+    <table class="FormTable_Sim FormTable_Sim_Border text-nowrap" style="width:860px; font-size:12px;">
+        <tr>
+            <td colspan="4" style="background-color:#e5e5e5; padding-top:4px; padding-bottom:4px;"><strong>开票资料</strong></td>
+        </tr>
+
+        <tr>
+            <td style="text-align:right; width:80px;">开票抬头</td>
+            <td style="width:300px;">@Model.Invoice_Title</td>
+            <td style="text-align:right; width:80px;">税　号</td>
+            <td>@Model.Invoice_Identification</td>
+        </tr>
+
+        <tr>
+            <td style="text-align:right;">开票地址</td>
+            <td>@Model.Invoice_Address</td>
+            <td style="text-align:right;">电　话</td>
+            <td>@Model.Invoice_Tel</td>
+        </tr>
+
+        <tr>
+            <td style="text-align:right;">开户银行</td>
+            <td>@Model.Bank_Name</td>
+            <td style="text-align:right;">账　号</td>
+            <td>@Model.Bank_Account</td>
+        </tr>
+
+
+    </table>
+
+
+    <table class="FormTable_Sim FormTable_Sim_Border text-nowrap" style="width:860px; font-size:12px;">
+        <tr>
+            <td colspan="8" style="background-color:#e5e5e5; padding-top:4px; padding-bottom:4px;"><strong>客户联系人</strong></td>
+        </tr>
+
+        <tr class="active">
+            <td style="width:100px; text-align:right; background-color:#f8f8f8;">职　位</td>
+            <td style="width:150px; background-color:#f8f8f8;">姓　名</td>
+            <td style="width:120px; background-color:#f8f8f8;">电　话</td>
+            <td style="width:120px; background-color:#f8f8f8;">传　真</td>
+            <td style="background-color:#f8f8f8;">邮　箱</td>
+        </tr>
+
+        <tr>
+            <td style="text-align:right;">采购员</td>
+            <td>@Model.Buyer</td>
+            <td>@Model.Buyer_Tel</td>
+            <td>@Model.Buyer_Fax</td>
+            <td>@Model.Buyer_Mail</td>
+        </tr>
+
+        <tr>
+            <td style="text-align:right;">仓管员</td>
+            <td>@Model.Keeper</td>
+            <td>@Model.Keeper_Tel</td>
+            <td>@Model.Keeper_Fax</td>
+            <td>@Model.Keeper_Mail</td>
+        </tr>
+
+        <tr>
+            <td style="text-align:right;">财务人员</td>
+            <td>@Model.Finance</td>
+            <td>@Model.Finance_Tel</td>
+            <td>@Model.Finance_Fax</td>
+            <td>@Model.Finance_Mail</td>
+        </tr>
+
+        <tr>
+            <td style="text-align:right;">总经理</td>
+            <td>@Model.GM</td>
+            <td>@Model.GM_Tel</td>
+            <td>@Model.GM_Fax</td>
+            <td>@Model.GM_Mail</td>
+        </tr>
+
+    </table>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+</body>
+</html>

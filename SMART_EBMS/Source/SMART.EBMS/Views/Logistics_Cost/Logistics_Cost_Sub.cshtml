@@ -1,0 +1,91 @@
+﻿@model  List<WMS_Track>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    DateTime SD = Convert.ToDateTime(ViewData["SD"].ToString());
+    DateTime ED = Convert.ToDateTime(ViewData["ED"].ToString());
+    Guid Logistics_ID = new Guid(ViewData["Logistics_ID"].ToString());
+    string Logistics_Name = string.Empty;
+    try { Logistics_Name = Model.FirstOrDefault().Logistics_Company; } catch { }
+}
+ 
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("快递费用");</script>
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+<div id="MainDomDiv" style="overflow-y:scroll;">
+
+    <div class="DeductionDiv TopSearchDiv">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:10px;">
+                    <input autocomplete="off" style="width:150px;" readonly class="form-control input-sm" name="Logistics_Name" type="text" id="Logistics_Name" value="@Logistics_Name" />
+                </td>
+
+                <td style="width:10px;padding-left:15px;">
+                    <input autocomplete="off" style="width:90px;" readonly class="form-control input-sm" name="Time_Start" type="text" id="Time_Start" placeholder="起始时间" value="@SD.ToString("yyyy-MM-dd")" />
+                </td>
+
+                <td style="width:10px; text-align:center;">
+                    ~
+                </td>
+
+                <td style="width:10px;">
+                    <input autocomplete="off" style="width:90px;" readonly class="form-control input-sm" name="Time_End" type="text" id="Time_End" placeholder="结束时间" value="@ED.ToString("yyyy-MM-dd")" />
+                </td>
+
+                <td style="padding-left:15px;">
+                    <a class="btn btn-default btn-sm" href="~/Logistics_Cost/Logistics_Cost_Sub_To_Excel/@Logistics_ID?SD=@SD.ToString("yyyy-MM-dd")&ED=@ED.ToString("yyyy-MM-dd")"><span class="glyphicon glyphicon-list-alt"></span> 导出清单</a>
+
+                    <span style="padding-left:5px;">单号数量：<strong>@Model.Count()</strong></span><span style="padding-left:5px;padding-right:5px;">,</span><span>总金额：<strong>￥@Model.Sum(x => x.Logistics_Cost).ToString("N2")</strong></span>
+                </td>
+                <td>&nbsp;</td>
+            </tr>
+        </table>
+    </div>
+
+    <table id="DataTable" class="table table-condensed table-bordered table-nowrap" style="width:98%;margin:20px;margin-top:5px;">
+        <thead>
+            <tr>
+                <th style="width:150px;">单号</th>
+                <th style="width:70px;text-align:right">金额</th>
+                <th style="width:200px;">公司名称</th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody style="background-color:white">
+            @foreach (var x in Model.OrderByDescending(x=>x.Create_DT).ToList())
+            {
+                <tr>
+                    <td style="vertical-align:top;">@x.Tracking_No</td>
+                    <td style="vertical-align:top;text-align:right">@x.Logistics_Cost.ToString("N2")</td>
+                    <td style="vertical-align:top;">@x.Link_Head_Com_Name</td>
+                    <td>&nbsp;</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>
+    $(function () {
+        FixHeightExt();
+    });
+
+    $(window).resize(function () {
+        FixHeightExt();
+    });
+
+    function FixHeightExt() {
+        $('#MainDomDiv').css('height', FixHeightValue() + 50);
+    }
+</script>
+

@@ -1,0 +1,229 @@
+﻿@model PageList<WMS_Location>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    WMS_Location_Filter MF = ViewData["MF"] as WMS_Location_Filter;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("库位更新");</script>
+
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"] </div>
+}
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/WMS_Loc/Loc_Update" method="get" enctype="multipart/form-data">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:100px;">
+                    <select name="Type" id="Type" class="form-control input-sm" onchange="SubmitPageIndex(1)">
+                        <option value="">库位类型</option>
+                        @foreach (var x in MF.Type_Enum_List)
+                        {
+                            if (MF.Type == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:120px;padding-left:10px">
+                    <select name="Link_MatSn_Count" id="Link_MatSn_Count" class="form-control input-sm" onchange="SubmitPageIndex(1)">
+                        <option value="">关联型号数</option>
+                        @foreach (var x in MF.Link_MatSn_Count_Enum_List)
+                        {
+                            if (MF.Link_MatSn_Count == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:250px;padding-left:10px">
+                    <div class="input-group input-group-sm" style="width: 250px; ">
+                        <input type="text" name="Keyword" id="Keyword" placeholder="库位编号" value="@MF.Keyword" class="form-control ">
+                        <div class="input-group-btn">
+                            <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                        </div>
+                    </div>
+                </td>
+                <td style="width:90px;padding-left:10px;"><button type="button" onclick="ShowAddNewItem()" class="btn btn-primary btn-sm"><i class="icon-plus" style="font-size:12px;"> 新增库位</i></button></td>
+                @*<td style="width:90px;padding-left:10px;"><button type="button" onclick="AddNewItemList()" class="btn btn-primary btn-sm"><i class="icon-plus" style="font-size:12px;"> 批量新增库位</i></button></td>*@
+
+                <td style="width:50px;">&nbsp;</td>
+
+                <td style="vertical-align:bottom;">&nbsp;</td>
+
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:80px;">库位编号</th>
+            <th style="width:80px;">类型</th>
+            <th style="width:80px;">关联型号数</th>
+            <th style="width:80px;">备注</th>
+            <th style="width:50px">&nbsp;</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model.Rows)
+            {
+            <tr>
+                <td>&nbsp;</td>
+                <td style="vertical-align:top;">
+                    <a href="javascript:void(0)" onclick="Show_QRCode_Madal('@x.Loc_ID')">@x.Location</a>
+                </td>
+                <td style="vertical-align:top;">@x.Type</td>
+                <td style="vertical-align:top;">@x.Link_MatSn_Count</td>
+                <td style="vertical-align:top;">@x.Remark</td>
+                <td style="text-align:center"><a class="btn btn-info btn-xs" href="javascript:void(0)" onclick="ShowSetItem('@x.Loc_ID')">更新</a></td>
+                <td>&nbsp;</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+
+</script>
+
+<!--二维码查看-->
+<script>
+    function Show_QRCode_Madal(Loc_ID)
+    {
+        Reload_QRCode_Madal(Loc_ID);
+        $('#MyQRCodeModal').modal({ backdrop: 'static' });
+    }
+
+    function Close_QRCode_Madal() { $('#MyQRCodeModal').modal('hide'); }
+
+    function Reload_QRCode_Madal(Loc_ID) {
+        $("#QRCodeContext").load("/WMS_Loc/QRCode_Preview/" + Loc_ID);
+    }
+</script>
+<div class="modal fade" id="MyQRCodeModal">
+    <div class="modal-dialog" style="width:250px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="Close_QRCode_Madal()"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body" id="QRCodeContext" style="margin:auto;text-align:center"></div>
+        </div>
+    </div>
+</div>
+<!--二维码查看-->
+
+<!--新增-->
+<script>
+    function ShowAddNewItem()
+    {
+        ReloadAddNewItem();
+        $('#MyNewModel').modal({ backdrop: 'static' });
+    }
+
+    function CloseAddNewItem() { $('#MyNewModel').modal('hide'); }
+
+    function ReloadAddNewItem()
+    {
+        $("#NewContext").load("/WMS_Loc/Loc_Update_Add");
+    }
+</script>
+<div class="modal fade" id="MyNewModel">
+    <div class="modal-dialog" style="width:400px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="CloseAddNewItem()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">新增库位</h5>
+            </div>
+            <div class="modal-body" id="NewContext"></div>
+        </div>
+    </div>
+</div>
+<!--新增-->
+
+<!--更新-->
+<script>
+    function ShowSetItem(Loc_ID)
+    {
+        ReloadSetItem(Loc_ID);
+        $('#MySetModel').modal({ backdrop: 'static' });
+    }
+
+    function CloseSetItem() { $('#MySetModel').modal('hide'); }
+
+    function ReloadSetItem(Loc_ID)
+    {
+        $("#SetContext").load("/WMS_Loc/Loc_Update_Sub/" + Loc_ID);
+    }
+</script>
+<div class="modal fade" id="MySetModel">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:400px;">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="CloseSetItem()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">更新库位</h5>
+            </div>
+            <div class="modal-body" id="SetContext"></div>
+        </div>
+    </div>
+</div>
+<!--更新-->
+
+<form id="Batch_Form" action="~/WMS_Loc/Loc_Update_Batch_Add_Post" method="post">
+    <script>
+        function AddNewItemList() {
+            $("#Batch_Form").submit();
+        }
+    </script>
+</form>

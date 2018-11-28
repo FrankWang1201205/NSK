@@ -1,0 +1,107 @@
+﻿@model User
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string Controller = ViewContext.RouteData.Values["controller"].ToString();
+    string Action = ViewContext.RouteData.Values["action"].ToString();
+}
+
+<div class="TopMenu DeductionDiv">
+    <ul>
+        <li class="TopMenuAct"><a id="MTB_账号更新" href="~/Index/MyUserInfo">账号更新</a></li>
+        <li class="TopMenuHelp" onclick="ShowHelp('@Controller-@Action')"><img src="~/Content/Images/help.png" /><span>Help</span></li>
+    </ul>
+</div>
+<script>TopMenuToAction("账号更新");</script>
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+<div id="RightDivContext">
+    <form action="~/Index/MyUserInfo_Post" method="post" id="MyUserForm" style="padding:20px;">
+        <table class="FormTable_Sim" style="width:100%;">
+            <tr>
+                <th style="width: 80px;">* 用户名</th>
+                <td>
+                    <input name="UserName" readonly class="form-control input-sm" type="text" style="width:150px;" value="@Model.UserName">
+                </td>
+            </tr>
+            <tr>
+                <th>* 用户全称</th>
+                <td>
+                    <input name="UserFullName" class="form-control input-sm ReqUpdate" type="text" style="width:150px;" value="@Model.UserFullName">
+                </td>
+            </tr>
+            <tr>
+                <th>手机号码</th>
+                <td>
+                    <input name="MobilePhone" class="form-control input-sm" type="text" style="width:150px;" value="@Model.MobilePhone">
+                </td>
+            </tr>
+
+            <tr>
+                <th>联系电话</th>
+                <td>
+                    <input name="Tel" class="form-control input-sm" type="text" style="width:150px;" value="@Model.Tel">
+                </td>
+            </tr>
+            <tr>
+                <th>* 电子邮箱</th>
+                <td>
+                    <input name="Email" class="form-control input-sm ReqUpdate" type="text" style="width:300px;" value="@Model.Email">
+                </td>
+            </tr>
+            <tr>
+                <th>&nbsp;</th>
+                <td>
+                    <button type="button" onclick="UpdateUserSubmit()" class="btn btn-primary btn-sm" style="width: 70px;">更新</button>
+                </td>
+            </tr>
+        </table>
+    </form>
+    <!--修改密码-->
+    <hr style="margin-top:0px; margin-bottom:0px; padding-top:5px; padding-bottom:5px;" />
+
+    <form id="MyUserUpdatePasswordForm" action="~/Index/MyUserInfo_Password_Post" method="post" style="padding:20px;">
+        <table class="FormTable_Sim" style="width:auto;">
+            <tr id="MyShowBtn">
+                <td style="width: 80px;">&nbsp;</td>
+                <td colspan="2"><button type="button" class="btn btn-default btn-sm" onclick="ShowUserUpdatePasswordForm()"><span class="glyphicon glyphicon-lock"></span> 重置密码</button></td>
+            </tr>
+            <tr id="PasswordTD" style="display:none;">
+                <td style="width: 80px; text-align: right; vertical-align:middle;">修改密码</td>
+                <td>
+                    <input name="NewPassword" class="form-control input-sm NotEmptyPassword" type="text" style="width:150px;" value="" placeholder="请输入新密码">
+                </td>
+                <td>
+                    <button type="button" onclick="CheckPasswordSubmit()" class="btn btn-primary btn-sm">确定</button>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<script>
+    function UpdateUserSubmit() {
+        if (validateFormByClass('ReqUpdate') == false) {
+            return false;
+        }
+        $("#MyUserForm").submit();
+    }
+
+    function ShowUserUpdatePasswordForm() {
+        $("#PasswordTD").show();
+        $("#MyShowBtn").hide();
+    }
+
+    function CheckPasswordSubmit() {
+        if (validateFormByClass('NotEmptyPassword') == false) { return false; }
+        $("#MyUserUpdatePasswordForm").submit();
+    }
+</script>

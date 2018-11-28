@@ -1,0 +1,218 @@
+﻿@model PageList<Material>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Material_Filter MF = ViewData["MF"] as Material_Filter;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("产品查询");</script>
+
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Success">@TempData["Error"]</div>
+}
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/MaterialTemp/WMS_Mat_Search" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:150px;">
+                    <input type="text" name="Other_MatSn" id="Other_MatSn" placeholder="产品代号" value="@MF.Other_MatSn" class="form-control input-xs">
+                </td>
+
+                <td style="width:150px;padding-left:5px;">
+                    <input type="text" name="MatSn" id="MatSn" placeholder="产品型号" value="@MF.MatSn" class="form-control input-xs">
+                </td>
+
+                <td style="width:150px;padding-left:5px;">
+                    <input type="text" name="Keyword" id="Keyword" placeholder="辅助产品型号" value="@MF.Keyword" class="form-control input-xs">
+                </td>
+
+                <td style="width:120px; padding-left:5px;">
+                    <input type="text" name="MatName" id="MatName" placeholder="产品名称" value="@MF.MatName" class="form-control input-xs">
+                </td>
+
+                <td style="width:100px; padding-left:5px;">
+                    <select name="MatBrand" id="MatBrand" class="form-control input-xs" onchange="SubmitPageIndex(1)">
+                        <option value="">选择品牌</option>
+                        @foreach (var x in MF.BrandList)
+                        {
+                            if (MF.MatBrand == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:10px; padding-left:5px;">
+                    <button class="btn btn-danger btn-sm btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                </td>
+
+                @*<td style="padding-left:15px">
+                    <button class="btn btn-danger btn-sm" type="button" onclick="Set_MatSn_ALL()">重刷</button>
+                </td>*@
+
+                <td style="width:50px;">&nbsp;</td>
+                <td style="text-align:right">
+                    <button class="btn btn-primary btn-sm" type="button" onclick="Download_Mat()">导出产品</button>
+                </td>
+                <td style="vertical-align:bottom;">&nbsp;</td>
+
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:220px;">产品代号</th>
+            <th style="width:220px;">产品型号</th>
+            <th style="width:120px;">产品名称</th>
+            <th style="width:80px;">品牌</th>
+            <th style="width:80px;">装箱数</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model.Rows)
+            {
+            <tr>
+                <td>&nbsp;</td>
+                <td style="vertical-align:top;"><span class="MatSn_Font">@x.Other_MatSn</span></td>
+                <td style="vertical-align:top;"><a href="javascript:void(0);" onclick="Show_Mat_Label_Modal('@x.MatID')" class="MatSn_Font">@x.MatSn</a></td>
+                <td style="vertical-align:top;">@x.MatName</td>
+                <td style="vertical-align:top;">@x.MatBrand</td>
+                <td style="vertical-align:top;">@x.Pack_Qty</td>
+                <td>&nbsp;</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>
+
+    <!--产品二维码-->
+<script>
+    function Show_Mat_Label_Modal(MatID) {
+        Reload_Mat_Label_Modal_Context(MatID);
+            $('#Mat_Label_Modal_QRCode').modal({ backdrop: 'static' });
+        }
+
+    function Reload_Mat_Label_Modal_Context(MatID) {
+            $("#Mat_Label_QRCode_Context").text("Loading...");
+            $("#Mat_Label_QRCode_Context").load("/MaterialTemp/WMS_Mat_Search_QRCode/" + MatID);
+        }
+</script>
+<div class="modal fade" id="Mat_Label_Modal_QRCode">
+    <div class="modal-dialog" style="width:460px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">产品二维码</h5>
+            </div>
+            <div class="modal-body" id="Mat_Label_QRCode_Context"></div>
+        </div>
+    </div>
+</div>
+<!--产品二维码-->
+
+<form id="Set_Form" action="~/MaterialTemp/WMS_Mat_Search_Post_Temp">
+    <script>
+        function Set_MatSn_ALL() {
+            $("#Set_Form").submit();
+        }
+    </script>
+</form>
+<!--导出Excel-->
+<script>
+    function Download_Mat() {
+        $('#Download_Modal').modal({ backdrop: 'static' });
+    }
+
+    function Close_Download_Modal() {
+        $('#Download_Modal').modal('hide');
+    }
+
+    function Check_Download_Mat() {
+        if (validateFormByClass("Not_Empty")) {
+            $("#Download_Form").submit();
+        }
+    }
+</script>
+<div class="modal fade" id="Download_Modal">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:480px;">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="Close_Download_Modal()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">批量导出</h5>
+            </div>
+            <div class="modal-body">
+                <form id="Download_Form" action="~/MaterialTemp/WMS_Mat_Search_To_Excel_Post" method="post" enctype="multipart/form-data">
+                    <table style="width:100%; border:1px solid silver;">
+                        <tr>
+                            <td style="width:60px;padding-top:10px;padding-left:25px;">品牌</td>
+                            <td style="padding-top:10px;">
+                                <select class="form-control input-xs Not_Empty" name="Brand" id="Brand" style="width:135px;">
+                                    <option value="">请选择</option>
+                                    @foreach (var x in MF.BrandList)
+                                    {
+                                        <option value="@x">@x</option>
+                                    }
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding-left:25px;width:60px;padding-top:10px;padding-bottom:10px;">&nbsp;</td>
+                            <td style="padding-top:10px;padding-bottom:10px;">
+                                <button type="button" class="btn btn-info btn-sm" onclick="Check_Download_Mat()">下载</button>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!--导出Excel-->

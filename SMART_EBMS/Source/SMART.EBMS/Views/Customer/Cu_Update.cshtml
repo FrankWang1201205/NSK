@@ -1,0 +1,256 @@
+﻿@model PageList<Customer>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Customer_Filter MF = ViewData["MF"] as Customer_Filter;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("客户更新");</script>
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/Customer/Cu_Update" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:100px;">
+                    <select class="form-control input-xs" name="Cust_Type" id="Cust_Type" onchange="SubmitPageIndex(1)">
+                        <option value="">客户性质</option>
+                        @foreach (var x in MF.Cust_Type_List)
+                        {
+                            if (MF.Cust_Type == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:100px; padding-left:5px;">
+                    <select class="form-control input-xs" name="District" id="District" onchange="SubmitPageIndex(1)">
+                        <option value="">所属地区</option>
+                        @foreach (var x in MF.District_List)
+                        {
+                            if (MF.District == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:100px; padding-left:5px;">
+                    <select class="form-control input-xs" name="Industry" id="Industry" onchange="SubmitPageIndex(1)">
+                        <option value="">所属行业</option>
+                        @foreach (var x in MF.Industry_List)
+                        {
+                            if (MF.Industry == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:100px; padding-left:5px;">
+                    <select class="form-control input-xs" name="Sales_Type" id="Sales_Type" onchange="SubmitPageIndex(1)">
+                        <option value="">销售方式</option>
+                        @foreach (var x in MF.Sales_Type_List)
+                        {
+                            if (MF.Sales_Type == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:100px; padding-left:5px;">
+                    <select class="form-control input-xs" name="Settle_Accounts" id="Settle_Accounts" onchange="SubmitPageIndex(1)">
+                        <option value="">结算方式</option>
+                        @foreach (var x in MF.Settle_Accounts_List)
+                        {
+                            if (MF.Settle_Accounts == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:100px; padding-left:5px;">
+                    <select class="form-control input-xs" name="Payment_Type" id="Payment_Type" onchange="SubmitPageIndex(1)">
+                        <option value="">支付方式</option>
+                        @foreach (var x in MF.Payment_Type_List)
+                        {
+                            if (MF.Payment_Type == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:100px; padding-left:5px;">
+                    <select class="form-control input-xs" name="Contract_Type" id="Contract_Type" onchange="SubmitPageIndex(1)">
+                        <option value="">合同类型</option>
+                        @foreach (var x in MF.Contract_Type_List)
+                        {
+                            if (MF.Contract_Type == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:120px; padding-left:5px;">
+                    <select class="form-control input-xs" name="Sales_UID" id="Sales_UID" onchange="SubmitPageIndex(1)">
+                        <option value="">销售经理</option>
+                        @foreach (var x in MF.SalesUserList)
+                        {
+                            if (MF.Sales_UID == x.UID)
+                            {
+                                <option selected="selected" value="@x.UID">@x.UserFullName</option>
+                            }
+                            else
+                            {
+                                <option value="@x.UID">@x.UserFullName</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:100px; padding-left:5px;">
+                    <input type="text" name="Cust_Code" id="Cust_Code" placeholder="客户代码" value="@MF.Cust_Code" class="form-control input-xs">
+                </td>
+
+                <td style="width:150px; padding-left:5px;">
+                    <input type="text" name="Cust_Name" id="Cust_Name" placeholder="客户名称" value="@MF.Cust_Name" class="form-control input-xs">
+                </td>
+
+                <td style="width:10px; padding-left:5px;">
+                    <button class="btn btn-danger btn-sm btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                </td>
+
+                <td style="width:50px;">&nbsp;</td>
+
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:80px;">客户代码</th>
+            <th style="width:200px;">客户名称</th>
+            <th style="width:60px;">性质</th>
+            <th style="width:60px;">地区</th>
+            <th style="width:60px;">行业</th>
+            <th style="width:80px;">销售方式</th>
+            <th style="width:60px;">结算方式</th>
+            <th style="width:60px;">支付方式</th>
+            <th style="width:60px;">合同类型</th>
+            <th style="width:80px;">合同有效期</th>
+            <th style="width:70px;text-align:center">销售经理</th>
+            <th style="width:50px">&nbsp;</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model.Rows)
+            {
+            <tr>
+                <td>&nbsp;</td>
+                <td style="vertical-align:top;">@x.Cust_Code</td>
+                <td style="vertical-align:top;">@x.Cust_Name</td>
+                <td style="vertical-align:top;">@x.Cust_Type</td>
+                <td style="vertical-align:top;">@x.District</td>
+                <td style="vertical-align:top;">@x.Industry</td>
+                <td style="vertical-align:top;">@x.Sales_Type</td>
+                <td style="vertical-align:top;">@x.Settle_Accounts</td>
+                <td style="vertical-align:top;">@x.Payment_Type</td>
+                <td style="vertical-align:top;">@x.Contract_Type</td>
+                <td style="vertical-align:top;">
+                    @if (x.Contract_Type != string.Empty && x.Contract_Type != Cust_Contract_Type_Enum.无.ToString())
+                    {
+                        <span>@x.Contract_End_Date.ToString("yyyy-MM-dd")</span>
+                    }
+                    else
+                    {
+                        <span>&nbsp;</span>
+                    }
+                </td>
+                <td style="vertical-align:top; text-align:center;">@x.Sales_UID_Name</td>
+                <td style="text-align:center"><a class="btn btn-info btn-xs" href="~/Customer/Cu_Update_Sub/@x.CID">更新</a></td>
+                <td>&nbsp;</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>

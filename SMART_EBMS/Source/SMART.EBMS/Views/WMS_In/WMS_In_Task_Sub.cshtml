@@ -1,0 +1,89 @@
+﻿@model WMS_In_Task
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    WMS_In_Filter MF = ViewData["MF"] as WMS_In_Filter;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("任务分配");</script>
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/WMS_In/WMS_In_Task_Sub/@Model.Head_ID" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:20px;"><a href="~/WMS_In/WMS_In_Task" class="btn btn-info btn-sm">返回</a></td>
+                <td style="width:250px; padding-left:5px;">
+                    <div class="input-group input-group-sm" style="width: 250px; ">
+                        <input type="text" name="MatSn" id="MatSn" placeholder="产品型号" value="@MF.MatSn" class="form-control ">
+                        <div class="input-group-btn">
+                            <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                        </div>
+                    </div>
+                </td>
+
+                <td style="width:50px;">&nbsp;</td>
+
+                <td style="text-align:right; vertical-align:bottom; padding-right:10px;">
+                    <span>任务单编号：</span> <strong style="font-size:14px;">@Model.Task_Bat_No_Str</strong>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:40px;">序</th>
+            <th style="width:280px;">产品型号</th>
+            <th style="width:80px; text-align:right;">到货数</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model.WMS_In_Line_List)
+            {
+            <tr>
+                <td>&nbsp;</td>
+                <td style="vertical-align:top;">@x.Line_No</td>
+                <td style="vertical-align:top;"><strong class="MatSn_Font">@x.MatSn</strong></td>
+                <td style="vertical-align:top; text-align:right;">@x.Quantity.ToString("N0")</td>
+                <td>&nbsp;</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<p class="DeductionDiv">
+    <script>
+        function SubmitPageIndex(PageIndex) {
+            $("#MyForm").submit();
+        }
+    </script>
+</p>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>

@@ -1,0 +1,19 @@
+﻿@{
+    User U = ViewData["User"] as User;
+    string Controller = ViewContext.RouteData.Values["controller"].ToString();
+    string Action = ViewContext.RouteData.Values["action"].ToString();
+    string ModularName = "计划";
+    string SubMenuName = "销售预测";
+    SubMenu SubMenu_Item = GetFunctionTree.User_Tree_SubMenu(U, ModularName, SubMenuName);
+}
+<div class="TopMenu DeductionDiv">
+    <ul>
+        @foreach (var x in SubMenu_Item.Sub_Menu_Top_List)
+        {
+            <li class="TopMenuAct"><a id="MTB_@x.TopName" href="~/@x.URL">@x.TopName</a></li>
+        }
+        <li class="TopMenuHelp" onclick="ShowHelp('@Controller-@Action')"><img src="~/Content/Images/help.png" /><span>Help</span></li>
+    </ul>
+</div>
+<div class="SubTopMenuDivHelpSub"><div id="SubTopMenuDivHelpContext"></div></div>
+<script>ActLeftMenu("@SubMenu_Item.Code");</script>

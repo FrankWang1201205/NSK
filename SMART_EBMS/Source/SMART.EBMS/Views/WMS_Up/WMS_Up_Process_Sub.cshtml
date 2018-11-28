@@ -1,0 +1,163 @@
+﻿@model PageList<WMS_Move>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    WMS_Move_Filter MF = ViewData["MF"] as WMS_Move_Filter;
+
+    WMS_In_Head Head = ViewData["Head"] as WMS_In_Head;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("上架进程");</script>
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/WMS_Up/WMS_Up_Process_Sub" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:40px;padding-right:15px;"><a href="~/WMS_Up/WMS_Up_Process" class="btn btn-info btn-sm">返回</a></td>
+
+                <td style="width:250px;">
+                    <div class="input-group input-group-sm" style="width: 250px; ">
+                        <input type="text" name="Location" id="Location" placeholder="移出库位" value="@MF.Location" class="form-control ">
+                        <div class="input-group-btn">
+                            <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                        </div>
+                    </div>
+                </td>
+
+                <td style="float:right;width:30px;">&nbsp;</td>
+                <td style="float:right;">
+                    <span style="font-size:14px;">任务编号：</span><strong style="font-size:15px;">@Head.Task_Bat_No_Str</strong>
+                </td>
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+        <thead>
+            <tr>
+                <th style="width:10px;">&nbsp;</th>
+                <th style="width:100px;">供应商</th>
+                <th style="width:70px;">创建日期</th>
+                <th style="width:70px;">移出库位</th>
+                <th style="width:70px;">产品型号</th>
+                <th style="width:70px;">产品数量</th>
+                <th style="width:80px;">作业人</th>
+                <th style="width:80px;">&nbsp;</th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var x in Model.Rows.Where(x => x.Task_Bat_No != "").ToList())
+            {
+                <tr>
+                    <td>&nbsp;</td>
+                    <td style="vertical-align:top;">@x.Supplier_Name</td>
+                    <td style="vertical-align:top;">@x.Create_DT.ToString("yyyy-MM-dd")</td>
+                    <td style="vertical-align:top;"><a href="~/WMS_Up/WMS_Up_Start_Sub_Preview/@x.Move_ID" target="_blank">@x.Out_Location</a></td>
+                    <td style="vertical-align:top;">@x.MatSn_Count.ToString("N0")</td>
+                    <td style="vertical-align:top;">@x.Quantity_Sum.ToString("N0")</td>
+                    <td style="vertical-align:top;">@x.Work_Person</td>
+                    <td style="vertical-align:top;text-align:center">
+                        <a href="~/WMS_Up/WMS_Up_Process_Sub_Operate/@x.Move_ID" class="btn btn-info btn-xs">手工操作</a>
+                    </td>
+                    <td>&nbsp;</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>
+
+ <!--详细信息-->
+<script>
+    function Show_Move_Detail(Out_Location) {
+
+        Reload_Move_Context(Out_Location);
+        $('#Move_Modal').modal({ backdrop: 'static' });
+    }
+
+    function Reload_Move_Context(Out_Location) {
+        var escape_Tray_No = escape(Out_Location);
+        $("#Move_Context").text("Loading...");
+        $("#Move_Context").load("/WMS_Up/WMS_Up_Start_Sub_Preview?Out_Location=" + escape_Tray_No);
+    }
+</script>
+<div class="modal fade" id="Move_Modal">
+    <div class="modal-dialog" style="width:480px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">库位明细</h5>
+            </div>
+            <div class="modal-body" id="Move_Context"></div>
+        </div>
+    </div>
+</div>
+<!--详细信息-->
+
+<!--产品二维码-->
+<script>
+        function Show_Mat_Label_Modal(MatSn) {
+            Reload_Mat_Label_Modal_Context(MatSn);
+            $('#Mat_Label_Modal_QRCode').modal({ backdrop: 'static' });
+        }
+
+        function Reload_Mat_Label_Modal_Context(MatSn) {
+            $("#Mat_Label_QRCode_Context").text("Loading...");
+            $("#Mat_Label_QRCode_Context").load("/WMS_Up/WMS_Up_Start_Sub_Preview_QRCode", { MatSn: MatSn });
+        }
+</script>
+<div class="modal fade" id="Mat_Label_Modal_QRCode">
+    <div class="modal-dialog" style="width:460px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">产品二维码</h5>
+            </div>
+            <div class="modal-body" id="Mat_Label_QRCode_Context"></div>
+        </div>
+    </div>
+</div>
+<!--产品二维码-->
+

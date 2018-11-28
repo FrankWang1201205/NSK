@@ -1,0 +1,62 @@
+﻿@{ 
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Guid UID = new Guid(ViewData["UID"].ToString());
+}
+
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("用户更新");</script>
+
+@if(TempData["Success_Update"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success_Update"]</div>
+}
+
+@if (TempData["Error_Update"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error_Update"]</div>
+}
+
+
+@if (TempData["Error_Delete"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error_Delete"]</div>
+}
+
+<div id="RightDivContext">
+    <form id="SubmitForm" action="~/User/User_Update_Sub_Post/@UID" method="post" style="padding:20px">
+        <div id="Part_Page_Context" style="overflow:hidden;"></div>
+    </form>
+</div>
+
+<script>
+    $(function () {
+        Reload_Part_Page();
+    });
+
+    function Reload_Part_Page()
+    {
+        $("#Part_Page_Context").text("Loading...");
+        $("#Part_Page_Context").load("/User/User_Edit_Part/@UID");
+    }
+
+    function MyFormSubmit()
+    {
+        if (validateFormByClass('NotEmpty') == false) { return false; }
+
+        $("#SubmitForm").submit();
+    }
+</script>
+
+<form id="DeleteUser" action="~/User/User_Update_Delete_Post/@UID" method="post">
+    <script>
+        function DeleteUser()
+        {
+            if(confirm("确认删除此用户！") == true)
+            {
+                $("#DeleteUser").submit();
+            }
+        }
+    </script>
+</form>
+

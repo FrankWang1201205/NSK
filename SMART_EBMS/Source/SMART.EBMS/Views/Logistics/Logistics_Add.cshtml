@@ -1,0 +1,51 @@
+﻿@model WMS_Logistics
+@{ 
+    Layout = null;
+    List<string> MatType_List = new List<string>();
+    MatType_List.Add(WMS_In_Type_Enum.常规期货.ToString());
+    MatType_List.Add(WMS_In_Type_Enum.零星调货.ToString());
+
+}
+
+<form id="MyLogisticsItem_Form" action="~/Logistics/Logistics_Add_Post" method="post" enctype="multipart/form-data">
+    <table class="FormTable_Sim text-nowrap">
+        <tr>
+            <td style="width:10px;text-align:right">* 公司名称</td>
+            <td colspan="3"><input class="form-control input-sm NotEmpty" id="Company_Name" name="Company_Name" style="width:295px" type="text" value="@Model.Company_Name" /></td>          
+        </tr>
+
+        <tr>
+            <td style="width:10px;text-align:right">* 企业代码</td>
+            <td>
+                <input class="form-control input-sm NotEmpty" id="Company_Code" name="Company_Code" type="text" style="width:100px;" value="@Model.Company_Code" />
+            </td>
+
+            <td style="width:10px;text-align:right">* 类型</td>
+            <td>
+                <select name="MatType" id="MatType" class="form-control input-sm NotEmpty" style="width:100px;">
+                    <option value="">请选择</option>
+                    @foreach (var x in MatType_List)
+                    {
+                        <option value="@x">@x</option>
+                    }
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td>&nbsp;</td>
+            <td colspan="3"><button type="button" class="btn btn-primary btn-sm" style="width:70px;" onclick="MyLocationItem_FormSubmit()">创建</button></td>
+        </tr>
+    </table>
+</form>
+
+<script>
+    function MyLocationItem_FormSubmit() {
+        if (validateFormByClass('NotEmpty') == false) {
+            return false;
+        }
+
+        DisAndEnabledBtn(1);
+        $("#MyLogisticsItem_Form").submit();
+    }
+</script>

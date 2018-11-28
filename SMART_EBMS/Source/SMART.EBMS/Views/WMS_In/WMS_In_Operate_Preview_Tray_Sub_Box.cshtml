@@ -1,0 +1,63 @@
+﻿@model List<WMS_In_Scan>
+@{
+    Layout = null;
+
+    WMS_In_Head Head = ViewData["Head"] as WMS_In_Head;
+
+    List<string> strList = Model.Select(x => x.MatSn).Distinct().ToList();
+    List<WMS_In_Scan> List = new List<WMS_In_Scan>();
+    WMS_In_Scan Scan = new WMS_In_Scan();
+    foreach (var x in strList)
+    {
+        Scan = new WMS_In_Scan();
+        Scan.MatSn = x;
+        Scan.Scan_Quantity = Model.Where(c => c.MatSn == x).Sum(c => c.Scan_Quantity);
+        List.Add(Scan);
+    }
+}
+
+<table style="width:100%;">
+    <tr>
+        <td><h4>第 <strong style="font-size:22px;">@Model.FirstOrDefault().Tray_No</strong> 箱，<strong>@Model.Select(x => x.MatSn).Distinct().Count().ToString("N0")</strong>个型号</h4></td>
+
+        @if (Head.Status == WMS_In_Global_State_Enum.完成入库.ToString())
+        {
+            <td style="text-align:right;padding-left:10px;">
+                <a href="~/WMS_In/WMS_In_Operate_Preview_To_Excel_By_TrayNo/@Head.Head_ID?Tray_No=@Model.FirstOrDefault().Tray_No" class="btn btn-primary" target="_blank">导出明细</a>
+            </td>
+            <td style="text-align:right">
+                <a href="~/WMS_In/WMS_In_Operate_Preview_To_PDF_By_TrayNo/@Head.Head_ID?Tray_No=@Model.FirstOrDefault().Tray_No" class="btn btn-primary" target="_blank">打印明细</a>
+            </td>
+        }
+        else
+        {
+            <td style="text-align:right;">
+                <button style="text-align:right" type="button" class="btn btn-danger btn-sm" onclick="Reset_Task_Bat_Tray_No_Box('@Model.FirstOrDefault().Tray_No')">重置本箱</button>
+            </td>
+        }
+
+    </tr>
+
+</table>
+<p></p>
+<table class="table table-condensed table-bordered text-nowrap">
+    <tr class="active">
+        <td style="width:190px;">产品型号</td>
+        <td style="text-align:right; width:10px;">扫码数量</td>
+        <td>&nbsp;</td>
+    </tr>
+    @foreach (var x in List.OrderBy(c => c.MatSn).ToList())
+    {
+        <tr>
+            <td class="MatSn_Font">@x.MatSn</td>
+            <td style="text-align:right">@x.Scan_Quantity.ToString("N0")</td>
+            <td>&nbsp;</td>
+        </tr>
+    }
+
+    <tr>
+        <td style="text-align:right;">Total:</td>
+        <td style="text-align:right;">@List.Sum(c => c.Scan_Quantity).ToString("N0")</td>
+        <td>&nbsp;</td>
+    </tr>
+</table>

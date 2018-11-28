@@ -1,0 +1,100 @@
+﻿@model PageList<SalesPlan>
+@{ 
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    SalesPlan_Filter MF = ViewData["MF"] as SalesPlan_Filter;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("核准预测");</script>
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/SalesPlan/MonthPlan_Aud" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:120px;">
+                    <select name="Sales_UID" id="Sales_UID" class="form-control input-sm" onchange="SubmitPageIndex(1)" style="border-radius:0px;">
+                        <option value="@Guid.Empty">销售经理</option>
+                        @foreach (var x in MF.SalesPersonList)
+                        {
+                            if (MF.Sales_UID == x.UID)
+                            {
+                                <option selected="selected" value="@x.UID">@x.UserFullName</option>
+                            }
+                            else
+                            {
+                                <option value="@x.UID">@x.UserFullName</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:50px;">&nbsp;</td>
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:80px;">申报日期</th>
+            <th style="width:120px;">预测编号</th>
+            <th style="width:80px;">销售经理</th>
+            <th style="width:80px; text-align:center;">状态</th>
+            <th style="width:80px; text-align:center;">申报产品</th>
+            <th style="width:60px; text-align:center;">&nbsp;</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model.Rows)
+            {
+            <tr>
+                <td>&nbsp;</td>
+                <td style="vertical-align:top;">@x.End_Line_DT.ToString("yyyy-MM-dd")</td>
+                <td style="vertical-align:top;">@x.Sys_No</td>
+                <td style="vertical-align:top;">@x.Sales_Person</td>
+                <td style="vertical-align:top; text-align:center;">@x.Status</td>
+                <td style="vertical-align:top; text-align:center;">@x.Line_Count <span>项</span></td>
+                <td style="vertical-align:top; text-align:center;"><a href="~/SalesPlan/MonthPlan_Aud_Sub/@x.SPID" type="button" class="btn btn-info btn-xs">查看</a></td>
+                <td style="vertical-align:top;">&nbsp;</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>

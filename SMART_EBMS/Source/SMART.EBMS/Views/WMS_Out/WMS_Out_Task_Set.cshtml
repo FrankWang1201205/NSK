@@ -1,0 +1,138 @@
+﻿@model WMS_Out_Head
+@{
+    Layout = null;
+    List<WMS_Work_Person> Down_List = ViewData["Down_List"] as List<WMS_Work_Person>;
+    List<WMS_Work_Person> Out_List = ViewData["Out_List"] as List<WMS_Work_Person>;
+    List<WMS_Work_Person> Driver_List = ViewData["Driver_List"] as List<WMS_Work_Person>;
+
+    foreach (var x in Down_List)
+    {
+        x.Choose = Model.Work_Down_Person_List.Where(c => c == x.Person_Name).Any();
+    }
+
+    foreach (var x in Out_List)
+    {
+        x.Choose = Model.Work_Out_Person_List.Where(c => c == x.Person_Name).Any();
+    }
+
+    foreach (var x in Driver_List)
+    {
+        x.Choose = Model.Driver_Person_List.Where(c => c == x.Person_Name).Any();
+    }
+}
+
+<form action="~/WMS_Out/WMS_Out_Task_Set_Post/@Model.Head_ID" method="post" enctype="multipart/form-data">
+    <table class="FormTable_Sim text-nowrap" style="width:100%">
+        <tr>
+            <td>
+                <div class="panel-group" id="accordion">
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <span style="cursor:pointer" data-toggle="collapse" data-parent="#accordion"
+                                  href="#collapseOne">
+                                选择配货作业人
+                            </span>
+                        </div>
+                        <div id="collapseOne" class="panel-collapse collapse in">
+                            <div class="panel-body">
+                                @foreach (var x in Down_List)
+                                {
+                                    if (x.Choose == true)
+                                    {
+                                        <label style="width:100px;cursor:pointer;">
+                                            <input checked type="checkbox" name="Down_Person_Name" value="@x.Person_Name" />
+                                            <span style="padding-left:5px;">@x.Person_Name</span>
+                                        </label>
+                                        <br />
+                                    }
+                                    else
+                                    {
+                                        <label style="width:100px;cursor:pointer;">
+                                            <input type="checkbox" name="Down_Person_Name" value="@x.Person_Name" />
+                                            <span style="padding-left:5px;">@x.Person_Name</span>
+                                        </label>
+                                        <br />
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <span style="cursor:pointer" data-toggle="collapse" data-parent="#accordion"
+                                  href="#collapseTwo">
+                                选择验货作业人
+                            </span>
+                        </div>
+                        <div id="collapseTwo" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                @foreach (var x in Out_List)
+                                {
+                                    if (x.Choose == true)
+                                    {
+                                        <label style="width:100px;cursor:pointer;">
+                                            <input checked type="checkbox" name="Out_Person_Name" value="@x.Person_Name" />
+                                            <span style="padding-left:5px;">@x.Person_Name</span>
+                                        </label>
+                                        <br />
+                                    }
+                                    else
+                                    {
+                                        <label style="width:100px;cursor:pointer;">
+                                            <input type="checkbox" name="Out_Person_Name" value="@x.Person_Name" />
+                                            <span style="padding-left:5px;">@x.Person_Name</span>
+                                        </label>
+                                        <br />
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (Model.Logistics_Mode == Logistics_Out_Mode_Enum.自送.ToString())
+                    {
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <span style="cursor:pointer" data-toggle="collapse" data-parent="#accordion"
+                                      href="#collapseThree">
+                                    选择驾驶员
+                                </span>
+                            </div>
+                            <div id="collapseThree" class="panel-collapse collapse">
+                                <div class="panel-body">
+                                    @foreach (var x in Driver_List)
+                                    {
+                                        if (x.Choose == true)
+                                        {
+                                            <label style="width:100px;cursor:pointer;">
+                                                <input checked type="checkbox" name="Driver_Name" value="@x.Person_Name" />
+                                                <span style="padding-left:5px;">@x.Person_Name</span>
+                                            </label>
+                                            <br />
+                                        }
+                                        else
+                                        {
+                                            <label style="width:100px;cursor:pointer;">
+                                                <input type="checkbox" name="Driver_Name" value="@x.Person_Name" />
+                                                <span style="padding-left:5px;">@x.Person_Name</span>
+                                            </label>
+                                            <br />
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td style="text-align:center">
+                <button type="submit" class="btn btn-primary btn-sm" style="width:60px;">递交</button>
+            </td>
+        </tr>
+    </table>
+</form>

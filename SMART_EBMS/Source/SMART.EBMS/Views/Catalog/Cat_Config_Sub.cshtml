@@ -1,0 +1,26 @@
+﻿@model Category
+@{ 
+    Layout = null;
+}
+
+<form action="~/Catalog/Cat_Config_Sub_Post/@Model.CatID" method="post" id="UpdateForm">
+    <input type="text" name="CatName" id="CatName" value="@Model.CatName" class="form-control input-sm" />
+    <br />
+    <button type="button" onclick="DeleteCatID()" class="btn btn-danger btn-sm" style="margin-right:5px; width:70px;">删除</button>
+    <button type="submit" class="btn btn-primary btn-sm" style="width:70px;">更新</button>
+</form>
+
+
+<!--删除分类-->
+<script>
+    function DeleteCatID()
+    {
+        if(confirm("确认删除此分类？") == true)
+        {
+            $("#MyDeleteForm").submit();
+        }
+    }
+</script>
+
+<form id="MyDeleteForm" action="~/Catalog/Cat_Config_Sub_Delete/@Model.CatID" method="post"></form>
+<!--删除分类-->

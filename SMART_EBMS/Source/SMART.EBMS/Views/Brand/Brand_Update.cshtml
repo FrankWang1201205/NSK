@@ -1,0 +1,140 @@
+﻿@model PageList<SMART.Api.Models.Brand>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Brand_Filter MF = ViewData["MF"] as Brand_Filter;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("品牌维护");</script>
+
+@if (TempData["Success_NewBrand"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success_NewBrand"]</div>
+}
+
+@if (TempData["Error_NewBrand"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error_NewBrand"] </div>
+}
+
+
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"] </div>
+}
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/Brand/Brand_Update" method="get" enctype="multipart/form-data">
+        <table style="width:100%;">
+            <tr>
+                
+                <td style="width:250px;">
+                    <div class="input-group input-group-sm" style="width: 250px; ">
+                        <input type="text" name="Keyword" id="Keyword" placeholder="品牌名称" value="@MF.Keyword" class="form-control ">
+                        <div class="input-group-btn">
+                            <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                        </div>
+                    </div>
+                </td>
+                <td style="width:90px;padding-left:10px;"><button type="button" onclick="ShowAddNewItem()" class="btn btn-primary btn-sm"><i class="icon-plus" style="font-size:12px;"> 新增品牌</i></button></td>
+                <td style="width:50px;">&nbsp;</td>
+
+                <td style="vertical-align:bottom;">&nbsp;</td>
+
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+
+<div id="RightDivContext">
+    <div style="width:100%; padding:20px; padding-top:0px;">
+        @foreach (var x in Model.Rows)
+        {
+            <a class="BrandBox" href="javascript:void(0)" onclick="ShowSetItem('@x.BID')" style="display:block; float:left; width:120px; overflow:hidden;">
+                <strong>@x.Brand_Name</strong>
+            </a>
+        }
+    </div>
+</div>
+
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+
+
+<!--新增-->
+<script>
+    function ShowAddNewItem()
+    {
+        ReloadAddNewItem();
+        $('#MyNewModel').modal({ backdrop: 'static' });
+    }
+
+    function CloseAddNewItem() { $('#MyNewModel').modal('hide'); }
+
+    function ReloadAddNewItem()
+    {
+        $("#NewContext").load("/Brand/Brand_Update_Add");
+    }
+</script>
+<div class="modal fade" id="MyNewModel">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:380px;">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="CloseAddNewItem()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">新增品牌</h5>
+            </div>
+            <div class="modal-body" id="NewContext"></div>
+        </div>
+    </div>
+</div>
+<!--新增-->
+
+<!--更新-->
+<script>
+    function ShowSetItem(BID)
+    {
+        ReloadSetItem(BID);
+        $('#MySetModel').modal({ backdrop: 'static' });
+    }
+
+    function CloseSetItem() { $('#MySetModel').modal('hide'); }
+
+    function ReloadSetItem(BID)
+    {
+        $("#SetContext").load("/Brand/Brand_Update_Sub/"+BID);
+    }
+</script>
+<div class="modal fade" id="MySetModel">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:450px;">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="CloseSetItem()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">更新品牌</h5>
+            </div>
+            <div class="modal-body" id="SetContext"></div>
+        </div>
+    </div>
+</div>
+<!--更新-->

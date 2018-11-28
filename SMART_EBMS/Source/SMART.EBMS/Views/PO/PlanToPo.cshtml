@@ -1,0 +1,193 @@
+﻿@model PurchasePlan
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    PurchasePlan_Filter MF = ViewData["MF"] as PurchasePlan_Filter;
+    List<Supplier> SupList = ViewData["SupList"] as List<Supplier>;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("创建");</script>
+@if(TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/PO/PlanToPo" method="get">
+        <table style="width:100%;" class="text-nowrap">
+            <tr>
+
+                <td style="width:120px;">
+                    <select name="MatBrand" id="MatBrand" class="form-control input-sm" onchange="SubmitPageIndex(1)" style="border-radius:0px;">
+                        <option value="">选择品牌</option>
+                        @foreach (var x in MF.BrandList)
+                        {
+                            if (MF.MatBrand == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:180px;">
+                    <select name="SupID" id="SupID" class="form-control input-sm" style="border-radius:0px;">
+                        <option value="@Guid.Empty">请选择供应商</option>
+                        @foreach(var Sup in SupList)
+                        {
+                            <option value="@Sup.SupID">@Sup.Sup_Name</option>
+                        }
+                    </select>
+                </td>
+
+                <td style="width:20px; padding-left:0px;">
+                    <button type="button" onclick="Submit_Po_Head_Preview()" class="btn btn-primary btn-sm" style="border-radius:0px;">转为采购单</button>
+                </td>
+
+                <td style="width:210px;">&nbsp;</td>
+
+
+                <td style="width:300px; padding-left:5px;">
+                    <div class="input-group input-group-sm" style="width: 300px; ">
+                        <input type="text" name="Keyword" id="Keyword" placeholder="产品信息关键词" value="@MF.Keyword" class="form-control ">
+                        <div class="input-group-btn">
+                            <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                        </div>
+                    </div>
+                </td>
+
+                <td style="width:50px;">&nbsp;</td>
+
+                <td style="vertical-align:bottom;">&nbsp;</td>
+
+
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<form id="SubmitPreviewForm" action="~/PO/PlanToPo_Preview/@Model.Month" method="post">
+    <input type="hidden" name="SupID" id="SupID_PoHead" value="@Guid.Empty" />
+    <table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+        <thead>
+            <tr>
+                <th style="width:10px;">&nbsp;</th>
+                <th style="width:40px; text-align:center; padding-top:0px; padding-bottom:0px; vertical-align:middle;"><input type="checkbox" id="ALL" onclick="checkBoxCheckAll('ALL', 'MatID')" /></th>
+                <th style="width:180px;">产品型号</th>
+                <th style="width:100px;">产品名称</th>
+                <th style="width:80px;">品牌</th>
+                <th style="width:60px; text-align:center;">单位</th>
+                <th style="width:90px; text-align:center;">@Model.Next_Mon_A<span>/交期</span></th>
+                <th style="width:90px; text-align:center;">@Model.Next_Mon_B<span>/交期</span></th>
+                <th style="width:90px; text-align:center;">@Model.Next_Mon_C<span>/交期</span></th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var x in Model.PurchasePlan_Line_PageList.Rows)
+            {
+                <tr>
+                    <td>&nbsp;</td>
+                    <td style="text-align:center; vertical-align:top;">
+                        <input type="checkbox" id="@x.MatID" name="MatID" class="MatID" value="@x.MatID" />
+                    </td>
+                    <td style="vertical-align:top;"><a href="javascript:void(0);" onclick="ShowMatPartModel('@x.MatID')" class="MatSn_Font">@x.MatInfo.MatSn</a></td>
+                    <td style="vertical-align:top;">@x.MatInfo.MatName</td>
+                    <td style="vertical-align:top;">@x.MatInfo.MatBrand</td>
+                    <td style="text-align:center; vertical-align:top;">@x.MatInfo.MatUnit</td>
+                    <td style="text-align:center; vertical-align:top;">
+                        <input class="MyInput ReadonlyInput" name="PoPlan_Next_Mon_Qty_A_@x.MatID" value="@x.PoPlan_Next_Mon_Qty_A" style="width:95%; text-align:center; margin-bottom:5px;" /><br />
+                        <input class="MyInput form_date" data-date-format="yyyy-mm-dd" name="PoPlan_Next_Mon_Delivery_A_@x.MatID" value="@x.PoPlan_Next_Mon_Delivery_A" style="width:95%; text-align:center;" />
+                    </td>
+                    <td style="text-align:center; vertical-align:top;">
+                        <input class="MyInput ReadonlyInput" name="PoPlan_Next_Mon_Qty_B_@x.MatID" value="@x.PoPlan_Next_Mon_Qty_B" style="width:95%; text-align:center; margin-bottom:5px;" /><br />
+                        <input class="MyInput form_date" data-date-format="yyyy-mm-dd" name="PoPlan_Next_Mon_Delivery_B_@x.MatID" value="@x.PoPlan_Next_Mon_Delivery_B" style="width:95%; text-align:center;" />
+                    </td>
+                    <td style="text-align:center; vertical-align:top;">
+                        <input class="MyInput ReadonlyInput" name="PoPlan_Next_Mon_Qty_C_@x.MatID" value="@x.PoPlan_Next_Mon_Qty_C" style="width:95%; text-align:center; margin-bottom:5px;" /><br />
+                        <input class="MyInput form_date" data-date-format="yyyy-mm-dd" name="PoPlan_Next_Mon_Delivery_C_@x.MatID" value="@x.PoPlan_Next_Mon_Delivery_C" style="width:95%; text-align:center;" />
+                    </td>
+                    <td style="vertical-align:top;">&nbsp;</td>
+                </tr>
+        }
+        </tbody>
+    </table>
+</form>
+
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PurchasePlan_Line_PageList.PageIndex, PageSize = Model.PurchasePlan_Line_PageList.PageSize, TotalRecord = Model.PurchasePlan_Line_PageList.TotalRecord, TotalPage = Model.PurchasePlan_Line_PageList.TotalPage, PageSizeList = Model.PurchasePlan_Line_PageList.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>
+
+<script>
+    $('.form_date').datetimepicker({
+        language: 'zh-CN',
+        weekStart: 1,
+        todayBtn: 1,
+        autoclose: 1,
+        todayHighlight: 1,
+        startView: 2,
+        minView: 2,
+        forceParse: 0
+    });
+</script>
+
+
+<!--转换为采购单-->
+<script>
+    function Submit_Po_Head_Preview()
+    {
+        var Loop = checkBoxCheckLength('MatID');
+        if (Loop <= 0)
+        {
+            alert("请至少选择一项产品");
+            return false;
+        }
+
+        var SupID = $("#SupID").val();
+        if (SupID == "@Guid.Empty")
+        {
+            $("#SupID").focus();
+            $("#SupID").css("backgroundColor", "yellow");
+            return false;
+        }
+
+        $("#SupID_PoHead").val(SupID);
+        $("#SubmitPreviewForm").submit();
+    }
+</script>
+
+<!--转换为采购单-->
+<div style="color:yellow"></div>

@@ -1,0 +1,175 @@
+﻿@model PurchasePlan
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    PurchasePlan_Filter MF = ViewData["MF"] as PurchasePlan_Filter;
+
+    List<SelectOption> MonthList = new List<SelectOption>();
+    MonthList.Add(new SelectOption { Key_STR = DTList.NextMonth().SD.ToString("yyyy-MM") });
+    MonthList.Add(new SelectOption { Key_STR = DTList.ThisMonth().SD.ToString("yyyy-MM") });
+    MonthList.Add(new SelectOption { Key_STR = DTList.LastMonth().SD.ToString("yyyy-MM") });
+    MonthList.Add(new SelectOption { Key_STR = DTList.LastLastMonth().SD.ToString("yyyy-MM") });
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("查看计划");</script>
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/PurchasePlan/Plan_Search" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:90px;">
+                    <select name="Month" id="Month" class="form-control input-sm" onchange="SubmitPageIndex(1)">
+                        @foreach (var x in MonthList)
+                        {
+                            if (MF.Month == x.Key_STR)
+                            {
+                                <option selected="selected" value="@x.Key_STR">@x.Key_STR</option>
+                            }
+                            else
+                            {
+                                <option value="@x.Key_STR">@x.Key_STR</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:120px; padding-left:10px;">
+                    <select name="MatBrand" id="MatBrand" class="form-control input-sm" onchange="SubmitPageIndex(1)">
+                        <option value="">选择品牌</option>
+                        @if (!string.IsNullOrEmpty(MF.MatBrand))
+                        {
+                            <option selected="selected" value="@MF.MatBrand">@MF.MatBrand</option>
+                        }
+
+                        @foreach (var x in MF.BrandList.Where(x => x != MF.MatBrand))
+                        {
+                            <option value="@x">@x</option>
+                        }
+                    </select>
+                </td>
+
+                <td style="width:300px; padding-left:5px;">
+                    <div class="input-group input-group-sm" style="width: 300px; ">
+                        <input type="text" name="Keyword" id="Keyword" placeholder="产品信息关键词" value="@MF.Keyword" class="form-control ">
+                        <div class="input-group-btn">
+                            <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                        </div>
+                    </div>
+                </td>
+
+                <td style="width:50px;">&nbsp;</td>
+
+
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+        <thead>
+            <tr>
+                <th style="width:10px;">&nbsp;</th>
+                <th style="width:80px;">产品编号</th>
+                <th style="width:280px;">品名/规格型号</th>
+                <th style="width:80px;">品牌</th>
+                <th style="width:60px; text-align:center;">单位</th>
+                <th style="width:80px; text-align:center;">@Model.Next_Mon_A</th>
+                <th style="width:80px; text-align:center;">@Model.Next_Mon_B</th>
+                <th style="width:80px; text-align:center;">@Model.Next_Mon_C</th>
+                <th style="width:50px; text-align:center;">明细</th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var x in Model.PurchasePlan_Line_PageList.Rows)
+            {
+                <tr>
+                    <td>&nbsp;</td>
+                    <td style="vertical-align:top;"><a href="javascript:void(0);" onclick="ShowMatPartModel('@x.MatID')">@x.MatInfo.MatSn</a></td>
+                    <td style="vertical-align:top;">
+                        <div style="width:280px; overflow:hidden; text-overflow:ellipsis;">
+                            <strong>@x.MatInfo.MatName</strong><br />
+                            @if (!string.IsNullOrEmpty(x.MatInfo.MatSpecifications))
+                            {
+                                <span style="padding-right:5px;">@x.MatInfo.MatSpecifications</span>
+                            }
+                        </div>
+                    </td>
+                    <td style="vertical-align:top;">@x.MatInfo.MatBrand</td>
+                    <td style="text-align:center; vertical-align:top;">@x.MatInfo.MatUnit</td>
+
+                    <td style="text-align:center; vertical-align:top;">@x.PoPlan_Next_Mon_Qty_A</td>
+                    <td style="text-align:center; vertical-align:top;">@x.PoPlan_Next_Mon_Qty_B</td>
+                    <td style="text-align:center; vertical-align:top;">@x.PoPlan_Next_Mon_Qty_C</td>
+                    <td style="text-align:center; vertical-align:top;">
+                        <button type="button" class="btn btn-default btn-xs" onclick="ShowSubModel('@x.MatID')"><span class="glyphicon glyphicon-search"></span></button>
+                    </td>
+                    <td style="vertical-align:top;">&nbsp;</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PurchasePlan_Line_PageList.PageIndex, PageSize = Model.PurchasePlan_Line_PageList.PageSize, TotalRecord = Model.PurchasePlan_Line_PageList.TotalRecord, TotalPage = Model.PurchasePlan_Line_PageList.TotalPage, PageSizeList = Model.PurchasePlan_Line_PageList.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>
+
+
+<!--计划明细-->
+<script>
+    function ShowSubModel(MatID) {
+        $('#MySubModel').modal({
+            backdrop: 'static'
+        });
+        ReloadSubModel(MatID);
+    }
+
+    function CloseSubModel() {
+        $('#MySubModel').modal('hide');
+    }
+
+    function ReloadSubModel(MatID) {
+        $("#SubModelContext").text("Loading...");
+        $("#SubModelContext").load("/PurchasePlan/Plan_Group_Sub_Item/" + MatID + "?Month=@Model.Month");
+    }
+</script>
+<div class="modal fade" id="MySubModel">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:680px;">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="CloseSubModel()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">预测信息</h5>
+            </div>
+            <div class="modal-body" id="SubModelContext"></div>
+        </div>
+    </div>
+</div>
+<!--计划明细-->

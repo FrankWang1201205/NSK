@@ -1,0 +1,164 @@
+﻿@model MatImage
+@{
+    Layout = null;
+}
+
+
+<form id="FileForm" action="~/MatImg/Imglibrary_Sub_Update_Post/@Model.IMGID" method="post" enctype="multipart/form-data" onsubmit="return CheckForm()">
+    <table style="padding:10px;">
+        <tr style="vertical-align:top;">
+            <td colspan="2"><p id="FileUploadText" style="display:none;">正在上传图片或图纸...</p></td>
+        </tr>
+        <tr>
+            <td style="vertical-align:top;padding-top:3px;">
+                <table class="FormTable_Sim">
+                    <tr>
+                        <td style="text-align:right">*产品名称</td>
+                        <td style="width:250px;">
+                            <input name="MatName" id="MatName" readonly="readonly" value="@Model.MatName" placeholder="" class="form-control input-sm"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:right">品牌</td>
+                        <td style="width:250px;">
+                            <input name="MatBrand" id="MatBrand" readonly="readonly" value="@Model.MatBrand" style="width:50%;" class="form-control input-sm" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="DeleteMatImg('@Model.IMGID')" style="width:70px; margin-right:10px;">删除</button>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td style="padding-left:30px; vertical-align:top;">
+                <table style="width:150px; overflow:hidden; border:0px solid #808080;">
+                    <tr>
+                        <td>
+                            <div style="width:196px; height:196px; overflow:hidden; line-height:190px; text-align:center; color:white; background-color:#dbdbdb; border:2px solid #FFF;">
+                                <img id="MyImgPreview" src="~/@Model.MatThumbImgPath" style="width:190px; max-height:190px; border:1px solid #dbdbdb; overflow:hidden;" />
+                            </div>
+                            <div style="display:none;">
+                                <input type="file" name="ImagePath" id="ImagePath" onchange="Show_PhotePreview(this.id, 'MyImgPreview');" />
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            @if (string.IsNullOrEmpty(Model.MatThumbImgPath))
+                            {
+                                <table>
+                                    <tr>
+                                        <td style="padding:0px; width:100%">
+                                            <button type="button" onclick="Select_Image('ImagePath')" style="width:100%; border-radius:0px;" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-picture"></span> <span style="padding-left:5px">选择产品图片</span></button>
+                                        </td>
+                                        <td style="padding:0px;">
+                                            <button type="submit" style="width:60px; border-radius:0px;" class="btn btn-primary btn-sm">上传</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">
+                                            <span id="ImgName" style="width:100%; display:block; word-break:break-all; overflow:hidden;"></span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            }
+                            else
+                            {
+                                <table>
+                                    <tr>
+                                        <td style="padding:0px; width:100%">
+                                            <button type="button" onclick="Select_Image('ImagePath')" style="width:100%; border-radius:0px;" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-picture"></span> <span style="padding-left:5px">选择产品图片</span></button>
+                                        </td>
+                                        <td style="padding:0px;">
+                                            <button type="submit" style="width:100%; border-radius:0px;" class="btn btn-primary btn-sm">重新上传</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">
+                                            <span id="ImgName" style="width:100%; display:block; word-break:break-all; overflow:hidden;"></span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            }
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</form>
+
+<p>&nbsp;</p>
+
+
+<script>
+
+    function CheckForm() {
+        $("#FileUploadText").show();
+        DisAndEnabledBtn(1);
+    }
+
+    function Select_Image(SourceID) {
+        $("#" + SourceID).click();
+    }
+
+    function Show_PhotePreview(SourceID, TargetID) {
+
+        var img_id = document.getElementById(SourceID).value;
+        var index = img_id.indexOf(".");
+        img_id = img_id.substring(index);
+
+        if (img_id != ".bmp" && img_id != ".png" && img_id != ".gif" && img_id != ".jpg" && img_id != ".jpeg") {
+            alert("图片类型必须是.gif,jpeg,jpg,png中的一种")
+            return false;
+        }
+
+        var size = document.getElementById(SourceID).files[0].size;
+        if (size > 4 * 1024 * 1024) {
+            alert("上传的文件大小不能超过4M！");
+            return false;
+        }
+
+        if (typeof (FileReader) != 'undefined') {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                var img = document.getElementById(TargetID);
+                img.src = this.result;
+            }
+            reader.readAsDataURL(document.getElementById(SourceID).files[0]);
+        }
+
+        var ImgName = $("#" + SourceID).val();
+        $("#ImgName").text(ImgName);
+    }
+</script>
+
+<!--产品图片删除-->
+<script>
+    function Delete_Image(IMGID)
+    {
+        if(confirm("确认删除"))
+        {
+            $.post("/MatImg/Imglibrary_Sub_Update_Clean/" + IMGID, function (result) {
+                ShowSubUpdateModel(IMGID);
+            });
+        }
+    }
+</script>
+<!--产品图片删除-->
+
+<!--产品图片模板删除-->
+<script>
+    function DeleteMatImg(IMGID)
+    {
+        if(confirm("确认删除"))
+        {
+            $.post("/MatImg/Imglibrary_Sub_Delete/" + IMGID, function (result) {
+                ReloadPage();
+            });
+        }
+    }
+</script>
+<!--产品图片模板删除-->

@@ -1,0 +1,247 @@
+﻿@model PurchasePlan_Line
+@{
+    Layout = null;
+}
+
+<table id="ShowTable" class="FormTable_Sim FormTable_Sim_Border text-nowrap" style="width:100%;">
+
+    <tr>
+        <td colspan="8" style="background-color:#e5e5e5; padding-top:4px; padding-bottom:4px;"><strong>基本信息</strong></td>
+    </tr>
+
+    <tr>
+        <td style="text-align: right; width: 100px;">型　号</td>
+        <td colspan="7">
+            <span class="MatSn_Font" style="font-size:14px;">@Model.MatInfo.MatSn</span>
+        </td>
+    </tr>
+
+    <tr>
+        <td style="text-align: right; ">名　称</td>
+        <td colspan="7">@Model.MatInfo.MatName</td>
+    </tr>
+
+    <tr>
+        <td style="text-align: right; ">规　格</td>
+        <td colspan="7">@Model.MatInfo.MatSpecifications</td>
+    </tr>
+
+    <tr>
+        <td style="text-align: right; ">品　牌</td>
+        <td style="width:120px;">@Model.MatInfo.MatBrand</td>
+        <td style="text-align: right; width:100px;">产　地</td>
+        <td>@Model.MatInfo.PC_Place</td>
+        <td style="text-align: right; ">单　位</td>
+        <td style="width:120px;">@Model.MatInfo.MatUnit</td>
+        <td style="text-align: right; ">当前库存</td>
+        <td style="width:120px;"><strong>@Model.MatInfo.WMS_Stock_Qty</strong></td>
+    </tr>
+
+    <tr>
+        <td style="text-align: right; ">重　量</td>
+        <td style="width:120px;">@Model.MatInfo.Weight <span style="padding-left:5px; color:#808080; font-size:10px;">KG</span></td>
+        <td style="text-align: right; width:200px;">起订量</td>
+        <td>
+            @if (Model.MatInfo.MOQ > 0)
+            {
+                <span>@Model.MatInfo.MOQ</span>
+            }
+        </td>
+        <td style="text-align: right; width:100px;">装箱数</td>
+        <td tyle="width:120px;">@Model.MatInfo.Pack_Qty</td>
+        <td style="text-align:right; ">重点备货</td>
+        <td style="width:120px;">
+            @if (Model.MatInfo.Is_Stock == 1)
+            {
+                <span>是</span>
+            }
+            else
+            {
+                <span>否</span>
+            }
+        </td>
+    </tr>
+
+
+    <tr>
+        <td style="text-align:right; ">PC</td>
+        <td style="width:120px;">@Model.MatInfo.PC</td>
+        <td style="text-align: right;">生产周期</td>
+        <td><span>@Model.MatInfo.PC_Day</span> <span>天</span></td>
+        <td style="text-align: right; width:100px;">指令月</td>
+        <td style="width:120px;"><span>N+</span><span>@Model.MatInfo.PC_Mon</span></td>
+        <td style="text-align: right; width:100px;">生产月</td>
+        <td style="width:120px;">@Model.MatInfo.PC_Mon_Type</td>
+    </tr>
+
+    <tr>
+        <td colspan="8" style="background-color:#e5e5e5; padding-top:4px; padding-bottom:4px;"><strong>入库在途</strong></td>
+    </tr>
+
+    <tr>
+        <td colspan="8" style="padding:0px;">
+            <table class="table table-condensed table-bordered">
+                <tr class="active">
+                    <td style="width:100px;">采购单编号</td>
+                    <td style="width:150px;">供应商</td>
+                    <td style="width:80px; text-align:right;">采购进价</td>
+                    <td style="width:80px; text-align:center;">订货数</td>
+                    <td style="width:80px; text-align:center;">已入库</td>
+                    <td style="width:80px; text-align:center;">要求交期</td>
+                    <td>&nbsp;</td>
+                </tr>
+
+                <tr>
+                    <td>PO1712220008</td>
+                    <td>深圳轴承科技有限公司</td>
+                    <td style="text-align:right;">@Model.Wms_Qty.ToString("0.0000")</td>
+                    <td style="text-align:center;">102</td>
+                    <td style="text-align:center;">0</td>
+                    <td>@DateTime.Now.AddDays(5).ToString("yyyy-MM-dd")</td>
+                    <td>&nbsp;</td>
+                </tr>
+            </table>
+
+        </td>
+    </tr>
+
+    <tr>
+        <td colspan="8" style="background-color:#e5e5e5; padding-top:4px; padding-bottom:4px;"><strong>出库在途</strong></td>
+    </tr>
+
+    <tr>
+        <td colspan="8" style="padding:0px;">
+            <table class="table table-condensed table-bordered">
+                <tr class="active">
+                    <td style="width:100px;">送货单编号</td>
+                    <td style="width:150px;">客户名称</td>
+                    <td style="width:80px; text-align:center;">发运数</td>
+                    <td style="width:80px; text-align:center;">已出库</td>
+                    <td style="width:80px; text-align:center;">状态</td>
+                    <td>&nbsp;</td>
+                </tr>
+
+                <tr>
+                    <td>DE1712200003</td>
+                    <td>阿里斯顿（中国）有限公司</td>
+                    <td style="text-align:center;">100</td>
+                    <td style="text-align:center;">100</td>
+                    <td style="text-align:center;">待签收</td>
+                    <td>&nbsp;</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+
+    <tr>
+        <td colspan="8" style="background-color:#e5e5e5; padding-top:4px; padding-bottom:4px;"><strong>用量及相关信息</strong></td>
+    </tr>
+
+    <tr>
+        <td colspan="8" style="padding:0px;">
+            <table class="table table-condensed table-bordered">
+                <tr class="active">
+                    <td style="width:100px; text-align:center;">月度合计</td>
+                    <td style="width:100px; text-align:center;">季度合计</td>
+                    <td style="width:100px; text-align:center;">年度合计</td>
+                    <td style="width:100px; text-align:center;">月平均用量</td>
+                    <td>统计月份 起始 ~ 截止</td>
+                </tr>
+                <tr>
+                    <td style="text-align:center;">120</td>
+                    <td style="text-align:center;">380</td>
+                    <td style="text-align:center;">1120</td>
+                    <td style="text-align:center;">95</td>
+                    <td>@DateTime.Now.AddMonths(-12).ToString("yyyy-MM") ~ @DateTime.Now.ToString("yyyy-MM")</td>
+                </tr>
+
+                <tr>
+                    <td style="text-align:left;" colspan="5">
+                        进三个月满足率：<span style="padding-left:10px;"></span> <span>答复数（0） / 订购数（0） =</span> <span style="color:blue;"> 0%</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="text-align:left;" colspan="5">
+                        进半年内满足率：<span style="padding-left:10px;"></span> <span>答复数（0） / 订购数（0） =</span> <span style="color:blue;"> 0%</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="text-align:left;" colspan="5">
+                        近一年销售频率：n.a
+                    </td>
+                </tr>
+                <tr>
+                    <td style="text-align:left;" colspan="5">
+                        内、外部通用性：n.a
+                    </td>
+                </tr>
+
+                <tr class="active">
+                    <td style="width:100px; text-align:center;">库存比</td>
+                    <td style="width:100px; text-align:center;">装箱数</td>
+                    <td style="width:100px; text-align:center;">最低库存</td>
+                    <td style="width:100px; text-align:center;">最高库存</td>
+                    <td>统计月份 起始 ~ 截止</td>
+                </tr>
+
+                <tr>
+                    <td style="text-align:center;">n.a</td>
+                    <td style="text-align:center;">@Model.MatInfo.Pack_Qty</td>
+                    <td style="text-align:center;">n.a</td>
+                    <td style="text-align:center;">n.a</td>
+                    <td>@DateTime.Now.AddMonths(-12).ToString("yyyy-MM") ~ @DateTime.Now.ToString("yyyy-MM")</td>
+                </tr>
+
+                <tr>
+                    <td style="text-align:left;" colspan="5">
+                        平均利润率：n.a%
+                    </td>
+                </tr>
+
+            </table>
+        </td>
+    </tr>
+
+
+    <tr>
+        <td colspan="8" style="background-color:#e5e5e5; padding-top:4px; padding-bottom:4px;"><strong>最近外购信息</strong></td>
+    </tr>
+
+    <tr>
+        <td colspan="8" style="padding:0px;">
+            <table class="table table-condensed table-bordered">
+                <tr class="active">
+                    <td style="width:100px;">采购单编号</td>
+                    <td style="width:150px;">供应商</td>
+                    <td style="width:80px; text-align:right;">采购进价</td>
+                    <td style="width:80px; text-align:center;">订货数</td>
+                    <td style="width:80px; text-align:center;">已入库</td>
+                    <td style="width:80px; text-align:center;">要求交期</td>
+                    <td>&nbsp;</td>
+                </tr>
+
+                <tr>
+                    <td>PO1712220003</td>
+                    <td>深圳轴承科技有限公司</td>
+                    <td style="text-align:right;">@Model.Wms_Qty.ToString("0.0000")</td>
+                    <td style="text-align:center;">102</td>
+                    <td style="text-align:center;">88</td>
+                    <td>@DateTime.Now.AddDays(5).ToString("yyyy-MM-dd")</td>
+                    <td>&nbsp;</td>
+                </tr>
+            </table>
+
+        </td>
+    </tr>
+
+
+    
+
+</table>
+
+
+
+
+
+
+

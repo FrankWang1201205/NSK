@@ -1,0 +1,92 @@
+﻿@model PageList<Po_Head>
+@{ 
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Po_Head_Filter MF = ViewData["MF"] as Po_Head_Filter;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("确认");</script>
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/PO/ConfirmPo" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:300px;">
+                    <div class="input-group input-group-sm" style="width: 300px; ">
+                        <input type="text" name="Keyword" id="Keyword" placeholder="供应商、采购单编号关键词" value="@MF.Keyword" class="form-control ">
+                        <div class="input-group-btn">
+                            <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                        </div>
+                    </div>
+                </td>
+
+                <td style="width:50px;">&nbsp;</td>
+
+                <td style="vertical-align:bottom;">&nbsp;</td>
+
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:100px;">下达日期</th>
+            <th style="width:120px;">采购单编号</th>
+            <th style="width:200px;">供应商</th>
+            <th style="width:80px; text-align:center;">行数</th>
+            <th style="width:80px; text-align:right;">总金额</th>
+            <th style="width:60px; text-align:center;"></th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model.Rows)
+            {
+            <tr>
+                <td>&nbsp;</td>
+                <td style="vertical-align:top;">@x.Create_DT.ToString("yyyy-MM-dd")</td>
+                <td style="vertical-align:top;">@x.Po_No</td>
+                <td style="vertical-align:top;">@x.Sup_Name</td>
+                <td style="vertical-align:top; text-align:center;">@x.Po_Line_List.Count()</td>
+                <td style="vertical-align:top; text-align:right;">@x.Total_Amount.ToString("N2")</td>
+                <td style="vertical-align:top; text-align:center;"><a class="btn btn-info btn-xs" href="~/PO/ConfirmPo_Sub/@x.POID">查看</a></td>
+                <td style="vertical-align:top;">&nbsp;</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>

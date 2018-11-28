@@ -1,0 +1,192 @@
+﻿@model  PageList<Material>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Material_Filter MF = ViewData["MF"] as Material_Filter;
+    MatImage IMG = ViewData["IMG"] as MatImage;
+
+    List<SelectOption> SList = new List<SelectOption>();
+    SList.Add(new SelectOption { Key_GUID = Guid.Empty, Name = "未关联" });
+    SList.Add(new SelectOption { Key_GUID = IMG.IMGID, Name = "已关联" });
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("图片关联");</script>
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+<div style="height:20px; width:100%; overflow:hidden;" class="DeductionDiv"></div>
+
+<table style="width:100%;">
+    <tr>
+        <td style="padding-left:20px; width:190px; vertical-align:top;">
+            <table>
+                <tr>
+                    <td>
+                        <div style="width:196px; overflow:hidden; line-height:190px; text-align:center; color:white; background-color:#dbdbdb; border:1px solid #FFF;">
+                            <img src="~/@IMG.MatThumbImgPath" s style="width:190px;  overflow:hidden;" />
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="font-size:14px;">@IMG.MatName<br />@IMG.MatBrand</td>
+                </tr>
+            </table>
+        </td>
+        <td style="padding-left:20px; vertical-align:top; padding-right:20px;">
+            <div class="DeductionDiv TopSearchDiv" style="padding:0px; padding-bottom:5px;">
+                <form id="MyForm" action="~/MatImg/ImgLinkMat_Sub/@IMG.IMGID" method="get">
+                    <table style="width:100%;">
+                        <tr>
+                            <td style="width:5px;">
+                                @if (MF.Link_IMGID == Guid.Empty)
+                                {
+                                    <button type="button" class="btn btn-primary btn-sm" onclick="SubmitForm()">关联产品</button>
+                                }
+                                else
+                                {
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="SubmitForm_Relieve()">解除关联</button>
+                                }
+                            </td>
+
+                            <td style="width:140px; padding-left:40px;">
+                                <select name="Link_IMGID" id="Link_IMGID" class="form-control input-sm" onchange="SubmitPageIndex(1)">
+                                    @foreach (var x in SList)
+                                    {
+                                        if (MF.Link_IMGID == x.Key_GUID)
+                                        {
+                                            <option selected="selected" value="@x.Key_GUID">@x.Name</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@x.Key_GUID">@x.Name</option>
+                                        }
+                                    }
+                                </select>
+                            </td>
+
+
+                            <td style="width:100px; padding-left:5px;">
+                                <input name="MatBrand" readonly="readonly" id="MatBrand" class="form-control input-sm" value="@MF.MatBrand" />
+                            </td>
+
+                            <td style="width:300px; padding-left:5px;">
+                                <div class="input-group input-group-sm" style="width: 300px; ">
+                                    <input type="text" name="Keyword" id="Keyword" placeholder="产品信息关键词" value="@MF.Keyword" class="form-control ">
+                                    <div class="input-group-btn">
+                                        <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td style="width:50px;">&nbsp;</td>
+
+                            <td style="vertical-align:bottom;">&nbsp;</td>
+
+                            <td style="text-align:right;">
+                                <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+
+            <form id="SubmitForm" action="~/MatImg/ImgLinkMat_Sub_Post/@IMG.IMGID" method="post">
+                <input type="hidden" name="Link_IMGID" id="Link_IMGID_D" value="@IMG.IMGID" />
+                <table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th style="width:40px; text-align:center; padding-top:0px; padding-bottom:0px;"><input type="checkbox" id="ALL" onclick="checkBoxCheckAll('ALL', 'MatID')" /></th>
+                            <th style="width:120px;">产品名称</th>
+                            <th style="width:200px;">规格型号</th>
+                            <th style="width:80px;text-align:center">品牌</th>
+                            <th style="width:80px; text-align:center;">单位</th>
+                            <th>&nbsp;</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var x in Model.Rows)
+                         {
+                            <tr>
+                                <td style="vertical-align:top; text-align:center;"><input type="checkbox" id="MatID" name="MatID" class="MatID" value="@x.MatID" /></td>
+                                <td style="vertical-align:top;">@x.MatName</td>
+                                <td style="vertical-align:top;">@x.MatSpecifications</td>
+                                <td style="text-align:center; vertical-align:top;">@x.MatBrand</td>
+                                <td style="text-align:center; vertical-align:top;">@x.MatUnit</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </form>
+        </td>
+    </tr>
+</table>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+                    function SubmitSelectIndex() {
+                        $("#PageIndex").val($("#FootPageIndexNo").val());
+                        $("#MyForm").submit();
+                    }
+                    function SubmitPageIndex(PageIndex) {
+                        $("#PageIndex").val(PageIndex);
+                        $("#MyForm").submit();
+                    }
+    </script>
+</div>
+
+<script>
+    function SubmitForm_Relieve() {
+        $("#Link_IMGID_D").val("@Guid.Empty");
+        SubmitForm();
+    }
+
+    function SubmitForm()
+    {
+        var Loop = checkBoxCheckLength('MatID');
+        if (Loop <= 0)
+        {
+            alert("请至少选择一项产品");
+            return false;
+        }
+
+        DisAndEnabledBtn(1);
+        var FormObj = $("#SubmitForm");
+        var PostData = $(FormObj).serialize();
+        var Url = $(FormObj).prop("action");
+        $.post(Url, PostData, function (result) {
+            if (result == "")
+            {
+                ReloadPage();
+            } else {
+                DisAndEnabledBtn(0);
+                alert(result);
+            }
+        });
+    }
+</script>
+
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>

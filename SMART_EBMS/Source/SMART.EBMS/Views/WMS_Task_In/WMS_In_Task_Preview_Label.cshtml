@@ -1,0 +1,33 @@
+﻿@model WMS_In_Line
+@{
+    Layout = null;
+}
+
+<table class="FormTable_Sim text-nowrap">
+    <tr>
+        <td style="width:10px;text-align:right">产品型号</td>
+        <td style="width:10px;" class="MatSn_Font"><input class="form-control input-sm" readonly type="text" style="width:200px;" value="@Model.MatSn" /></td>
+    </tr>
+    <tr>
+        <td style="width:10px;text-align:right">数量</td>
+        <td style="width:10px;"><input class="form-control input-sm" id="Quantity" name="Quantity" type="number" min="0" style="width:200px;" value="@Model.Quantity" /></td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td style="width:10px;">
+            <button type="button" onclick="Print_Label()" class="btn btn-primary btn-sm" style="width:80px;">打印标签</button>
+        </td>
+    </tr>
+</table>
+
+<script>
+    function Print_Label() {
+        var Quantity = parseInt($("#Quantity").val());
+        if (Quantity <= 0) {
+            alert("产品数量不小于0！");
+            return false;
+        }
+
+        window.open("/WMS_Task_In/WMS_In_Task_Preview_Label_To_PDF/@Model.Line_ID?Quantity=" + Quantity);
+    }
+</script>

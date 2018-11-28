@@ -1,0 +1,85 @@
+﻿@model List<Department>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("部门设置");</script>
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/User/User_Update" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:20px;">
+                    <button type="button" onclick="ShowSubItem('@Guid.Empty')" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-plus"></span> 新增部门</button>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr class="active">
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:150px;">部门名称</th>
+            <th style="width:100px;">人员数</th>
+            <th style="width:60px;">&nbsp;</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model)
+            {
+            <tr>
+                <td>&nbsp;</td>
+                <td>@x.DepName</td>
+                <td style="text-align:center;">&nbsp;</td>
+                <td style="text-align:center;"><button type="button" onclick="ShowSubItem('@x.DepID')" class="btn btn-info btn-xs">更新</button></td>
+                <td>&nbsp;</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>
+
+<script>
+    function ShowSubItem(DepID) {
+        ReloadSubContext(DepID);
+        $('#MySubModel').modal({ backdrop: 'static' });
+    }
+
+    function CloseSubModel() {
+        $('#MySubModel').modal('hide');
+    }
+
+    function ReloadSubContext(DepID) {
+        $("#SubContext").text("Loading...");
+        $("#SubContext").load("/System/Department_Sub/" + DepID);
+    }
+</script>
+<div class="modal fade" id="MySubModel">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:300px;">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="CloseSubModel()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">部门设置</h5>
+            </div>
+            <div class="modal-body" id="SubContext"></div>
+        </div>
+    </div>
+</div>

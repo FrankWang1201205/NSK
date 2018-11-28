@@ -1,0 +1,47 @@
+﻿@model WMS_Stock_Task
+@{
+    Layout = null;
+    List<WMS_Work_Person> List = ViewData["List"] as List<WMS_Work_Person>;
+
+}
+
+<form action="~/WMS_Stocktaking/WMS_Stocktaking_Sub_Post/@Model.Task_ID" method="post" enctype="multipart/form-data" onsubmit="return validateFormByClass('NotEmpty_Single')">
+    <table class="FormTable_Sim text-nowrap">
+        <tr>
+            <td style="width:10px;text-align:right">作业人</td>
+            <td style="width:10px">
+                <select name="Work_Person" id="Work_Person" class="form-control input-sm NotEmpty" style="width:150px;">
+                    <option value="">请选择</option>
+                    @foreach (var x in List)
+                    {
+                        <option value="@x.Person_Name">@x.Person_Name</option>
+                    }
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td style="width:10px;">
+                <button type="submit" class="btn btn-primary btn-sm" style="width:60px;">递交</button>
+                <button type="button" onclick="Delete_Task()" class="btn btn-danger btn-sm" style="margin-left:20px;">删除任务</button>
+            </td>
+        </tr>
+    </table>
+</form>
+
+
+<script>
+    function Delete_Task() {
+        if (confirm("确认删除？") == false) {
+            return false;
+        }
+
+        $.post("/WMS_Stocktaking/WMS_Stocktaking_Task_Delete_Post/@Model.Task_ID", function (result) {
+            if (result != "") {
+                alert(result);
+            } else {
+                ReloadPage();
+            }
+        });
+    }
+</script>

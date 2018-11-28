@@ -1,0 +1,76 @@
+﻿@model List<RFQ_Head_Line>
+@{
+    Layout = null;
+}
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width:30px; text-align:center;">#</th>
+            <th style="width:350px;">询价型号 & 产品描述</th>
+            <th style="width:60px;">品牌</th>
+            <th style="width:60px; text-align:center;">单位</th>
+            <th style="width:70px; text-align:center;">数量</th>
+            <th style="width:80px;">紧急度</th>
+            <th style="width:160px;">型号要求	</th>
+            <th style="width:30px;">&nbsp;</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @foreach (var x in Model)
+        {
+            <tr id="TR_Line_@x.Line_ID">
+                <td style="text-align:center; vertical-align:top;">@x.Line_Number</td>
+                <td style="vertical-align:top;">
+                    <strong class="MatSn_Font" style="font-size:14px;">@x.Cust_Mat_Sn</strong>
+                    @if (!string.IsNullOrEmpty(x.Cust_Mat_Describe))
+                    {
+                        <br />
+                        <span>@x.Cust_Mat_Describe</span>
+                    }
+
+                    @if (!string.IsNullOrEmpty(x.Line_Remark))
+                    {
+                        <br />
+                        <span style="color:blue;">@x.Line_Remark</span>
+                    }
+                </td>
+                <td style="vertical-align:top;">@x.BID_Name</td>
+                <td style="vertical-align:top; text-align:center;">@x.Cust_Mat_Unit</td>
+                <td style="vertical-align:top;"><input onchange="Set_Line('@x.Line_ID')" id="Qty_@x.Line_ID" type="number" value="@x.Qty" style="width:100%; text-align:center;" /></td>
+                <td style="vertical-align:top;"><input onchange="Set_Line('@x.Line_ID')" id="Urgency_@x.Line_ID" type="text" value="@x.Urgency" style="width:100%;" /></td>
+                <td style="vertical-align:top;">
+                    @if (string.IsNullOrEmpty(x.Cust_Mat_Sn_INFO_STR))
+                    {
+                        <span style="color:silver;">n.a</span>
+                    }
+                    else
+                    {
+                        <span>@x.Cust_Mat_Sn_INFO_STR</span>
+                    }
+                </td>
+                <td style="text-align:center; vertical-align:top;"><button type="button" class="btn btn-primary btn-xs" onclick="Show_Line_Model('@x.Line_ID')">改</button></td>
+                <td>&nbsp;</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            ordering: false,
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>
+

@@ -1,0 +1,145 @@
+﻿@model PageList<WMS_In_Task>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    WMS_In_Filter MF = ViewData["MF"] as WMS_In_Filter;
+    User U = ViewData["User"] as User;
+
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("收货进程");</script>
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/WMS_Task_In/WMS_In_Process" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:100px;">
+                    <select name="MatType" id="MatType" class="form-control input-sm" onchange="SubmitPageIndex(1)">
+                        <option value="">任务类型</option>
+                        @foreach (var x in MF.MatType_List)
+                        {
+                            if (MF.MatType == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:250px; padding-left:5px;">
+                    <div class="input-group input-group-sm" style="width: 250px; ">
+                        <input type="text" name="Task_Bat_No" id="Task_Bat_No" placeholder="任务编号" value="@MF.Task_Bat_No" class="form-control ">
+                        <div class="input-group-btn">
+                            <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                        </div>
+                    </div>
+                </td>
+
+
+                <td style="float:right;width:30px;">&nbsp;</td>
+
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:135px;">任务编号</th>
+            <th style="width:70px;">上传日期</th>
+            <th style="width:60px;">上传人</th>
+            <th style="width:60px;">品牌</th>
+            <th style="width:100px;">供应商</th>
+            <th style="width:60px;text-align:center">收货类型</th>
+            <th style="width:70px;">物流公司</th>
+            <th style="width:60px;">运输方式</th>
+            <th style="width:50px;text-align:right">产品型号</th>
+            <th style="width:60px;text-align:right">通知到货</th>
+            <th style="width:60px;text-align:center">当前状态</th>
+            <th style="width:60px;">收货方式</th>
+            <th style="width:70px;">作业人</th>
+            <th style="width:70px;">驾驶员</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model.Rows)
+            {
+            <tr>
+                <td>&nbsp;</td>
+                <td style="vertical-align:top;">
+                    @if (!string.IsNullOrEmpty(x.Scan_Mat_Type))
+                    {
+                        <a href="~/WMS_Task_In/WMS_In_Task_Preview/@x.Head_ID" target="_blank">@x.Task_Bat_No_Str</a>
+                    }
+                    else
+                    {
+                        <span>@x.Task_Bat_No_Str</span>
+                    }
+                </td>
+                <td style="vertical-align:top;">@x.Create_DT.ToString("yyyy-MM-dd")</td>
+                <td style="vertical-align:top;">@x.Create_Person</td>
+                <td style="vertical-align:top;">@x.Brand</td>
+                <td style="vertical-align:top;">@x.Supplier_Name</td>
+                <td style="vertical-align:top;text-align:center">@x.MatType</td>
+                <td style="vertical-align:top;">@x.Logistics_Company</td>
+                <td style="vertical-align:top;">@x.Logistics_Mode</td>
+                <td style="vertical-align:top;text-align:right">@x.MatSn_Count.ToString("N0")</td>
+                <td style="vertical-align:top;text-align:right">@x.Line_Quantity_Sum.ToString("N0")</td>
+                <td style="vertical-align:top;text-align:center">@x.Global_State</td>
+                <td style="vertical-align:top;">@x.Scan_Mat_Type</td>
+                <td style="vertical-align:top;">@x.Work_Person</td>
+                <td style="vertical-align:top;">@x.Driver_Name</td>
+                <td>&nbsp;</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>

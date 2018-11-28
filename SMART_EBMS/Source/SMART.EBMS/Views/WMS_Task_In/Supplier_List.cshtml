@@ -1,0 +1,13 @@
+﻿@model List<Supplier>
+@{ 
+    Layout = null;
+    Supplier_Filter MF = ViewData["MF"] as Supplier_Filter;
+    string Type = ViewData["Type"].ToString();
+}
+
+<table class="text-nowrap">
+    @foreach (var x in Model)
+    {
+        <tr onclick="Select_Supplier_Item('@x.SupID','@x.Sup_Name','@Type')"><td>@x.Sup_Name</td></tr>
+    }
+</table>

@@ -1,0 +1,191 @@
+﻿@model PageList<WMS_Stock_Task>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    WMS_Stock_Filter MF = ViewData["MF"] as WMS_Stock_Filter;
+    User U = ViewData["User"] as User;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("首次盘库");</script>
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/WMS_Stocktaking/WMS_Stocktaking_Task_First" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:100px;">
+                    <select name="Status" id="Status" class="form-control input-sm" onchange="SubmitPageIndex(1)">
+                        @foreach (var x in MF.Task_Status_List)
+                        {
+                            if (MF.Status == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:250px; padding-left:5px;">
+                    <div class="input-group input-group-sm" style="width: 250px; ">
+                        <input type="text" name="Location" id="Location" placeholder="库位" value="@MF.Location" class="form-control ">
+                        <div class="input-group-btn">
+                            <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                        </div>
+                    </div>
+                </td>
+
+                <td style="padding-left:15px;">
+                    <a class="btn btn-default btn-sm" href="~/WMS_Stocktaking/WMS_Stocktaking_Task_Preview_First_All_To_Excel"><span class="glyphicon glyphicon-list-alt"></span> 盘库型号导出</a>
+                </td>
+
+                <td>&nbsp;</td>
+
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:70px;">创建日期</th>
+            <th style="width:70px;">库位</th>
+            <th style="width:70px;">当前状态</th>
+            <th style="width:80px;">作业人</th>
+            @*                @if (U.RoleTitle == User_RoleTitle_Emun.仓管主管.ToString() || U.RoleTitle == User_RoleTitle_Emun.系统管理员.ToString() || U.RoleTitle == User_RoleTitle_Emun.公司经理.ToString())
+
+    {
+        <th style="width:70px;">&nbsp;</th>
+    }*@
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model.Rows)
+        {
+            <tr>
+                <td>&nbsp;</td>
+                <td style="vertical-align:top;">@x.Create_DT.ToString("yyyy-MM-dd")</td>
+                <td style="vertical-align:top;">
+                    @if (!string.IsNullOrEmpty(x.Work_Person))
+                    {
+                        <a href="~/WMS_Stocktaking/WMS_Stocktaking_Task_Preview_First/@x.Task_ID" target="_blank">@x.Location</a>
+                    }
+                    else
+                    {
+                        <span>@x.Location</span>
+                    }
+
+                </td>
+                <td style="vertical-align:top;">@x.Status</td>
+                <td style="vertical-align:top;">@x.Work_Person</td>
+                @*                @if (U.RoleTitle == User_RoleTitle_Emun.仓管主管.ToString() || U.RoleTitle == User_RoleTitle_Emun.系统管理员.ToString() || U.RoleTitle == User_RoleTitle_Emun.公司经理.ToString())
+
+    {
+        <td style="vertical-align:top;text-align:center">
+
+            @if (x.Status == WMS_Stock_Task_Enum.未盘库.ToString())
+            {
+                <button class="btn btn-info btn-xs" onclick="ShowSetItem('@x.Task_ID')">派工</button>
+            }
+            else
+            {
+                <button class="btn btn-info btn-xs" disabled>派工</button>
+            }
+        </td>
+    }*@
+
+                <td>&nbsp;</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>
+
+<script>
+    $('.Time_Select').datetimepicker({
+        language: 'zh-CN',
+        weekStart: 1,
+        todayBtn: 1,
+        autoclose: 1,
+        format: "yyyy-mm-dd",
+        todayHighlight: 1,
+        startView: 2,
+        startDate: "2018-01-01",
+        minView: 2,
+        forceParse: 0
+    });
+
+</script>
+
+<!--派工-->
+<script>
+    function ShowSetItem(Task_ID) {
+        ReloadShowItem(Task_ID);
+        $('#MyShowModal').modal({ backdrop: 'static' });
+    }
+
+    function CloseShowItem() { $('#MyShowModal').modal('hide'); }
+
+    function ReloadShowItem(Task_ID) {
+        $("#ShowContext").text("Loading...");
+        $("#ShowContext").load("/WMS_Stocktaking/WMS_Stocktaking_Task_First_Sub/" + Task_ID);
+    }
+</script>
+<div class="modal fade" id="MyShowModal">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:350px;">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="CloseShowItem()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">派工</h5>
+            </div>
+            <div class="modal-body" id="ShowContext"></div>
+        </div>
+    </div>
+</div>
+<!--派工-->

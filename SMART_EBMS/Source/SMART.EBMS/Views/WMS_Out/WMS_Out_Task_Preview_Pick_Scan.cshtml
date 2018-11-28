@@ -1,0 +1,224 @@
+﻿@model WMS_Out_Task
+@{
+    Layout = null;
+    WMS_Out_Filter MF = ViewData["MF"] as WMS_Out_Filter;
+    ViewBag.Title = Model.Task_Bat_No_Str;
+    User U = ViewData["User"] as User;
+    int i = 0;
+    int j = 0;
+    int Count = 0;
+    List<WMS_Out_Pick_Scan> Pick_Scan_List = Model.Pick_Scan_List;
+    List<string> MatSn_List = Pick_Scan_List.Select(x => x.MatSn).Distinct().ToList();
+}
+
+<!DOCTYPE html>
+<html>
+@Html.Partial("_JsAndCss")
+<body style="background-color:white; overflow:auto; padding:20px; max-width:1024px; margin:auto;">
+    @if (TempData["Error"] != null)
+    {
+        <div class="Textarea_Error">@TempData["Error"]</div>
+    }
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="Textarea_Success">@TempData["Success"]</div>
+    }
+    <table style="text-align:center; width:100%;" class="text-nowrap">
+        <tr>
+            <td style="width:10px;">&nbsp;</td>
+            <td><span style="text-align:center; padding-left:150px; font-size:24px;">出 库 配 货 单</span></td>
+            <td style="text-align:right; width:10px; text-align:right;"><span style="font-size:16px;">NO.</span><strong style="font-size:18px;">@Model.Task_Bat_No_Str</strong></td>
+        </tr>
+    </table>
+
+    <table class="table table-bordered text-nowrap" style="width:100%;font-size:14px;margin-top:15px;">
+        <tr>
+            <td class="active" style="width:10px;">产品型号</td>
+            <td><strong>@Model.Line_List.Where(x => x.Quantity_Sum > 0).Count().ToString("N0")</strong> <span>项</span></td>
+            <td class="active" style="width:10px;">产品数量</td>
+            <td><strong>@Model.Line_List.Where(x => x.Quantity_Sum > 0).Sum(x => x.Quantity_Sum).ToString("N0")</strong></td>
+            <td class="active" style="width:10px;">当前状态</td>
+            <td>@Model.Global_State</td>
+        </tr>
+        <tr>
+            <td class="active" style="width:10px;">客户名称</td>
+            <td colspan="5"><span>@Model.Customer_Name</span></td>
+        </tr>
+    </table>
+
+    <table style="width:100%; margin-top:-10px;" class="Table_Clean">
+        <tr>
+            <td>&nbsp;</td>
+            <td style="width:10px;">
+                <button type="button" class="btn btn-default" onclick="ReloadPage()"><span class="glyphicon glyphicon-repeat"></span> 刷新</button>
+            </td>
+            @if (Model.Global_State == WMS_Out_Global_State_Enum.待配货.ToString())
+            {
+                <td style="text-align:right; width:10px; padding-left:10px;">
+                    <button type="button" class="btn btn-primary" onclick="Sent_To_WMS_Stock()">已配货，保存并发送</button>
+                </td>
+            }
+        </tr>
+    </table>
+
+    <p></p>
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="~/WMS_Out/WMS_Out_Task_Preview_Pick_Scan/@Model.Head_ID">产品配货</a></li>
+        @*<li><a href="~/WMS_Out/WMS_Out_Task_Preview_Pick_Scan_Stocktaking/@Model.Head_ID">配货动盘</a></li>*@
+    </ul>
+    <p></p>
+
+    <p></p>
+    <table style="width:100%">
+        <tr>
+            <td>
+                <button id="A" class="active btn btn-default btn-sm Menu_Pick" onclick="Show_list('A')">按库位显示</button>
+                <button style="margin-left:15px;" class="btn btn-default btn-sm Menu_Pick" id="B" onclick="Show_list('B')">按型号显示</button>
+            </td>
+            <td>&nbsp;</td>
+        </tr>
+    </table>
+    <p></p>
+
+    <table class="table table-bordered Context_Pick" style="width:100%;font-size:14px;" id="Context_A">
+        <tr class="active">
+            <td style="width:40px;">序</td>
+            <td style="width:80px;">&nbsp;</td>
+            <td style="width:220px;">产品型号</td>
+            <td style="width:120px;text-align:right">取货数</td>
+            <td style="width:120px;text-align:right">取货库位</td>
+            <td style="width:120px;text-align:right;">动盘备注</td>
+            <td>&nbsp;</td>
+        </tr>
+
+        @foreach (var x in Model.Pick_Scan_List.OrderBy(x=>x.Scan_Location))
+        {
+            i++;
+            <tr>
+                <td>@i</td>
+                <td style="text-align:center;">
+                    @if (x.Is_Chose == 0)
+                    {
+                        <input type="checkbox" id="Choose_Line_@x.Scan_ID" style="font-size:25px" onchange="Choose_Line('@x.Scan_ID')" />
+                    }
+                    else
+                    {
+                        <input type="checkbox" id="Choose_Line_@x.Scan_ID" style="font-size:25px" checked onchange="Cancel_Choose_Line('@x.Scan_ID')" />
+                    }
+                </td>
+
+                <td><span class="MatSn_Font">@x.MatSn</span></td>
+                <td style="text-align:right">@x.Quantity.ToString("N0")</td>
+                <td style="text-align:right">@x.Scan_Location</td>
+                <td style="text-align:right">
+                    @if (x.Stocktaking_Loction_Type == Type_Enum.整箱.ToString())
+                    {
+                    <a href="~/WMS_Out_Stocktaking/WMS_Out_Stocktaking_Pick_Preview/@x.Stocktaking_ID" target="_blank">动盘任务</a>
+                    }
+                    else if (x.Stocktaking_Loction_Type == Type_Enum.端数.ToString())
+                    {
+                    <a href="~/WMS_Out_Stocktaking/WMS_Out_Stocktaking_Pick_Preview_For_MatSn/@x.Stocktaking_ID" target="_blank">动盘任务</a>
+                    }
+                </td>
+                <td>&nbsp;</td>
+            </tr>
+        }
+    </table>
+
+    <table class="table table-bordered Context_Pick" style="width:100%;font-size:14px;display:none" id="Context_B">
+        <tr class="active">
+            <td style="width:40px;">序</td>
+            <td style="width:220px;">产品型号</td>
+            <td style="width:120px;text-align:right">取货数</td>
+            <td style="width:120px;text-align:right">取货库位</td>
+            <td>&nbsp;</td>
+        </tr>
+
+        @foreach (var MatSn in MatSn_List.OrderBy(x => x))
+        {
+            j++;
+            Count = Model.Pick_Scan_List.Where(x => x.MatSn == MatSn).Count();
+            <tr>
+                <td rowspan="@Count">@j</td>
+                <td rowspan="@Count"><span class="MatSn_Font">@MatSn</span></td>
+                <td style="text-align:right;">@Model.Pick_Scan_List.Where(x => x.MatSn == MatSn).OrderBy(x => x.Scan_Location).FirstOrDefault().Quantity.ToString("N0")</td>
+                <td style="text-align:right;">@Model.Pick_Scan_List.Where(x => x.MatSn == MatSn).OrderBy(x => x.Scan_Location).FirstOrDefault().Scan_Location</td>
+                <td>&nbsp;</td>
+
+            </tr>
+                foreach (var x in Model.Pick_Scan_List.Where(x => x.MatSn == MatSn).OrderBy(x => x.Scan_Location).Skip(1))
+                {
+                    <tr>
+                        <td style="text-align:right">@x.Quantity.ToString("N0")</td>
+                        <td style="text-align:right">@x.Scan_Location</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                }
+
+        }
+    </table>
+
+    <table class="table table-condensed" style="width:100%;font-size:14px;">
+        <tr>
+            <td>作业人：@Model.Work_Down_Person</td>
+        </tr>
+    </table>
+
+    <script>
+        function Show_list(Id) {
+            $(".Menu_Pick").removeClass("active");
+            $(".Context_Pick").hide();
+            $("#" + Id).addClass("active");
+            $("#Context_" + Id).show();
+        }
+
+        function Sent_To_WMS_Stock() {
+            if (confirm("确认保存并发送?") == false) {
+                return false;
+            }
+
+            $.post("/WMS_Out/WMS_Out_Task_Preview_Pick_Finish/@Model.Head_ID", function (result) {
+                if (result == "") {
+                    ReloadPage();
+                } else {
+                    alert(result);
+                }
+            });
+        }
+
+        function Choose_Line(Scan_ID) {
+            if (confirm("是否勾选此产品型号？") == false) {
+                $("#Choose_Line_" + Scan_ID).removeAttr("checked");
+                return false;
+            }
+            
+            $.post("/WMS_Out/WMS_Out_Task_Preview_Pick_Scan_Post/" + Scan_ID, function (result) {
+                if (result == "") {
+                    ReloadPage();
+                } else {
+                    $("#Choose_Line_" + Scan_ID).removeAttr("checked");
+                    alert(result);
+                }
+            });
+        }
+
+        function Cancel_Choose_Line(Scan_ID) {
+            if (confirm("是否取消勾选此产品型号？") == false) {
+                $("#Choose_Line_" + Scan_ID).attr("checked");
+                return false;
+            }
+
+            $.post("/WMS_Out/WMS_Out_Task_Preview_Pick_Scan_Cancel_Post/" + Scan_ID, function (result) {
+                if (result == "") {
+                    ReloadPage();
+                } else {
+                    $("#Choose_Line_" + Scan_ID).attr("checked");
+                    alert(result);
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>

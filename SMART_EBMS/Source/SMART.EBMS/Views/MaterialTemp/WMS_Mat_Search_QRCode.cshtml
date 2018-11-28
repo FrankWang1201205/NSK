@@ -1,0 +1,18 @@
+﻿@model Material
+@{
+    Layout = null;
+    List<char> Char_List = Model.MatSn.ToList();
+}
+
+<div style="margin:auto;text-align:center">
+    <img src="~/@Model.QRCode_Path" style="width:60%;" />
+    <hr />
+    @foreach (var C in Char_List)
+    {
+        <span class="MatSn_Font" style="border-bottom:1px solid #808080; margin-right:2px; font-size:14px;">@C</span>
+    }
+</div>
+
+<div style="margin:auto;text-align:center;margin-top:10px;">
+    <a class="btn btn-primary" href="~/MaterialTemp/WMS_Mat_Search_QRCode_To_PDF/@Model.MatID" target="_blank">打印标签</a>
+</div>

@@ -1,0 +1,314 @@
+﻿@model WMS_Out_Task
+@{
+    Layout = null;
+    WMS_Out_Filter MF = ViewData["MF"] as WMS_Out_Filter;
+    ViewBag.Title = Model.Task_Bat_No_Str;
+    User U = ViewData["User"] as User;
+
+}
+
+<!DOCTYPE html>
+<html>
+@Html.Partial("_JsAndCss")
+<body style="background-color:white; overflow:auto; padding:20px; max-width:1024px; margin:auto;">
+    @if (TempData["Error"] != null)
+    {
+        <div class="Textarea_Error">@TempData["Error"]</div>
+    }
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="Textarea_Success">@TempData["Success"]</div>
+    }
+    <table style="text-align:center; width:100%;" class="text-nowrap">
+        <tr>
+            <td style="width:10px;">&nbsp;</td>
+            <td><span style="text-align:center; padding-left:150px; font-size:24px;">出 库 验 货 单</span></td>
+            <td style="text-align:right; width:10px; text-align:right;"><span style="font-size:16px;">NO.</span><strong style="font-size:18px;">@Model.Task_Bat_No_Str</strong></td>
+        </tr>
+    </table>
+
+    <table class="table table-bordered text-nowrap" style="width:100%;font-size:14px;margin-top:15px;">
+        <tr>
+            <td class="active" style="width:10px;">运输方式</td>
+            <td><span>@Model.Logistics_Mode</span></td>
+            <td class="active" style="width:10px;">总箱数</td>
+            <td><span>@Model.Total_Cases</span></td>
+            <td class="active" style="width:10px;">验货方式</td>
+            <td>@Model.Scan_Mat_Type</td>
+        </tr>
+        <tr>
+            <td class="active" style="width:10px;">产品型号</td>
+            <td><strong>@Model.Line_List.Where(x => x.Quantity_Sum > 0).Count().ToString("N0")</strong> <span>项</span></td>
+            <td class="active" style="width:10px;">产品数量</td>
+            <td><strong>@Model.Line_List.Where(x => x.Quantity_Sum > 0).Sum(x => x.Quantity_Sum).ToString("N0")</strong></td>
+            <td class="active" style="width:10px;">当前状态</td>
+            <td>@Model.Global_State</td>
+        </tr>
+        <tr>
+            <td class="active" style="width:10px;">客户名称</td>
+            <td colspan="3">@Model.Customer_Name</td>
+            <td class="active" style="width:10px;">电话</td>
+            <td>@Model.Customer_Tel</td>
+        </tr>
+        <tr>
+            <td class="active" style="width:10px;">客户地址</td>
+            <td colspan="5">@Model.Customer_Address</td>
+        </tr>
+    </table>
+
+    <style>
+        .Return_Info strong {
+            font-size: 16px;
+            padding-left: 5px;
+            padding-right: 5px;
+            color: red;
+        }
+    </style>
+    <table style="width:100%; margin-top:-10px;" class="Table_Clean">
+        <tr>
+            <td class="Return_Info">@Html.Raw(MF.Return_Info)</td>
+            <td>&nbsp;</td>
+            <td style="width:10px;">
+                <button type="button" class="btn btn-default" onclick="ReloadPage()"><span class="glyphicon glyphicon-repeat"></span> 刷新</button>
+            </td>
+
+            @if (Model.Global_State == WMS_Out_Global_State_Enum.待验货.ToString())
+            {
+                <td style="text-align:right; width:10px; padding-left:10px;">
+                    <button type="button" class="btn btn-primary" onclick="Sent_To_WMS_Stock_Check()">已验货，保存并发送</button>
+                </td>
+            }
+            else if (Model.Global_State == WMS_Out_Global_State_Enum.待包装.ToString())
+            {
+                <td style="text-align:right; width:10px; padding-left:10px;">
+                    <button type="button" class="btn btn-primary" onclick="Sent_To_WMS_Stock()">已称重贴单，保存并发送</button>
+                </td>
+            }
+            else if (Model.Global_State == WMS_Out_Global_State_Enum.待出库.ToString())
+            {
+                <td style="text-align:right; width:10px; padding-left:10px;">
+                    @if (U.RoleTitle == User_RoleTitle_Emun.仓管主管.ToString() || U.RoleTitle == User_RoleTitle_Emun.系统管理员.ToString() || U.RoleTitle == User_RoleTitle_Emun.公司经理.ToString())
+                    {
+                        <button type="button" class="btn btn-primary" onclick="Sent_To_WMS_Stock_Again()">已出库，保存并发送</button>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-primary" disabled>已出库，保存并发送</button>
+                    }
+                </td>
+
+                <td style="text-align:right; width:10px;padding-left:10px;">
+                    <a href="~/WMS_Out/WMS_Out_Task_Preview_To_PDF/@Model.Head_ID" class="btn btn-primary" target="_blank">下载出库明细</a>
+                </td>
+            }
+            else if (Model.Global_State == WMS_Out_Global_State_Enum.已出库.ToString())
+            {
+                <td style="text-align:right; width:10px; padding-left:10px;">
+                    <a href="~/WMS_Out/WMS_Out_Task_Preview_To_PDF/@Model.Head_ID" class="btn btn-primary" target="_blank">下载出库明细</a>
+                </td>
+            }
+        </tr>
+    </table>
+
+    <p></p>
+    <ul class="nav nav-tabs">
+        <li><a href="~/WMS_Out/WMS_Out_Task_Preview/@Model.Head_ID">产品型号</a></li>
+        <li>
+            @if (Model.Scan_Mat_Type == Scan_Mat_Type_Enum.按托.ToString())
+            {
+                <a href="~/WMS_Out/WMS_Out_Task_Preview_Tray/@Model.Head_ID">托盘列表</a>
+            }
+            else
+            {
+                <a href="~/WMS_Out/WMS_Out_Task_Preview_Tray/@Model.Head_ID">箱号列表</a>
+            }
+        </li>
+        <li class="active"><a href="~/WMS_Out/WMS_Out_Task_Preview_Track/@Model.Head_ID">物流信息</a></li>
+        <li><a href="~/WMS_Out/WMS_Out_Task_Preview_Source/@Model.Head_ID">原始表单</a></li>
+        <li><a href="~/WMS_Out/WMS_Out_Task_Preview_Scan/@Model.Head_ID">扫描列表</a></li>
+
+    </ul>
+    <p></p>
+
+    @if (Model.Logistics_Mode != Logistics_Out_Mode_Enum.自送.ToString())
+    {
+        <table class="table table-bordered text-nowrap" style="width:100%;font-size:14px;">
+            <tr class="active">
+                <td style="width:190px;">运单编号</td>
+                <td style="width:70px; text-align:right;">重量(公斤)</td>
+                <td>&nbsp;</td>
+            </tr>
+            @foreach (var x in Model.Track_List)
+            {
+                <tr>
+                    <td>@x.Tracking_No</td>
+                    <td style="text-align:right;">@x.Weight.ToString("N2")</td>
+                    <td>&nbsp;</td>
+                </tr>
+            }
+
+            <tr>
+                <td style="text-align:right;">Total</td>
+                <td style="text-align:right;"><strong>@Model.Track_List.Sum(x => x.Weight).ToString("N2")</strong></td>
+                <td>&nbsp;</td>
+            </tr>
+        </table>
+    }
+    else
+    {
+        <table style="width:100%;font-size:14px;margin-bottom:10px;">
+            <tr>
+                <td>
+                    @if (Model.Global_State == WMS_Out_Global_State_Enum.已出库.ToString())
+                    {
+                        <button class="btn btn-primary btn-sm" disabled>新增车辆信息</button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-primary btn-sm" onclick="Add_New_Track()">新增车辆信息</button>
+                    }
+
+                </td>
+            </tr>
+        </table>
+
+        <table class="table table-bordered text-nowrap" style="width:100%;font-size:14px;">
+            <tr class="active">
+                <td style="width:190px;">车牌号</td>
+                <td style="width:70px; text-align:right;">金额</td>
+                <td style="width:70px; text-align:right;">公里数</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+            </tr>
+            @foreach (var x in Model.Track_List)
+            {
+                <tr>
+                    <td>@x.Tracking_No</td>
+                    <td style="text-align:right;">@x.Logistics_Cost.ToString("N2")</td>
+                    <td style="text-align:right;">@x.Kilometers.ToString("N2")</td>
+                    <td style="width:60px;text-align:center">
+                        @if (Model.Global_State == WMS_Out_Global_State_Enum.已出库.ToString())
+                        {
+                            <button class="btn btn-info btn-xs" disabled>更新</button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-info btn-xs" onclick="ShowSetItem('@x.Tracking_ID')">更新</button>
+                        }
+                    </td>
+                    <td>&nbsp;</td>
+                </tr>
+            }
+
+            <tr>
+                <td style="text-align:right;">Total</td>
+                <td style="text-align:right;"><strong>@Model.Track_List.Sum(x => x.Logistics_Cost).ToString("N2")</strong></td>
+                <td style="text-align:right;">@Model.Track_List.Sum(x => x.Kilometers).ToString("N2")</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+            </tr>
+        </table>
+    }
+
+    <table class="table table-condensed" style="width:100%;font-size:14px;">
+        <tr>
+            <td>作业人：@Model.Work_Out_Person</td>
+        </tr>
+    </table>
+
+    <script>
+        function Sent_To_WMS_Stock_Check() {
+            if (confirm("确认保存并发送?") == false) {
+                return false;
+            }
+
+            $.post("/WMS_Out/WMS_Out_Task_Preview_To_WMS_Stock_Check/@Model.Head_ID", function (result) {
+                if (result == "") {
+                    ReloadPage();
+                } else {
+                    alert(result);
+                }
+            });
+        }
+
+        function Sent_To_WMS_Stock() {
+            if (confirm("确认保存并发送?") == false) {
+                return false;
+            }
+
+            $.post("/WMS_Out/WMS_Out_Task_Preview_To_WMS_Stock/@Model.Head_ID", function (result) {
+                if (result == "") {
+                    ReloadPage();
+                } else {
+                    alert(result);
+                }
+            });
+        }
+
+        function Sent_To_WMS_Stock_Again() {
+            if (confirm("确认保存并发送?") == false) {
+                return false;
+            }
+
+            $.post("/WMS_Out/WMS_Out_Task_Preview_To_WMS_Stock_Aagin/@Model.Head_ID", function (result) {
+                if (result == "") {
+                    ReloadPage();
+                } else {
+                    alert(result);
+                }
+            });
+        }
+    </script>
+    <!--新增-->
+    <script>
+        function Add_New_Track() {
+            Reload_New_Track();
+            $('#MyAddModal').modal({ backdrop: 'static' });
+        }
+
+        function Close_New_Track() { $('#MyAddModal').modal('hide'); }
+
+        function Reload_New_Track() {
+            $("#AddContext").load("/WMS_Out/WMS_Out_Track_Add/@Model.Head_ID");
+        }
+    </script>
+    <div class="modal fade" id="MyAddModal">
+        <div class="modal-dialog">
+            <div class="modal-content" style="width:350px;">
+                <div class="modal-header">
+                    <button type="button" class="close" onclick="Close_New_Track()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title">新增物流费用</h5>
+                </div>
+                <div class="modal-body" id="AddContext"></div>
+            </div>
+        </div>
+    </div>
+    <!--新增-->
+    <!--更新-->
+    <script>
+        function ShowSetItem(Tracking_ID) {
+            ReloadSetItem(Tracking_ID);
+            $('#MySetModel').modal({ backdrop: 'static' });
+        }
+
+        function CloseSetItem() { $('#MySetModel').modal('hide'); }
+
+        function ReloadSetItem(Tracking_ID) {
+            $("#SetContext").load("/WMS_Out/WMS_Out_Track_Sub/" + Tracking_ID);
+        }
+    </script>
+    <div class="modal fade" id="MySetModel">
+        <div class="modal-dialog">
+            <div class="modal-content" style="width:350px;">
+                <div class="modal-header">
+                    <button type="button" class="close" onclick="CloseSetItem()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title">更新物流费用</h5>
+                </div>
+                <div class="modal-body" id="SetContext"></div>
+            </div>
+        </div>
+    </div>
+    <!--更新-->
+</body>
+</html>

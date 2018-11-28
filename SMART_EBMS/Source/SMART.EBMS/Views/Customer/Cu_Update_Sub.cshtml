@@ -1,0 +1,60 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Guid CID = new Guid(ViewData["CID"].ToString());
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("客户更新");</script>
+<script>TopMenuSubToAction("Cu_Update_Sub");</script>
+
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+
+
+<div id="RightDivContext">
+    <form id="SubmitForm" action="~/Customer/Cu_Update_Sub_Post/@CID" method="post" style="padding:20px;">
+        <div id="Part_Page_Context" style="overflow:hidden;"></div>
+    </form>
+</div>
+
+<script>
+    $(function () {
+        Reload_Part_Page();
+    });
+
+    function Reload_Part_Page() {
+        $("#Part_Page_Context").text("Loading...");
+        $("#Part_Page_Context").load("/Customer/Cu_Edit_Part/@CID");
+    }
+</script>
+
+<script>
+    function SubmitForm() {
+        if (validateFormByClass('NotEmpty') == false) { return false; }
+        DisAndEnabledBtn(1);
+        $("#SubmitForm").submit();
+    }
+
+</script>
+
+
+<!--客户删除-->
+<form id="Delete_Customer" action="~/Customer/Cu_Delete_post/@CID" method="post">
+    <script>
+        function Delete_Customer_Item()
+        {
+            if(confirm("确认删除？")==true)
+            {
+                $("#Delete_Customer").submit();
+            }
+        }
+    </script>
+</form>
+<!--客户删除-->

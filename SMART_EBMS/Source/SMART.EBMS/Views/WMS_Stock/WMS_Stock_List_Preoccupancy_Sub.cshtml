@@ -1,0 +1,42 @@
+﻿@model List<WMS_Out_Line>
+@{
+    Layout = null;
+
+    decimal TotalPrice = 0;
+    decimal TotalPrice_All = 0;
+}
+
+<p style="font-size:14px;">产品型号：<span class="MatSn_Font" style="font-size:16px;">@Model.FirstOrDefault().MatSn</span></p>
+
+<table class="table table-condensed table-bordered text-nowrap">
+    <tr class="active">
+        <td style="width:100px;text-align:right;">任务批次</td>
+        <td style="width:80px;text-align:right;">产品数</td>
+        <td style="text-align:right; width:120px;">单价</td>
+        <td style="text-align:right; width:120px;">总金额</td>
+        <td style="width:100px;text-align:right;">上传时间</td>
+        <td style="width:100px;text-align:right;">送货时间</td>
+        <td style="width:100px;text-align:right;">上传人</td>
+    </tr>
+    @foreach (var x in Model.OrderBy(c=>c.Create_DT).ToList())
+    {
+        TotalPrice = x.Price * x.Quantity;
+        TotalPrice_All = TotalPrice_All + TotalPrice;
+        <tr>
+            <td style="text-align:right;">@x.Task_Bat_No_Str</td>
+            <td style="text-align:right;">@x.Quantity.ToString("N0")</td>
+            <td style="text-align:right">@x.Price.ToString("N2")</td>
+            <td style="text-align:right">@TotalPrice.ToString("N2")</td>
+            <td style="text-align:right">@x.Create_DT.ToString("yyyy-MM-dd HH:mm")</td>
+            <td style="text-align:right">@x.Out_DT_Str</td>
+            <td style="text-align:right">@x.Create_Person</td>
+        </tr>
+    }
+    <tr>
+        <td style="text-align:right;">Total:</td>
+        <td style="text-align:right;">@Model.Sum(c => c.Quantity).ToString("N0")</td>
+        <td>&nbsp;</td>
+        <td style="text-align:right;">@TotalPrice_All.ToString("N2")</td>
+        <td colspan="3">&nbsp;</td>
+    </tr>
+</table>

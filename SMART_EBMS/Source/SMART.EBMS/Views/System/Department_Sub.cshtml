@@ -1,0 +1,60 @@
+﻿@model Department
+@{
+    Layout = null;
+}
+
+<form action="~/System/Department_Sub_Post/@Model.DepID" method="post" id="SubmitForm">
+    <table class="FormTable_Sim">
+        <tr>
+            <td><input name="DepName" id="DepName" value="@Model.DepName" class="form-control input-sm NotEmpty" placeholder="请输入部门名称"  /></td>
+        </tr>
+        <tr>
+            <td>
+                @if (Model.DepID != Guid.Empty)
+                {
+                    <button type="button" onclick="DeleteItem()" class="btn btn-danger btn-sm" style="width:70px; margin-right:10px;">删除</button>
+                }
+                <button type="button" onclick="SubmitForm()" class="btn btn-primary btn-sm" style="width:70px">递交</button>
+                <input type="text" value="" name="None" style="display:none;" />
+            </td>
+        </tr>
+    </table>
+</form>
+
+<script>
+    function SubmitForm() {
+        if (validateFormByClass('NotEmpty') == false) {
+            return false;
+        }
+
+        var FormObj = $("#SubmitForm");
+        var PostData = $(FormObj).serialize();
+        var Url = $(FormObj).prop("action");
+
+        DisAndEnabledBtn(1);
+        $.post(Url, PostData, function (result) {
+            if (result == "") {
+                ReloadPage();
+            } else {
+                alert(result);
+                DisAndEnabledBtn(0);
+            }
+        })
+    }
+
+    function DeleteItem() {
+        if (confirm("确认删除？") == false) {
+            return false;
+        }
+
+
+        $.post("/System/Department_Sub_Delete/@Model.DepID", function (result) {
+            if (result == "") {
+                ReloadPage();
+            } else {
+                alert(result);
+                DisAndEnabledBtn(0);
+            }
+        })
+    }
+</script>

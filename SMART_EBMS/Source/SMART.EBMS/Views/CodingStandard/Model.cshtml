@@ -1,0 +1,70 @@
+﻿@model List<MyType>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int i = 0;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("Model");</script>
+
+<div class="DeductionDiv TopSearchDiv">
+    <script>
+        function ShowSelect(VarStr) {
+            if (VarStr != "") {
+                $(".ALLBox").hide();
+                $("." + VarStr).show();
+            } else {
+                $(".ALLBox").show();
+            }
+        }
+    </script>
+    <table style="margin-bottom:5px; width:100%;">
+        <tr>
+            <td style="width:200px;">
+                <select class="form-control input-sm" name="Interface_Name" id="Interface_Name" onchange="ShowSelect(this.value)">
+                    <option value="">ALL Model</option>
+                    @foreach (var x in Model)
+                    {
+                        <option value="@x.Model_Name">@x.Model_Name</option>
+                    }
+                </select>
+            </td>
+            <td>&nbsp;</td>
+        </tr>
+    </table>
+</div>
+
+<div id="RightDivContext">
+    <div class="CodeRule">
+        @foreach (var x in Model)
+            {
+                i++;
+            <table class="table table-bordered table-condensed ALLBox @x.Model_Name">
+                <tr>
+                    <td>
+                        <h3><span>No.</span>@i</h3>
+                        <h4>
+                            @if (!string.IsNullOrEmpty(x.IsEnum))
+                                {
+                            <span class="ReturnType" style="padding-right:5px; font-size:16px;">@x.IsEnum</span>
+                                }
+                            <span>@x.Model_Name</span>
+                        </h4>
+                        @foreach (var xx in x.Propertys)
+                            {
+                        <span class="ReturnType">@xx.PropertyType</span><span class="MethodName">@xx.Name</span><br />
+                            }
+                        @foreach (var EnumStr in x.EnumNames)
+                            {
+                        <span class="MethodName">@EnumStr</span><br />
+                            }
+                    </td>
+                </tr>
+            </table>
+        }
+    </div>
+</div>
+
+
+
+

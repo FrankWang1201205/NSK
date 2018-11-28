@@ -1,0 +1,31 @@
+﻿@{
+    Layout = null;
+    Material_Name EmptyName = new Material_Name();
+}
+
+
+<form id="MyAddItem_Form" action="~/Material/Mat_Name_Add_Post" method="post" enctype="multipart/form-data">
+    <table class="FormTable_Sim">
+        <tr>
+            <td style="text-align:right;">* 产品名称</td>
+            <td><input class="form-control input-sm NotEmpty" id="Mat_Name" name="Mat_Name" type="text" style="width:190px;"  value="@EmptyName.Mat_Name" /></td>
+        </tr>
+
+        <tr>
+            <td>&nbsp;</td>
+            <td><button type="button" class="btn btn-primary btn-sm" style="width:70px;" onclick="MyFormSubmit()">递交</button></td>
+        </tr>
+
+    </table>
+</form>
+
+<script>
+    function MyFormSubmit() {
+        if (validateFormByClass('NotEmpty') == false) {
+            return false;
+        }
+
+        DisAndEnabledBtn(1);
+        $("#MyAddItem_Form").submit();
+    }
+</script>

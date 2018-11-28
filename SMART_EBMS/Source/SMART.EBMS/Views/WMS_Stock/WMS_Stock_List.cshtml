@@ -1,0 +1,292 @@
+﻿@model PageList<WMS_Stock_Group>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    WMS_Stock_Filter MF = ViewData["MF"] as WMS_Stock_Filter;
+    int i = 0;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("库存产品");</script>
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/WMS_Stock/WMS_Stock_List" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:100px;padding-left:5px;">
+                    <input type="text" name="MatBrand" id="MatBrand" placeholder="品牌" value="@MF.MatBrand" class="form-control input-xs">
+                </td>
+
+                <td style="width:150px;padding-left:5px;">
+                    <input type="text" name="MatSn" id="MatSn" placeholder="产品型号" value="@MF.MatSn" class="form-control input-xs">
+                </td>
+
+                <td style="width:150px;padding-left:5px;">
+                    <input type="text" name="MatSn_A" id="MatSn_A" placeholder="辅助产品型号" value="@MF.MatSn_A" class="form-control input-xs">
+                </td>
+
+                <td style="width:150px;padding-left:5px;">
+                    <input type="text" name="MatSn_B" id="MatSn_B" placeholder="辅助产品型号" value="@MF.MatSn_B" class="form-control input-xs">
+                </td>
+
+                <td style="width:10px; padding-left:5px;">
+                    <button class="btn btn-danger btn-sm btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                </td>
+
+                <td style="padding-left:25px;">
+                    <span style="font-size:15px;text-align:right">当前库存产品总数为 @MF.Quantity_Sum.ToString("N0")</span>
+                </td>
+
+                <td style="text-align:right">
+                    <a href="~/WMS_Stock/WMS_Stock_All_To_Excel" class="btn btn-info btn-sm" target="_blank">导出库存明细</a>
+                </td>
+
+                <td style="width:50px;">&nbsp;</td>
+
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+
+                @*<td style="text-align:right">
+                    <a href="~/WMS_Stock/WMS_Stock_To_Excel" class="btn btn-info btn-xs" target="_blank">导出库存差异</a>
+                </td>*@
+            </tr>
+        </table>
+    </form>
+</div>
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:40px;">序</th>
+            <th style="width:100px;">产品名称</th>
+            <th style="width:70px;">品牌</th>
+            <th style="width:300px;">产品型号</th>
+            <th style="width:80px;text-align:right">在库数量</th>
+            <th style="width:80px;text-align:right">待配货数</th>
+            <th style="width:80px;text-align:right">已配货数</th>
+            <th style="width:80px;text-align:right">可用余量</th>
+            <th style="width:80px;text-align:right">在库差异数</th>
+            <th style="width:80px;">&nbsp;</th>
+            <th style="width:80px;">&nbsp;</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model.Rows)
+        {
+            i++;
+            <tr>
+                <td>&nbsp;</td>
+                <td style="vertical-align:top;">@i</td>
+                <td style="vertical-align:top;">@x.MatName</td>
+                <td style="vertical-align:top;">@x.MatBrand</td>
+                <td style="vertical-align:top;"><span class="MatSn_Font">@x.MatSn</span></td>
+                <td style="vertical-align:top;text-align:right">@x.Quantity_Sum.ToString("N0")</td>
+                <td style="vertical-align:top;text-align:right">
+                    @if (x.Quantity_Preoccupancy <= 0)
+                    {
+                        <span>@x.Quantity_Preoccupancy.ToString("N0")</span>
+                    }
+                    else
+                    {
+                        <a href="javascript:void(0)" onclick="Show_Preoccupancy_Modal('@x.MatSn')">@x.Quantity_Preoccupancy.ToString("N0")</a>
+                    }
+                </td>
+                <td style="vertical-align:top;text-align:right">
+                    @if (x.Quantity_Occupied <= 0)
+                    {
+                        <span>@x.Quantity_Occupied.ToString("N0")</span>
+                    }
+                    else
+                    {
+                        <a href="javascript:void(0)" onclick="Show_Occupied_Modal('@x.MatSn')">@x.Quantity_Occupied.ToString("N0")</a>
+                    }
+                </td>
+                <td style="vertical-align:top;text-align:right">
+                    @if (x.Quantity_Avaliable <= 0)
+                    {
+                        <span>@x.Quantity_Avaliable.ToString("N0")</span>
+                    }
+                    else
+                    {
+                        <a href="javascript:void(0)" onclick="Show_Sub_Modal('@x.MatSn')">@x.Quantity_Avaliable.ToString("N0")</a>
+                    }
+                </td>
+                <td style="vertical-align:top;text-align:right">
+                    @if (x.Quantity_Diff == 0)
+                    {
+                        <span style="color:silver">@x.Quantity_Diff.ToString("N0")</span>
+                    }
+                    else
+                    {
+                        <span style="color:red">@x.Quantity_Diff.ToString("N0")</span>
+                    }
+                </td>
+                <td style="text-align:center">
+                    <button type="button" class="btn btn-primary btn-xs" onclick="Show_Modal('@x.MatSn')">库存明细</button>
+                </td>
+                <td style="text-align:center">
+                    <button type="button" class="btn btn-info btn-xs" onclick="Show_Record_Modal('@x.MatSn')">账面追溯</button>
+                </td>
+                <td>&nbsp;</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>
+
+<script>
+    function Show_Modal(MatSn) {
+        Reload_Modal(MatSn);
+        $('#Modal').modal({ backdrop: 'static' });
+    }
+
+    function Reload_Modal(MatSn) {
+        var escape_MatSn = escape(MatSn);
+        $("#Modal_Context").text("Loading...");
+        $("#Modal_Context").load("/WMS_Stock/WMS_Stock_List_Sub_All?MatSn=" + escape_MatSn);
+    }
+</script>
+<div class="modal fade" id="Modal">
+    <div class="modal-dialog" style="width:650px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">库存明细</h5>
+            </div>
+            <div class="modal-body" id="Modal_Context"></div>
+        </div>
+    </div>
+</div>
+
+<!--历史记录-->
+<script>
+    function Show_Record_Modal(MatSn) {
+        Reload_Record_Modal(MatSn);
+        $('#Record_Modal').modal({ backdrop: 'static' });
+    }
+
+    function Reload_Record_Modal(MatSn) {
+        $("#Record_Modal_Context").text("Loading...");
+        $("#Record_Modal_Context").load("/WMS_Stock/WMS_Stock_List_Sub_Record_Info", { MatSn: MatSn });
+    }
+</script>
+<div class="modal fade" id="Record_Modal">
+    <div class="modal-dialog" style="width:650px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">历史记录</h5>
+            </div>
+            <div class="modal-body" id="Record_Modal_Context"></div>
+        </div>
+    </div>
+</div>
+<!--历史记录-->
+
+<!--可用库存-->
+<script>
+    function Show_Sub_Modal(MatSn) {
+        Reload_Sub_Modal(MatSn);
+        $('#Sub_Modal').modal({ backdrop: 'static' });
+    }
+
+    function Reload_Sub_Modal(MatSn) {
+        var escape_MatSn = escape(MatSn);
+        $("#Sub_Modal_Context").text("Loading...");
+        $("#Sub_Modal_Context").load("/WMS_Stock/WMS_Stock_List_Sub?MatSn=" + escape_MatSn);
+    }
+</script>
+<div class="modal fade" id="Sub_Modal">
+    <div class="modal-dialog" style="width:480px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">可用库存--产品明细</h5>
+            </div>
+            <div class="modal-body" id="Sub_Modal_Context"></div>
+        </div>
+    </div>
+</div>
+<!--可用库存-->
+
+<!--待配货库存-->
+<script>
+    function Show_Preoccupancy_Modal(MatSn) {
+        Reload_Preoccupancy_Modal(MatSn);
+        $('#Preoccupancy_Modal').modal({ backdrop: 'static' });
+    }
+
+    function Reload_Preoccupancy_Modal(MatSn) {
+        var escape_MatSn = escape(MatSn);
+        $("#Preoccupancy_Modal_Context").text("Loading...");
+        $("#Preoccupancy_Modal_Context").load("/WMS_Stock/WMS_Stock_List_Preoccupancy_Sub?MatSn=" + escape_MatSn);
+    }
+</script>
+<div class="modal fade" id="Preoccupancy_Modal">
+    <div class="modal-dialog" style="width:650px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">待配货库存--产品明细</h5>
+            </div>
+            <div class="modal-body" id="Preoccupancy_Modal_Context"></div>
+        </div>
+    </div>
+</div>
+<!--待配货库存-->
+
+<!--已配货库存-->
+<script>
+    function Show_Occupied_Modal(MatSn) {
+        Reload_Occupied_Modal(MatSn);
+        $('#Occupied_Modal').modal({ backdrop: 'static' });
+    }
+
+    function Reload_Occupied_Modal(MatSn) {
+        var escape_MatSn = escape(MatSn);
+        $("#Occupied_Modal_Context").text("Loading...");
+        $("#Occupied_Modal_Context").load("/WMS_Stock/WMS_Stock_List_Occupied_Sub?MatSn=" + escape_MatSn);
+    }
+</script>
+<div class="modal fade" id="Occupied_Modal">
+    <div class="modal-dialog" style="width:480px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">已配货库存--产品明细</h5>
+            </div>
+            <div class="modal-body" id="Occupied_Modal_Context"></div>
+        </div>
+    </div>
+</div>
+<!--已配货库存-->

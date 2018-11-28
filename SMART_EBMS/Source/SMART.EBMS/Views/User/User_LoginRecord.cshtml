@@ -1,0 +1,62 @@
+﻿@model PageList<User>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    User_Filter MF = ViewData["MF"] as User_Filter;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("登录记录");</script>
+
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/User/User_LoginRecord" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:300px;">
+                    <div class="input-group input-group-sm" style="width: 300px; ">
+                        <input type="text" name="Keyword" id="Keyword" placeholder="用户名及全称关键词" value="@MF.Keyword" class="form-control ">
+                        <div class="input-group-btn">
+                            <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                        </div>
+                    </div>
+                </td>
+
+                <td style="width:50px;">&nbsp;</td>
+
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr class="active">
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:100px;">登录日期</th>
+            <th style="width:100px;">用户名</th>
+            <th style="width:100px;">用户全称</th>
+            <th style="width:150px;">IP地址</th>
+            <th>客户端信息</th>
+        </tr>
+    </thead>
+</table>
+
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>
+

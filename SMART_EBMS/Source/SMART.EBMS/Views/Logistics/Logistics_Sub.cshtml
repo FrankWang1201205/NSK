@@ -1,0 +1,62 @@
+﻿@model WMS_Logistics
+@{
+    Layout = null;
+    List<string> MatType_List = new List<string>();
+    MatType_List.Add(WMS_In_Type_Enum.常规期货.ToString());
+    MatType_List.Add(WMS_In_Type_Enum.零星调货.ToString());
+}
+
+<form action="~/Logistics/Logistics_Sub_Post/@Model.Log_ID" method="post" enctype="multipart/form-data" onsubmit="return validateFormByClass('NotEmpty')">
+    <table class="FormTable_Sim text-nowrap">
+        <tr>
+            <td style="width:10px;text-align:right">* 公司名称</td>
+            <td colspan="3"><input class="form-control input-sm NotEmpty" id="Company_Name" name="Company_Name" style="width:295px" type="text" value="@Model.Company_Name" /></td>
+        </tr>
+
+        <tr>
+            <td style="width:10px;text-align:right">* 企业代码</td>
+            <td>
+                <input class="form-control input-sm NotEmpty" id="Company_Code" name="Company_Code" type="text" style="width:100px;" value="@Model.Company_Code" />
+            </td>
+
+            <td style="width:10px;text-align:right">* 类型</td>
+            <td>
+                <select name="MatType" id="MatType" class="form-control input-sm NotEmpty" style="width:100px;">
+                    <option value="">请选择</option>
+                    @foreach (var x in MatType_List)
+                    {
+                        if (Model.MatType == x)
+                        {
+                            <option selected value="@x">@x</option>
+                        }
+                        else
+                        {
+                            <option value="@x">@x</option>
+                        }
+
+                    }
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td colspan="3">
+                <button type="submit" class="btn btn-primary btn-sm" style="width:60px; margin-right:15px;">递交</button>
+                <button type="button" onclick="DeleteLogisticsItem()" class="btn btn-danger btn-sm" style="width:60px;">删除</button>
+            </td>
+        </tr>
+    </table>
+
+</form>
+
+<!--删除-->
+<form id="DeletForm" action="~/Logistics/Logistics_Sub_Delete_Post/@Model.Log_ID" method="post">
+    <script>
+        function DeleteLogisticsItem() {
+            if (confirm("确认删除？") == true) {
+                $("#DeletForm").submit();
+            }
+        }
+    </script>
+</form>
+<!--删除-->

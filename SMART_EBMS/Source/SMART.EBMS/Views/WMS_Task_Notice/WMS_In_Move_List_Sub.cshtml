@@ -1,0 +1,27 @@
+﻿@model List<WMS_Move>
+@{
+    Layout = null;
+}
+
+
+<style>
+    table tr:nth-child(even){
+        background: whitesmoke;
+    }
+
+</style>
+   
+<table class="table text-nowrap table-hover" style="width:100%;font-size:15px;">
+
+    @foreach (var x in Model.Where(x => x.Task_Bat_No != "").ToList())
+    {
+        <tr>
+            <td style="vertical-align:middle;width:200px;">@x.Task_Bat_No</td>
+            <td style="vertical-align:middle;width:120px;">@x.Supplier_Name</td>
+            <td style="vertical-align:middle;width:99px;">@x.Out_Location</td>
+            <td style="vertical-align:middle;width:99px;">@x.Work_Person</td>
+        </tr>
+    }
+
+</table>
+

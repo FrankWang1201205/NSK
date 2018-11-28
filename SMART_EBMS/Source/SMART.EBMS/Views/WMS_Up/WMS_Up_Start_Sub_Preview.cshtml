@@ -1,0 +1,88 @@
+﻿@model List<WMS_Stock_Group>
+@{
+    Layout = null;
+    WMS_Move Move = ViewData["Move"] as WMS_Move;
+}
+
+<!DOCTYPE html>
+<html>
+@Html.Partial("_JsAndCss")
+<body style="background-color:white; overflow:auto; padding:20px; max-width:1024px; margin:auto;">
+    <table style="width:100%;">
+        <tr>
+            <td><h4>库位：<strong style="font-size:22px;">@Move.Out_Location</strong> ，共<strong>@Model.Select(x => x.MatSn).Distinct().Count()</strong>个型号</h4></td>
+            <td style="width:10px;text-align:left">
+                <button type="button" class="btn btn-default btn-sm" onclick="ReloadPage()"><span class="glyphicon glyphicon-repeat"></span> 刷新</button>
+            </td>
+        </tr>
+    </table>
+
+    <table class="table table-condensed table-bordered text-nowrap" style="font-size:14px">
+        <tr class="active">
+            <td style="width:50px;">&nbsp;</td>
+            <td style="width:220px;">产品型号</td>
+            <td style="text-align:right; width:100px;">箱数</td>
+            <td style="text-align:right; width:100px;">产品数</td>
+            <td>&nbsp;</td>
+        </tr>
+        @foreach (var x in Model.OrderBy(x => x.Quantity_Sum))
+        {
+            <tr>
+                <td style="text-align:center">
+                    <a href="javascript:void(0)" onclick="Show_Mat_Label_Modal('@x.MatSn')" style="color:black;"><i class="icon-qrcode icon-2x"></i></a>
+                </td>
+                <td><span class="MatSn_Font">@x.MatSn</span></td>
+                <td style="text-align:right">
+                    @if (x.Line_Count > 0)
+                    {
+                        <span>@x.Line_Count.ToString("N0")</span>
+                    }
+                    else
+                    {
+                        <span>零头箱</span>
+                    }
+                </td>
+                <td style="text-align:right">@x.Quantity_Sum.ToString("N0")</td>
+                <td>&nbsp;</td>
+            </tr>
+        }
+
+        <tr>
+            <td>&nbsp;</td>
+            <td style="text-align:right;">Total:</td>
+            <td style="text-align:right;">
+                @if (Model.Sum(c => c.Line_Count) > 0)
+            {
+                    <span>@Model.Sum(c => c.Line_Count).ToString("N0")</span>
+                }
+            </td>
+            <td style="text-align:right;">@Model.Sum(c => c.Quantity_Sum).ToString("N0")</td>
+            <td>&nbsp;</td>
+        </tr>
+    </table>
+    <!--产品二维码-->
+    <script>
+        function Show_Mat_Label_Modal(MatSn) {
+            Reload_Mat_Label_Modal_Context(MatSn);
+            $('#Mat_Label_Modal_QRCode').modal({ backdrop: 'static' });
+        }
+
+        function Reload_Mat_Label_Modal_Context(MatSn) {
+            $("#Mat_Label_QRCode_Context").text("Loading...");
+            $("#Mat_Label_QRCode_Context").load("/WMS_Up/WMS_Up_Start_Sub_Preview_QRCode", { MatSn: MatSn });
+        }
+    </script>
+    <div class="modal fade" id="Mat_Label_Modal_QRCode">
+        <div class="modal-dialog" style="width:460px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title">产品二维码</h5>
+                </div>
+                <div class="modal-body" id="Mat_Label_QRCode_Context"></div>
+            </div>
+        </div>
+    </div>
+    <!--产品二维码-->
+</body>
+</html>

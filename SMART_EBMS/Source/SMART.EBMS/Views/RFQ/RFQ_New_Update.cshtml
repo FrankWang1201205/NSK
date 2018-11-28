@@ -1,0 +1,311 @@
+﻿@model RFQ_Head
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("新增询价");</script>
+
+
+
+@if (TempData["Error_Update_RFQ"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error_Update_RFQ"]</div>
+}
+
+@if (TempData["Error_Delete_RFQ"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error_Delete_RFQ"]</div>
+}
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MySubmitForm" action="~/RFQ/RFQ_New_Update_Post/@Model.RID" method="post" onsubmit="DisAndEnabledByID(1)">
+        <table class="FormTable_Sim FormTable_Sim_Input text-nowrap" style="width:800px;">
+            <tr>
+                <td colspan="2" style="padding-top:0px;"><div style="font-size:14px; font-weight:bold; width:225px; overflow:hidden; text-overflow:ellipsis; border-bottom:1px solid #ababab;" title="@Model.Cust_Name">@Model.Cust_Name</div></td>
+                <th style="width:10px;">询价单编号</th>
+                <td style="width:120px;"><input class="MyInput ReadonlyInput" type="text" value="@Model.RFQ_No" readonly="readonly" style="width:120px;" /></td>
+                <th style="width:10px;">询价日期</th>
+                <td style="width:120px;"><input class="MyInput ReadonlyInput" type="text" value="@Model.Create_DT.ToString("yyyy-MM-dd")" readonly="readonly" style="width:120px;" /></td>
+                <th style="width:20px;">结算方式</th>
+                <td style="width:250px;">
+                    <select name="C_Settle_Accounts" class="MyInput" style="width:200px;">
+                        <option selected="selected" value="@Model.C_Settle_Accounts">@Model.C_Settle_Accounts</option>
+                        @foreach (var x in Model.C_Settle_Accounts_List.Where(c => c != Model.C_Settle_Accounts).ToList())
+                        {
+                            <option value="@x">@x</option>
+                        }
+                    </select>
+                </td>
+                <th style="width:20px;">客户来源</th>
+                <td style="width:150px;">
+                    <select name="C_FormBy" class="MyInput" style="width:150px;">
+                        <option selected="selected" value="@Model.C_FormBy">@Model.C_FormBy</option>
+                        @foreach (var x in Model.C_FormBy_List.Where(c => c != Model.C_FormBy).ToList())
+                        {
+                            <option value="@x">@x</option>
+                        }
+                    </select>
+                </td>
+                <td>.</td>
+            </tr>
+
+            <tr>
+                <th style="width:20px;">客户询价人</th>
+                <td style="width:150px;"><input class="MyInput" type="text" name="Buyer" id="Buyer" value="@Model.Buyer" style="width:100%;" /></td>
+                <th>联系电话</th>
+                <td><input class="MyInput" type="text" name="Buyer_Tel" id="Buyer_Tel" value="@Model.Buyer_Tel" style="width:100%;" /></td>
+                <th>传　真</th>
+                <td><input class="MyInput" type="text" name="Buyer_Fax" id="Buyer_Fax" value="@Model.Buyer_Fax" style="width:100%;" /></td>
+                <th>邮　箱</th>
+                <td><input class="MyInput" type="text" name="Buyer_Mail" id="Buyer_Mail" value="@Model.Buyer_Mail" style="width:100%;" /></td>
+                <th style="width:20px;">所属行业</th>
+                <td style="width:150px;">
+                    <select name="C_Industry" class="MyInput" style="width:150px;">
+                        <option selected="selected" value="@Model.C_Industry">@Model.C_Industry</option>
+                        @foreach (var x in Model.C_Industry_List.Where(c => c != Model.C_Industry).ToList())
+                        {
+                            <option value="@x">@x</option>
+                        }
+                    </select>
+                </td>
+                <td>.</td>
+            </tr>
+
+            <tr>
+                <th>我方报价人</th>
+                <td><input class="MyInput" type="text" name="UID_FullName" id="UID_FullName" value="@Model.UID_FullName" style="width:100%;" /></td>
+                <th>联系电话</th>
+                <td><input class="MyInput" type="text" name="UID_Tel" id="UID_Tel" value="@Model.UID_Tel" style="width:100%;" /></td>
+                <th>传　真</th>
+                <td><input class="MyInput" type="text" name="UID_Fax" id="UID_Fax" value="@Model.UID_Fax" style="width:100%;" /></td>
+                <th>邮　箱</th>
+                <td><input class="MyInput" type="text" name="UID_Email" id="UID_Email" value="@Model.UID_Email" style="width:100%;" /></td>
+                <th>客户类型</th>
+                <td><input class="MyInput ReadonlyInput" readonly="readonly" type="text" name="C_VIP_Type" id="C_VIP_Type" value="@Model.C_VIP_Type" style="width:100%;" /></td>
+                <td>.</td>
+            </tr>
+
+            <tr>
+                <th>询价备注</th>
+                <td colspan="5"><input class="MyInput" type="text" name="RFQ_Remark" id="RFQ_Remark" value="@Model.RFQ_Remark" style="width:100%;" /></td>
+                <th>竞争对手</th>
+                <td><input class="MyInput" type="text" name="Compete_Company" id="Compete_Company" value="@Model.Compete_Company" style="width:100%;" /></td>
+                <th>竞争品牌</th>
+                <td><input class="MyInput" type="text" name="Compete_Brand" id="Compete_Brand" value="@Model.Compete_Brand" style="width:100%;" /></td>
+                <td>.</td>
+            </tr>
+
+            <tr>
+                <td>&nbsp;</td>
+                <td colspan="5" style="padding-top:5px; padding-bottom:0px;">
+                    <table class="Table_Clean" style="width:100%;">
+                        <tr>
+                            <td style="width:10px; padding:0px;"><button type="button" class="btn btn-default btn-sm btn-xs-m" onclick="Show_Add_Sub_Model()"><span class="glyphicon glyphicon-plus"></span> 添加产品</button></td>
+                            <td style="width:10px; padding:0px; padding-left:5px;"><button type="button" class="btn btn-default btn-sm btn-xs-m" onclick="Show_Excel_Model()"><span class="glyphicon glyphicon-plus"></span> 导入Excel</button></td>
+                            <td>&nbsp;</td>
+                            <td style="width:10px; padding:0px; padding-left:5px;"><button type="submit" class="btn btn-primary btn-sm btn-xs-m">保存并发送</button></td>
+                            <td style="width:10px; padding:0px; padding-left:5px;"><button type="button" class="btn btn-danger btn-sm btn-xs-m" onclick="Delete_RFQ()">删除询价单</button></td>
+                        </tr>
+                    </table>
+                </td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>.</td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<div class="MySetWidth" style="width:100%; overflow:hidden; height:1000px;" id="Sub_Line_List"></div>
+<div style="height:30px; overflow:hidden;" class="DeductionDiv"></div>
+
+<!--初始化页面-->
+<script>
+    $(function () {
+        $("#Sub_Line_List").text("Loading...");
+        setTimeout("Reload_Sub_List()", 200);
+    });
+
+    function Reload_Sub_List() {
+        $("#Sub_Line_List").load("/RFQ/RFQ_New_Update_List/@Model.RID");
+    }
+</script>
+<!--初始化页面-->
+<!--新增产品-->
+<script>
+    function Show_Add_Sub_Model() {
+        $('#Add_Sub_Model').modal({ backdrop: 'static' });
+        Reload_Mat_Search_Context();
+    }
+
+    function Close_Mat_Search_Model() {
+        $('#Add_Sub_Model').modal('hide');
+    }
+
+    function Reload_Mat_Search_Context() {
+        $("#Add_Sub_Model_Context").text("Loading...");
+        $("#Add_Sub_Model_Context").load("/RFQ/RFQ_New_Update_Add_Sub");
+    }
+
+    function Form_Add_Mat() {
+        var FormObj = $("#Add_Sub_Model_Context");
+        var PostData = $(FormObj).serialize();
+        var Url = $(FormObj).prop("action");
+        DisAndEnabledBtn(1);
+        $.post(Url, PostData, function (result) {
+            if (result == "") {
+                DisAndEnabledBtn(0);
+                Reload_Sub_List();
+            } else {
+                DisAndEnabledBtn(0);
+                alert(result);
+            }
+        });
+    }
+</script>
+
+<div class="modal fade" id="Add_Sub_Model">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:720px;">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="Close_Mat_Search_Model()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">新增产品</h5>
+            </div>
+            <div class="modal-body">
+                <form id="Add_Sub_Model_Context" action="~/RFQ/RFQ_New_Update_Add_Sub_Post/@Model.RID" method="post"></form>
+            </div>
+        </div>
+    </div>
+</div>
+<!--新增产品-->
+<!--更新报价行-->
+<script>
+    function Show_Line_Model(Line_ID) {
+        $("#Line_Model").modal({ backdrop: 'static' });
+        Reload_Line_Context(Line_ID);
+    }
+
+    function Close_Line_Model() {
+        $("#Line_Model").modal('hide');
+    }
+
+    function Reload_Line_Context(Line_ID) {
+        $("#Line_Model_Context").text("Loading...");
+        $("#Line_Model_Context").load("/RFQ/RFQ_New_Update_List_Sub/" + Line_ID);
+    }
+
+    function Set_Line(Line_ID) {
+        var Urgency = $("#Urgency_" + Line_ID).val();
+        var Qty = $("#Qty_" + Line_ID).val();
+
+        $.post("/RFQ/RFQ_New_Update_List_Set_Post/" + Line_ID, {
+            Urgency: Urgency,
+            Qty: Qty
+        }, function (result) {
+            if (result == "") {
+                $("#result").remove();
+            } else {
+                alert(result);
+            }
+        })
+    }
+</script>
+
+<div class="modal fade" id="Line_Model">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:720px;">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="Close_Line_Model()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">更新报价行</h5>
+            </div>
+            <div class="modal-body" id="Line_Model_Context"></div>
+        </div>
+    </div>
+</div>
+<!--更新报价行-->
+
+<!--删除询价单-->
+<script>
+    function Delete_RFQ() {
+        if (confirm("确认删除？")) {
+            $("#Delete_Form").submit();
+        }
+    }
+</script>
+<form id="Delete_Form" action="~/RFQ/RFQ_New_Delete_Post/@Model.RID" method="post"></form>
+<!--删除询价单-->
+
+
+<!--导入Excel-->
+<script>
+    function Show_Excel_Model() {
+        $("#Excel_Model").modal({ backdrop: 'static' });
+    }
+
+    function Close_Excel_Model() {
+        $("#Excel_Model").modal('hide');
+    }
+</script>
+
+<div class="modal fade" id="Excel_Model">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:460px;">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="Close_Excel_Model()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">Excel报价导入</h5>
+            </div>
+            <div class="modal-body">
+                <form id="MyUploadForm" action="~/RFQ/RFQ_New_Update_Excel_Upload/@Model.RID" method="post" enctype="multipart/form-data">
+                    <table style="width:100%; border:1px solid silver;">
+                        <tr>
+                            <td style="width:100px; padding:10px;">
+                                <input type="file" onchange="ShowFileName()" data-val="true" name="ExcelFile" id="ExcelFile" />
+                                <script>
+                                    function CheckUpload() {
+                                        if ($("#ExcelFile").val() == "") {
+                                            alert("请选择Excel文件");
+                                            return false;
+                                        } else {
+                                            ShowLoad();
+                                            $("#MyUploadForm").submit();
+                                            return true;
+                                        }
+                                    }
+
+                                    function ShowLoad() {
+                                        $("#LoadImg").show();
+                                        $("#MyUploadForm").hide();
+                                    }
+                                </script>
+                            </td>
+
+                            <td id="MyUpLoad" style="padding:10px;  vertical-align:bottom;">
+                                <button type="button" onclick="CheckUpload()">确定上传</button>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+
+                <div style="padding-top:15px; line-height:25px;">
+                    1.Excel单元格不能含有公式，文件小于4M<br />
+                    2.每次上传最大支持 500 条产品信息！<br />
+                    3.<strong>品牌</strong>必须与系统品牌匹配<br />
+                    4.询价型号、单位为必填项
+                    <p style="font-size:14px; text-align:right;"><a href="~/RFQ/RFQ_New_Update_Excel_Template" target="_blank">下载模板</a></p>
+                </div>
+
+                <div style="width:100%; padding-top:10px; text-align:center; display:none; margin:auto;" id="LoadImg">
+                    <img src="~/Content/Images/Load.gif" /><br /><br />
+                    <span style="padding-left:5px; color:blue;">系统正在上传和检查Excel数据，请稍后...</span>
+                </div>
+
+                <p></p>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!--导入Excel-->

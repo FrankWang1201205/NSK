@@ -1,0 +1,32 @@
+﻿@model List<Brand>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("单品创建");</script>
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/MaterialTemp/Mat_Add_Single" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="color:blue;">点击品牌，进入单品创建页面</td>
+                <td style="text-align:right;"></td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<div id="RightDivContext">
+    <div style="padding:20px; padding-top:0px;">
+        @foreach (var x in Model.Where(x=>x.Is_Customized_Page == 1).ToList())
+        {
+            <a class="BrandBox" href="~/MaterialTemp/Mat_Add_Single_Sub/@x.BID" style="color:green;">@x.Brand_Name</a>
+        }
+
+        @foreach (var x in Model.Where(x => x.Is_Customized_Page == 0).ToList())
+        {
+            <a class="BrandBox" href="~/MaterialTemp/Mat_Add_Single_Sub/@x.BID">@x.Brand_Name</a>
+        }
+    </div>
+</div>

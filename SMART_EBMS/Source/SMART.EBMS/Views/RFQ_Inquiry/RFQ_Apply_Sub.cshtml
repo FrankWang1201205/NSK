@@ -1,0 +1,150 @@
+﻿@model PageList<Material>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Material_Filter MF = ViewData["MF"] as Material_Filter;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("受理询价");</script>
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/RFQ_Inquiry/RFQ_Apply_Sub/@Guid.Empty" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:20px; padding-left:0px;">
+                    <button type="button" onclick="ShowModel()" class="btn btn-primary btn-sm">发起询价</button>
+                </td>
+
+                <td style="width:50px;">&nbsp;</td>
+                <td style="width:120px; padding-left:5px;">
+                    <select name="" id="" class="form-control input-xs" onchange="SubmitPageIndex(1)">
+                        <option value="">内部询价人</option>
+                        <option value="陈易">陈易</option>
+                        <option value="李晓兰">李晓兰	</option>
+                    </select>
+                </td>
+     
+
+                <td style="width:120px; padding-left:5px;">
+                    <input type="text" name="" id="" placeholder="报价单编号" value="" class="form-control input-xs">
+                </td>
+
+                <td style="width:120px; padding-left:5px;">
+                    <input type="text" name="MatSn" id="MatSn" placeholder="产品型号" value="" class="form-control input-xs">
+                </td>
+
+                
+                <td style="width:10px; padding-left:5px;">
+                    <button class="btn btn-danger btn-sm btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                </td>
+
+                <td style="width:50px;">&nbsp;</td>
+
+                <td style="vertical-align:bottom;">&nbsp;</td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:40px; text-align:center; padding-top:0px; padding-bottom:0px; vertical-align:middle;"><input type="checkbox" id="ALL" onclick="checkBoxCheckAll('ALL', 'MatID')" /></th>
+            <th style="width:190px;">产品型号</th>
+            <th style="width:150px;">产品名称</th>
+            <th style="width:60px;">品牌</th>
+            <th style="width:90px; text-align:center;">询价数量</th>
+            <th style="width:90px;">紧急度</th>
+            <th style="width:60px; text-align:center;">有订单</th>
+            <th style="width:100px;">内部询价人</th>
+            <th>询价单编号</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model.Rows)
+            {
+            <tr>
+                <td>&nbsp;</td>
+                <td style="text-align:center; vertical-align:top;">
+                    <input type="checkbox" id="@x.MatID" name="MatID" class="MatID" value="@x.MatID" />
+                </td>
+                <td style="vertical-align:top;"><a href="javascript:void(0);" onclick="ShowMatPartModel('@x.MatID')" class="MatSn_Font">@x.MatSn</a></td>
+                <td style="vertical-align:top;">@x.MatName</td>
+                <td style="vertical-align:top;">@x.MatBrand</td>
+                <td style="vertical-align:top; text-align:center;"><input type="number" style="text-align:center; width:100%" value="5" /></td>
+                <td style="vertical-align:top;">
+                    @if(x.MatSn.Contains("126"))
+                    {
+                        <span>非常紧急</span>
+                    }
+                </td>
+                <td style="text-align:center;">
+                    @if (x.MatSn.Contains("126"))
+                    {
+                        <span>是</span>
+                    }
+                </td>
+                <td style="vertical-align:top;">陈易	</td>
+                <td style="vertical-align:top;">R201712241002</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>
+
+
+<!--模态框-->
+<script>
+    function ShowModel() {
+        $('#MyModel').modal({ backdrop: 'static' });
+    }
+    function CloseModel() { $('#MyModel').modal('hide'); }
+</script>
+<div class="modal fade" id="MyModel">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:680px;">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="CloseModel()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">请选择供应商</h5>
+            </div>
+            <div class="modal-body">
+                <table class="FormTable_Sim" style="font-size:14px; font-weight:bold;">
+                    <tr><td style="text-align:center; width:10px;"><input type="checkbox" /></td><td>浙江海格泰轴承机电设备有限公司</td></tr>
+                    <tr><td style="text-align:center; width:10px;"><input type="checkbox" /></td><td>上海亚济轴承科技有限公司</td></tr>
+                    <tr><td style="text-align:center; width:10px;"><input type="checkbox" /></td><td>深圳轴承科技有限公司</td></tr>
+                </table>
+                <p style="text-align:center;"><a  href="~/RFQ_Inquiry/RFQ_Report" class="btn btn-primary">保存并打印</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+<!--模态框-->

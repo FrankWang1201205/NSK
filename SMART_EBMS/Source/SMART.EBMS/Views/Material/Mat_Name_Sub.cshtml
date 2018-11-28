@@ -1,0 +1,35 @@
+﻿@model Material_Name
+@{
+    Layout = null;
+}
+
+<form action="~/Material/Mat_Name_Sub_Post/@Model.Name_ID" method="post">
+    <table class="FormTable_Sim" border="0">
+        <tr>
+            <th style="text-align:right;  width:80px;">* 产品名称</th>
+            <td>
+                <input class="form-control input-sm NotEmpty" id="Mat_Name" name="Mat_Name" type="text" style="width:190px; " value="@Model.Mat_Name" />
+            </td>
+        </tr>
+
+        <tr>
+            <th>&nbsp;</th>
+            <td>
+                <button type="button" onclick="DeleteItem()" class="btn btn-danger btn-sm" style="width:70px; margin-right:10px;">删除</button>
+                 <button type="submit" class="btn btn-primary btn-sm" style="width:70px;">更新</button>
+            </td>
+        </tr>
+    </table>
+</form>
+
+<!--删除-->
+<form id="DeleteForm" action="~/Material/Mat_Name_Sub_Delete/@Model.Name_ID" method="post">
+    <script>
+        function DeleteItem() {
+            if (confirm("确认删除？") == true) {
+                $("#DeleteForm").submit();
+            }
+        }
+    </script>
+</form>
+<!--删除-->

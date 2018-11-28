@@ -1,0 +1,35 @@
+﻿@model List<WMS_Stock_Record_Info>
+@{
+    Layout = null;
+    string MatSn = string.Empty;
+    try { MatSn = Model.FirstOrDefault().MatSn; } catch { }
+    int Remain_Quantity = 0;
+}
+
+<p style="font-size:14px;">产品型号：<span class="MatSn_Font" style="font-size:16px;">@MatSn</span></p>
+
+<table class="table table-condensed table-bordered text-nowrap">
+    <tr class="active">
+        <td style="width:80px;">日期</td>
+        <td style="width:80px;text-align:right">非订单导入</td>
+        <td style="width:80px;text-align:right">入库数量</td>
+        <td style="width:80px;text-align:right">出库数量</td>
+        <td style="width:80px;text-align:right">盈亏数量</td>
+        <td style="width:60px;text-align:right">结余数量</td>
+        <td>&nbsp;</td>
+    </tr>
+    @foreach (var x in Model.OrderBy(c => c.Act_Date_Str).ToList())
+    {
+        Remain_Quantity += x.First_Quantity + x.In_Quantity - x.Out_Quantity + x.Profit_Loss_Quantity;
+        <tr>
+            <td>@x.Act_Date_Str</td>
+            <td style="text-align:right">@x.First_Quantity.ToString("N0")</td>
+            <td style="text-align:right">@x.In_Quantity.ToString("N0")</td>
+            <td style="text-align:right">@x.Out_Quantity.ToString("N0")</td>
+            <td style="text-align:right">@x.Profit_Loss_Quantity.ToString("N0")</td>
+            <td style="text-align:right">@Remain_Quantity.ToString("N0")</td>
+            <td>&nbsp;</td>
+        </tr>
+    }
+
+</table>

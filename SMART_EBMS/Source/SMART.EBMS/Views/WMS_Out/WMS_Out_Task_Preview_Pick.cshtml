@@ -1,0 +1,264 @@
+﻿@model WMS_Out_Task
+@{
+    Layout = null;
+    WMS_Out_Filter MF = ViewData["MF"] as WMS_Out_Filter;
+    ViewBag.Title = Model.Task_Bat_No_Str;
+    User U = ViewData["User"] as User;
+    int i = 0;
+}
+
+<!DOCTYPE html>
+<html>
+@Html.Partial("_JsAndCss")
+<body style="background-color:white; overflow:auto; padding:20px; max-width:1024px; margin:auto;">
+    @if (TempData["Error"] != null)
+    {
+        <div class="Textarea_Error">@TempData["Error"]</div>
+    }
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="Textarea_Success">@TempData["Success"]</div>
+    }
+    <table style="text-align:center; width:100%;" class="text-nowrap">
+        <tr>
+            <td style="width:10px;">&nbsp;</td>
+            <td><span style="text-align:center; padding-left:150px; font-size:24px;">出 库 配 货 单</span></td>
+            <td style="text-align:right; width:10px; text-align:right;"><span style="font-size:16px;">NO.</span><strong style="font-size:18px;">@Model.Task_Bat_No_Str</strong></td>
+        </tr>
+    </table>
+
+    <table class="table table-bordered text-nowrap" style="width:100%;font-size:14px;margin-top:15px;">
+        <tr>
+            <td class="active" style="width:10px;">产品型号</td>
+            <td><strong>@Model.Line_List.Where(x => x.Quantity_Sum > 0).Count().ToString("N0")</strong> <span>项</span></td>
+            <td class="active" style="width:10px;">产品数量</td>
+            <td><strong>@Model.Line_List.Where(x => x.Quantity_Sum > 0).Sum(x => x.Quantity_Sum).ToString("N0")</strong></td>
+            <td class="active" style="width:10px;">当前状态</td>
+            <td>@Model.Global_State</td>
+        </tr>
+        <tr>
+            <td class="active" style="width:10px;">客户名称</td>
+            <td colspan="5"><span>@Model.Customer_Name</span></td>
+        </tr>
+    </table>
+
+    <table style="width:100%; margin-top:-10px;" class="Table_Clean">
+        <tr>
+            @if (Model.Global_State == WMS_Out_Global_State_Enum.待配货.ToString())
+            {
+                if (U.RoleTitle == User_RoleTitle_Emun.仓管主管.ToString() || U.RoleTitle == User_RoleTitle_Emun.系统管理员.ToString() || U.RoleTitle == User_RoleTitle_Emun.公司经理.ToString())
+                {
+                    if (Model.Is_Finish_Pick_Location == 0)
+                    {
+                        <td style="width:10px;">
+                            <button type="button" class="btn btn-primary" onclick="Finish_Pick_Location()">完成配货指令</button>
+                        </td>
+                    }
+                    else
+                    {
+                        <td style="width:10px;">
+                            <button type="button" class="btn btn-danger" onclick="Cancel_Pick_Location()">取消配货指令</button>
+                        </td>
+                    }
+                }
+            }
+            <td>&nbsp;</td>
+            <td style="width:10px;">
+                <button type="button" class="btn btn-default" onclick="ReloadPage()"><span class="glyphicon glyphicon-repeat"></span> 刷新</button>
+            </td>
+        </tr>
+    </table>
+
+    <p></p>
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="~/WMS_Out/WMS_Out_Task_Preview_Pick/@Model.Head_ID">产品型号</a></li>
+    </ul>
+    <p></p>
+    <table class="table table-bordered" style="width:100%;font-size:14px;">
+        <tr class="active">
+            <td style="width:30px;">序</td>
+            <td style="width:190px;">产品型号</td>
+            <td style="width:70px;text-align:right">配货数量</td>
+            <td style="width:70px;">取货库位</td>
+            <td style="width:70px;">推荐库位</td>
+            <td style="width:70px;text-align:right">装箱数</td>
+        </tr>
+
+        @foreach (var x in Model.Line_List)
+        {
+            i++;
+            <tr>
+                <td>@i</td>
+                <td><span class="MatSn_Font">@x.MatSn</span></td>
+                <td style="text-align:right">@x.Quantity_Sum.ToString("N0")</td>
+                <td style="padding:0px;">
+                    <table style="width:100%;" class="FormTable_Sim FormTable_Sim_Border">
+                        @foreach (var xx in Model.Pick_Scan_List.Where(xx => xx.MatSn == x.MatSn))
+                        {
+                            <tr onclick="Set_Location_Item('@xx.Scan_ID')" style="cursor:pointer;">
+                                <td style="padding:5px; padding-right:10px; text-align:right;"><i class="icon-pencil"></i></td>
+                                <td style="padding:5px;">@xx.Scan_Location</td>
+                                <td style="padding:5px;padding-right:10px; text-align:right;">@xx.Quantity.ToString("N0")</td>
+                            </tr>
+                        }
+                    </table>
+                </td>
+                <td style="padding:0px;">
+                    <table style="width:100%;" class="FormTable_Sim FormTable_Sim_Border">
+                        @foreach (var xx in x.Commend_Loc_List)
+                        {
+                            <tr onclick="Choose_Location_Submit('@x.MatSn','@xx.Location')" style="cursor:pointer;">
+                                <td style="padding:5px; padding-left:10px;"><i class="icon-plus"></i></td>
+                                <td style="padding:5px;">@xx.Location</td>
+                                <td style="padding:5px; text-align:center;">@xx.Qty_Sum.ToString("N0")</td>
+                            </tr>
+                        }
+                    </table>
+                </td>
+                <td style="text-align:right">
+                    @if (x.Pack_Qty != 0)
+                    {
+                        <span>@x.Pack_Qty.ToString("N0")</span>
+                    }
+                </td>
+            </tr>
+        }
+    </table>
+
+    <table class="table table-condensed" style="width:100%;font-size:14px;">
+        <tr>
+            <td>作业人：@Model.Work_Down_Person</td>
+        </tr>
+    </table>
+
+    <script>
+        function Finish_Pick_Location() {
+            DisAndEnabledBtn(1);
+
+            if (confirm("确认完成取货设置？") == false) {
+                DisAndEnabledBtn(0);
+                return false;
+            }
+
+            $.post("/WMS_Out/WMS_Out_Task_Preview_Pick_Location_Finish/@Model.Head_ID", function (result) {
+                if (result != "") {
+                    alert(result);
+                } else {
+                    ReloadPage();
+                }
+            });
+           
+        }
+
+        function Cancel_Pick_Location() {
+            DisAndEnabledBtn(1);
+
+            if (confirm("确认取消取货设置？") == false) {
+                DisAndEnabledBtn(0);
+                return false;
+            }
+
+            $.post("/WMS_Out/WMS_Out_Task_Preview_Pick_Location_Cancel/@Model.Head_ID", function (result) {
+                if (result != "") {
+                    alert(result);
+                } else {
+                    ReloadPage();
+                }
+            });
+        }
+
+    </script>
+
+    <!--扫描库位-->
+    <script>
+        function Show_MatSn_Detail(MatSn) {
+            Reload_MatSn_Context(MatSn);
+            $('#MatSn_Modal').modal({ backdrop: 'static' });
+        }
+
+        function Reload_MatSn_Context(MatSn) {
+            var escape_MatSn = escape(MatSn);
+            $("#MatSn_Context").text("Loading...");
+            $("#MatSn_Context").load("/WMS_Out/WMS_Out_Task_Preview_Pick_Sub/@Model.Head_ID" + "?MatSn=" + escape_MatSn);
+        }
+
+        function Reset_Task_Bat_Location(MatSn) {
+            if (confirm("确认清空此产品型号的扫码数据？") == false) {
+                return false;
+            }
+
+            $.post("/WMS_Out/WMS_Out_Task_Preview_Pick_Location_Reset/@Model.Head_ID", { MatSn: MatSn }, function (result) {
+                if (result != "") {
+                    alert(result);
+                } else {
+                    ReloadPage();
+                }
+            });
+        }
+    </script>
+    <div class="modal fade" id="MatSn_Modal">
+        <div class="modal-dialog" style="width:480px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title">扫描库位</h5>
+                </div>
+                <div class="modal-body" id="MatSn_Context"></div>
+            </div>
+        </div>
+    </div>
+    <!--扫描库位-->
+
+    <!--勾选库位-->
+    <script>
+        function Choose_Location_Submit(MatSn, Location) {
+            if (confirm("确认此库位为取货库位?") == false) { return false; }
+
+            $("#MatSn").val(MatSn);
+            $("#Location").val(Location);
+            var FormObj = $("#Choose_Location_Form");
+            var PostData = $(FormObj).serialize();
+            var Url = $(FormObj).prop("action");
+
+            $.post(Url, PostData, function (result) {
+                if (result == "") {
+                    ReloadPage();
+                } else {
+                    alert(result);
+                }
+            });
+        }
+    </script>
+    <form id="Choose_Location_Form" action="~/WMS_Out/WMS_Out_Task_Preview_Pick_Location_Choose_Post/@Model.Head_ID" method="post">
+        <input type="hidden" name="MatSn" id="MatSn" value="" />
+        <input type="hidden" name="Location" id="Location" value="" />
+    </form>
+
+    <!--设置取货库位-->
+    <script>
+        function Set_Location_Item(Scan_ID) {
+            Reload_Location_Context(Scan_ID);
+            $('#Location_Modal').modal({ backdrop: 'static' });
+        }
+
+        function Reload_Location_Context(Scan_ID) {
+            $("#Location_Context").text("Loading...");
+            $("#Location_Context").load("/WMS_Out/WMS_Out_Task_Preview_Pick_Location_Sub/" + Scan_ID);
+        }
+    </script>
+    <div class="modal fade" id="Location_Modal">
+        <div class="modal-dialog" style="width:480px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title">设置取货库位</h5>
+                </div>
+                <div class="modal-body" id="Location_Context"></div>
+            </div>
+        </div>
+    </div>
+    <!--设置取货库位-->
+
+</body>
+</html>

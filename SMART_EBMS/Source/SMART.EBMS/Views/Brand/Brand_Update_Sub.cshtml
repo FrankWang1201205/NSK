@@ -1,0 +1,85 @@
+﻿@model Brand
+@{
+    Layout = null;
+}
+
+
+<form action="~/Brand/Brand_Update_Sub_Post/@Model.BID" method="post">
+    <table class="FormTable_Sim" border="0">
+        <tr>
+            <th style="text-align:right;  width:80px;">* 品牌名称</th>
+            <td>
+                @if (Model.IsLock_Delete == 1)
+                {
+                    <input readonly class="form-control input-sm NotEmpty" id="Brand_Name" name="Brand_Name" type="text" style="width:190px; " value="@Model.Brand_Name" />
+                }
+                else
+                {
+                    <input class="form-control input-sm NotEmpty" id="Brand_Name" name="Brand_Name" type="text" style="width:190px; " value="@Model.Brand_Name" />
+                }
+            </td>
+        </tr>
+
+        <tr>
+            <th style="vertical-align:top;">型号编码</th>
+            <td>
+                @if (Model.MatSn_Length_Min <= 0 || Model.MatSn_Length_Max <= 0)
+                {
+                    <span>未设置</span>
+                }
+                else if (Model.MatSn_Length_Min == Model.MatSn_Length_Max)
+                {
+                    <span>限定<strong style="padding-left:5px; padding-right:5px;">@Model.MatSn_Length_Max</strong>位</span>
+                }
+                else
+                {
+                    <span>限定<strong style="padding-left:5px;">@Model.MatSn_Length_Min</strong> <span>~</span> <strong style="padding-right:5px;">@Model.MatSn_Length_Max</strong>之间</span>
+                }
+            </td>
+        </tr>
+
+        <tr>
+            <th style="vertical-align:top;">专用表单</th>
+            <td>
+                @if(Model.Is_Customized_Page == 1)
+                {
+                    <span>有</span>
+                }
+                else
+                {
+                    <span>无</span>
+                }
+            </td>
+        </tr>
+
+        <tr>
+            <th style="vertical-align:top;">Logo上传</th>
+            <td>
+                <iframe src="~/Brand/Brand_Update_Sub_Img/@Model.BID" style="overflow:hidden; height:200px; border:0px solid #808080;"></iframe>
+            </td>
+        </tr>
+
+        <tr>
+            <th>&nbsp;</th>
+            <td colspan="3">
+                @if (Model.IsLock_Delete == 0)
+                {
+                    <button type="button" onclick="DeleteBrandItem()" class="btn btn-danger btn-sm" style="width:70px; margin-right:10px;">删除</button>
+                    <button type="submit" class="btn btn-primary btn-sm" style="width:70px;">更新</button>
+                }
+            </td>
+        </tr>
+    </table>
+</form>
+
+<!--删除-->
+<form id="DeletForm" action="~/Brand/Brand_Update_Sub_Delete/@Model.BID" method="post">
+    <script>
+        function DeleteBrandItem() {
+            if (confirm("确认删除？") == true) {
+                $("#DeletForm").submit();
+            }
+        }
+    </script>
+</form>
+<!--删除-->

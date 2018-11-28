@@ -1,0 +1,306 @@
+﻿@model WMS_Stock_Task
+@{
+    Layout = null;
+    ViewBag.Title = Model.Location;
+    User U = ViewData["User"] as User;
+    int Diff_Qty = 0;
+    int i = 0;
+}
+
+<!DOCTYPE html>
+<html>
+@Html.Partial("_JsAndCss")
+<body style="background-color:white; overflow:auto; padding:20px; max-width:1024px; margin:auto;">
+    @if (TempData["Error"] != null)
+    {
+        <div class="Textarea_Error">@TempData["Error"]</div>
+    }
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="Textarea_Success">@TempData["Success"]</div>
+    }
+    <table style="text-align:center; width:100%;" class="text-nowrap">
+        <tr>
+            <td style="width:10px;">&nbsp;</td>
+            <td><span style="text-align:center; font-size:24px;">盘 库 任 务 单</span></td>
+        </tr>
+    </table>
+
+    <table class="table table-bordered text-nowrap" style="width:100%;font-size:14px;margin-top:15px;">
+        <tr>
+            <td class="active" style="width:10px;">盘库库位</td>
+            <td>@Model.Location</td>
+            <td class="active" style="width:10px;">产品型号</td>
+            <td><strong>@Model.Line_List.Where(x => x.Quantity_Sum > 0).Count().ToString("N0")</strong> <span>项</span></td>
+            <td class="active" style="width:10px;">产品数量</td>
+            <td><strong>@Model.Line_List.Where(x => x.Quantity_Sum > 0).Sum(x => x.Quantity_Sum).ToString("N0")</strong></td>
+            <td class="active" style="width:10px;">当前状态</td>
+            <td>@Model.Status</td>
+            <td class="active" style="width:10px;">创建时间</td>
+            <td>@Model.Create_DT.ToString("yyyy-MM-dd")</td>
+        </tr>
+    </table>
+
+    <table style="width:100%; margin-top:-10px;" class="Table_Clean">
+        <tr>
+            @if (Model.Status == WMS_Stock_Task_Enum.未盘库.ToString())
+            {
+                <td style="text-align:right; width:10px;">
+                    <button type="button" class="btn btn-danger" onclick="Reset_WMS_Stocktaking_Scan()">重置库位扫描</button>
+                </td>
+            }
+
+            @if (U.RoleTitle == User_RoleTitle_Emun.仓管主管.ToString() || U.RoleTitle == User_RoleTitle_Emun.系统管理员.ToString() || U.RoleTitle == User_RoleTitle_Emun.公司经理.ToString())
+            {
+                if (Model.Status == WMS_Stock_Task_Enum.未盘库.ToString())
+                {
+                    <td style="text-align:right; width:10px;padding-left:25px;">
+                        <button type="button" class="btn btn-danger" onclick="Delete_WMS_Stock_Task()">删除盘库任务</button>
+                    </td>
+                }
+            }
+
+            <td>&nbsp;</td>
+            <td style="width:10px;">
+                <button type="button" class="btn btn-default" onclick="ReloadPage()"><span class="glyphicon glyphicon-repeat"></span> 刷新</button>
+            </td>
+            @if (Model.Status == WMS_Stock_Task_Enum.未盘库.ToString())
+            {
+                <td style="text-align:right; width:10px; padding-left:15px;">
+                    <button type="button" class="btn btn-primary" onclick="Sent_To_WMS_Stock()">完成扫码，保存并发送</button>
+                </td>
+            }
+        </tr>
+    </table>
+
+    <p></p>
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="~/WMS_Stocktaking/WMS_Stocktaking_Task_Preview/@Model.Task_ID">扫描结果</a></li>
+    </ul>
+    <p></p>
+
+    <table class="table table-bordered text-nowrap" style="width:100%;font-size:14px;">
+        <tr class="active">
+            <td style="width:50px;">&nbsp;</td>
+            <td style="width:190px;">产品型号</td>
+            <td style="width:70px;text-align:right">扫码复核</td>
+            <td style="width:70px;text-align:right">差异数量</td>
+            <td>当前状态</td>
+        </tr>
+
+        @foreach (var x in Model.Line_List.Where(x => x.Status == WMS_Stock_Task_Line_State_Enum.多出型号.ToString()).ToList())
+        {
+            <tr>
+                <td style="text-align:center;">
+                    <a href="javascript:void(0)" onclick="Show_Mat_Label_Modal('@x.MatSn')" style="color:black;"><i class="icon-qrcode icon-2x"></i></a>
+                </td>
+                <td><a href="javascript:void(0)" onclick="Show_MatSn_Detail('@x.MatSn')"><span class="MatSn_Font">@x.MatSn</span></a></td>
+                <td style="text-align:right">@x.Quantity_Scan_Sum.ToString("N0")</td>
+                <td style="text-align:right;"></td>
+                <td style="color:red">@x.Status</td>
+            </tr>
+        }
+
+        @foreach (var x in Model.Line_List.Where(x => x.Status == WMS_Stock_Task_Line_State_Enum.超出系统.ToString()).ToList())
+        {
+            Diff_Qty = x.Quantity_Scan_Sum - x.Quantity_Sum;
+            <tr>
+                <td style="text-align:center;">
+                    <a href="javascript:void(0)" onclick="Show_Mat_Label_Modal('@x.MatSn')" style="color:black;"><i class="icon-qrcode icon-2x"></i></a>
+                </td>
+                <td><a href="javascript:void(0)" onclick="Show_MatSn_Detail('@x.MatSn')"><span class="MatSn_Font">@x.MatSn</span></a></td>
+                <td style="text-align:right">@x.Quantity_Scan_Sum.ToString("N0")</td>
+                <td style="text-align:right; color:red;"><strong>@Diff_Qty.ToString("N0")</strong></td>
+                <td style="color:red">@x.Status</td>
+            </tr>
+        }
+
+        @foreach (var x in Model.Line_List.Where(x => x.Status == WMS_Stock_Task_Line_State_Enum.低于系统.ToString()).ToList())
+        {
+            Diff_Qty = x.Quantity_Scan_Sum - x.Quantity_Sum;
+            <tr>
+                <td style="text-align:center;">
+                    <a href="javascript:void(0)" onclick="Show_Mat_Label_Modal('@x.MatSn')" style="color:black;"><i class="icon-qrcode icon-2x"></i></a>
+                </td>
+                <td><a href="javascript:void(0)" onclick="Show_MatSn_Detail('@x.MatSn')"><span class="MatSn_Font">@x.MatSn</span></a></td>
+                <td style="text-align:right">@x.Quantity_Scan_Sum.ToString("N0")</td>
+                <td style="text-align:right; color:orange;"><strong>@Diff_Qty.ToString("N0")</strong></td>
+                <td style="color:orange">@x.Status</td>
+            </tr>
+        }
+
+
+        @foreach (var x in Model.Line_List.Where(x => x.Status == WMS_Stock_Task_Line_State_Enum.还未扫码.ToString()).ToList())
+        {
+            <tr>
+                <td style="text-align:center;">
+                    <a href="javascript:void(0)" onclick="Show_Mat_Label_Modal('@x.MatSn')" style="color:black;"><i class="icon-qrcode icon-2x"></i></a>
+                </td>
+                <td><span class="MatSn_Font">@x.MatSn</span></td>
+                <td style="text-align:right">@x.Quantity_Scan_Sum.ToString("N0")</td>
+                <td>&nbsp;</td>
+                <td style="color:silver">@x.Status</td>
+            </tr>
+        }
+
+        @foreach (var x in Model.Line_List.Where(x => x.Status == WMS_Stock_Task_Line_State_Enum.数量一致.ToString()).ToList())
+        {
+            <tr>
+                <td style="text-align:center;">
+                    <a href="javascript:void(0)" onclick="Show_Mat_Label_Modal('@x.MatSn')" style="color:black;"><i class="icon-qrcode icon-2x"></i></a>
+                </td>
+                <td><a href="javascript:void(0)" onclick="Show_MatSn_Detail('@x.MatSn')"><span class="MatSn_Font">@x.MatSn</span></a></td>
+                <td style="text-align:right">@x.Quantity_Scan_Sum.ToString("N0")</td>
+                <td>&nbsp;</td>
+                <td style="color:green">@x.Status</td>
+            </tr>
+        }
+
+    </table>
+
+    <p style="font-size:15px;">共扫描<span style="font-size:16px;font-weight:bold;padding:0px 5px">@Model.Scan_List.Count()</span> 次，扫描产品 <span style="font-size:16px;font-weight:bold;padding:0px 5px">@Model.Scan_List.Select(x => x.MatSn).Distinct().Count()</span> 项，扫描产品数量共 <span style="font-size:16px;font-weight:bold;padding:0px 5px">@Model.Scan_List.Sum(x => x.Scan_Quantity)</span></p>
+
+    <table class="table table-bordered text-nowrap" style="width:100%;font-size:14px;">
+        <tr class="active">
+            <td style="width:10px;">序</td>
+            <td style="width:190px;">产品型号</td>
+            <td style="width:100px;">扫码数量</td>
+            <td>&nbsp;</td>
+        </tr>
+        @foreach (var x in Model.Scan_List)
+        {
+            i++;
+            <tr>
+                <td>@i</td>
+                <td><span class="MatSn_Font">@x.MatSn</span></td>
+                <td>@x.Scan_Quantity.ToString("N0")</td>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td>&nbsp;</td>
+                <td colspan="3" style="padding:10px; font-weight:normal;" class="MatSn_Font">@x.Scan_Source.Trim()</td>
+            </tr>
+        }
+    </table>
+
+    <table class="table table-condensed" style="width:100%;font-size:14px;">
+        <tr>
+            <td>作业人：@Model.Work_Person</td>
+        </tr>
+    </table>
+
+    <script>
+        function Sent_To_WMS_Stock() {
+            if (confirm("确认保存并发送?") == false) {
+                return false;
+            }
+
+            $.post("/WMS_Stocktaking/WMS_Stocktaking_Task_To_Stock/@Model.Task_ID", function (result) {
+                if (result == "") {
+                    if (confirm("已点击发送！")) {
+                        ReloadPage();
+                    }
+                } else {
+                    alert(result);
+                }
+            });
+        }
+
+        function Reset_WMS_Stocktaking_Scan() {
+            if (confirm("确认重置此库位扫描？") == false) {
+                return false;
+            }
+
+            $.post("/WMS_Stocktaking/WMS_Stocktaking_Scan_Reset_Post/@Model.Task_ID", function (result) {
+                if (result != "") {
+                    alert(result);
+                } else {
+                    ReloadPage();
+                }
+            });
+        }
+
+        function Delete_WMS_Stock_Task() {
+            DisAndEnabledBtn(1);
+            if (confirm("确认删除盘库任务?") == false) {
+                DisAndEnabledBtn(0);
+                return false;
+            }
+
+            $.post("/WMS_Stocktaking/WMS_Stocktaking_Task_Delete_Post/@Model.Task_ID", function (result) {
+                if (result == "") {
+                    window.close();
+                } else {
+                    alert(result);
+                }
+            });
+        }
+    </script>
+
+    <!--产品信息-->
+    <script>
+        function Show_MatSn_Detail(MatSn) {
+            Reload_MatSn_Context(MatSn);
+            $('#MatSn_Modal').modal({ backdrop: 'static' });
+        }
+
+        function Reload_MatSn_Context(MatSn) {
+            var escape_MatSn = escape(MatSn);
+            $("#MatSn_Context").text("Loading...");
+            $("#MatSn_Context").load("/WMS_Stocktaking/WMS_Stocktaking_Task_Preview_Sub/@Model.Task_ID" + "?MatSn=" + escape_MatSn);
+        }
+
+        function Reset_Task_Bat_MatSn(MatSn) {
+            if (confirm("确认清空此产品型号的扫码数据？") == false) {
+                return false;
+            }
+
+            $.post("/WMS_Stocktaking/WMS_Stocktaking_Task_Preview_Sub_Reset/@Model.Task_ID", { MatSn: MatSn }, function (result) {
+                if (result != "") {
+                    alert(result);
+                } else {
+                    ReloadPage();
+                }
+            });
+        }
+    </script>
+    <div class="modal fade" id="MatSn_Modal">
+        <div class="modal-dialog" style="width:480px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title">产品明细</h5>
+                </div>
+                <div class="modal-body" id="MatSn_Context"></div>
+            </div>
+        </div>
+    </div>
+    <!--产品信息-->
+
+    <!--产品二维码-->
+    <script>
+        function Show_Mat_Label_Modal(MatSn) {
+            Reload_Mat_Label_Modal_Context(MatSn);
+            $('#Mat_Label_Modal_QRCode').modal({ backdrop: 'static' });
+        }
+
+        function Reload_Mat_Label_Modal_Context(MatSn) {
+            $("#Mat_Label_QRCode_Context").text("Loading...");
+            $("#Mat_Label_QRCode_Context").load("/WMS_Up/WMS_Up_Start_Sub_Preview_QRCode", { MatSn: MatSn });
+        }
+    </script>
+    <div class="modal fade" id="Mat_Label_Modal_QRCode">
+        <div class="modal-dialog" style="width:460px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title">产品二维码</h5>
+                </div>
+                <div class="modal-body" id="Mat_Label_QRCode_Context"></div>
+            </div>
+        </div>
+    </div>
+    <!--产品二维码-->
+</body>
+</html>

@@ -1,0 +1,15 @@
+﻿@{
+    Layout = null;
+    string MatSn = ViewData["MatSn"].ToString();
+    string QRCode_Path = ViewData["QRCode_Path"].ToString();
+    List<char> Char_List = MatSn.ToList();
+}
+
+<div style="margin:auto;text-align:center">
+    <img src="~/@QRCode_Path" style="width:60%;" />
+    <hr />
+    @foreach (var C in Char_List)
+    {
+        <span class="MatSn_Font" style="border-bottom:1px solid #808080; margin-right:2px; font-size:14px;">@C</span>
+    }
+</div>

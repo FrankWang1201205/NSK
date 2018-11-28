@@ -1,0 +1,185 @@
+﻿@model PageList<RFQ_Head>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    RFQ_Head_Filter MF = ViewData["MF"] as RFQ_Head_Filter;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("新增询价");</script>
+
+@if (TempData["Error_Add_RFQ"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error_Add_RFQ"]</div>
+}
+
+@if (TempData["Success_Update_RFQ"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success_Update_RFQ"]</div>
+}
+
+<div class="DeductionDiv TopSearchDiv">
+    <table>
+        <tr>
+            <td><button class="btn btn-default btn-sm" type="button" style="border-radius:0px; margin-right:-1px;">现有客户询价</button></td>
+            <td>
+                <div class="EnterAndSelect">
+                    <table>
+                        <tr>
+                            <td>
+                                <input onclick="Reload_CustList()" onkeyup="Reload_CustList()" id="Cust_Name_Or_Code" name="Cust_Name_Or_Code" class="form-control input-sm" style="border-radius:0px;" value="" placeholder="输入或选择客户" autocomplete="off" />
+                            </td>
+                            <td>
+                                <button onclick="Reload_CustList()" type="button" class="btn btn-default btn-sm" style="border-radius:0px; border-left:0px;"><i class="icon-sort-down"></i></button>
+                            </td>
+                        </tr>
+                    </table>
+                    <div id="CustList_Select" class="EnterAndSelect_Box" style="min-width:400px;"></div>
+                    <script>
+                        $(function () {
+                            $("#CustList_Select").hover(function () {
+                                $("#CustList_Select").show();
+                            },
+                                function () {
+                                    $("#CustList_Select").hide();
+                                });
+                        });
+
+                        function Reload_CustList() {
+                            $("#CustList_Select").show();
+                            var Cust_Name_Or_Code = $("#Cust_Name_Or_Code").val();
+                            $("#CustList_Select").text("Loading...");
+                            $("#CustList_Select").load("/RFQ/RFQ_New_Cust_List", { Cust_Name_Or_Code: Cust_Name_Or_Code });
+                        }
+                    </script>
+                </div>
+            </td>
+            <td style="width:100px;">&nbsp;</td>
+            <td>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary btn-sm" onclick="Show_Add_Customer()">新客户询价</button>
+                    <button type="button" class="btn btn-primary btn-sm dropdown-toggle" onclick="Show_Add_Customer()">
+                        <span class="caret"></span>
+                        <span class="sr-only">Toggle Dropdown</span>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:120px;">询价单编号</th>
+            <th style="width:80px;">询价日期</th>
+            <th style="width:180px;">客户名称</th>
+            <th style="width:80px;">客户询价人</th>
+            <th style="width:80px;">询价录入</th>
+            <th style="width:60px; text-align:center;">产品项</th>
+            <th style="width:60px; text-align:center;">&nbsp;</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model.Rows)
+        {
+            <tr>
+                <td>&nbsp;</td>
+                <td style="vertical-align:top;">@x.RFQ_No</td>
+                <td style="vertical-align:top;">@x.Create_DT.ToString("yyyy-MM-dd")</td>
+                <td style="vertical-align:top;">@x.Cust_Name</td>
+                <td style="vertical-align:top;">@x.Buyer</td>
+                <td style="vertical-align:top;">@x.Ass_Full_Name</td>
+                <td style="vertical-align:top; text-align:center;">@x.Line_List.Count()</td>
+                <td style="vertical-align:top; text-align:center;"><a class="btn btn-info btn-xs" href="~/RFQ/RFQ_New_Update/@x.RID">查看</a></td>
+                <td style="vertical-align:top;">&nbsp;</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>
+
+<!--新增询价单-->
+<script>
+    function Show_Add_RFQ(CID) {
+        $('#My_Add_Model').modal({ backdrop: 'static' });
+        Reload_RFQ_New_Add(CID);
+    }
+
+    function Close_Add_RFQ() { $('#My_Add_Model').modal('hide'); }
+
+    function Reload_RFQ_New_Add(CID) {
+        $("#Add_Context").text("Loading...");
+        $("#Add_Context").load("/RFQ/RFQ_New_Add/" + CID);
+    }
+
+</script>
+<div class="modal fade" id="My_Add_Model">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:560px;">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="Close_Add_RFQ()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">客户询价 - 现有客户</h5>
+            </div>
+            <div class="modal-body" id="Add_Context"></div>
+        </div>
+    </div>
+</div>
+<!--新增询价单-->
+<!--新客户询价-->
+<script>
+    function Show_Add_Customer() {
+        $('#My_Add_Customer_Model').modal({ backdrop: 'static' });
+        Reload_Add_Customer();
+    }
+
+    function Close_Add_Customer() { $('#My_Add_Customer_Model').modal('hide'); }
+
+    function Reload_Add_Customer() {
+        $("#Add_Custome_Context").text("Loading...");
+        $("#Add_Custome_Context").load("/RFQ/RFQ_New_Add_Customer");
+    }
+</script>
+
+<div class="modal fade" id="My_Add_Customer_Model">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:560px;">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="Close_Add_Customer()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">客户询价 - 新增客户</h5>
+            </div>
+            <div class="modal-body" id="Add_Custome_Context"></div>
+        </div>
+    </div>
+</div>
+
+<!--新客户询价-->

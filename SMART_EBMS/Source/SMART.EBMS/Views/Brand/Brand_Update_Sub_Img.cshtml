@@ -1,0 +1,103 @@
+﻿@model Brand
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+@Html.Partial("_JsAndCss")
+<body style="background-color:white; padding:0px;">
+    <table style="width:150px; overflow:hidden; border:0px solid #808080; font-size:12px;">
+        <tr id="FileUploadText" style="display:none;">
+            <td colspan="2" style="text-align:center; line-height:22px; background-color:green; color:white;">正在上传...</td>
+        </tr>
+
+
+        <tr>
+            <td colspan="2"><img id="MyImgPreview" src="~/@Model.Logo" style="width:190px; height:150px; border:1px solid #e0e0e0; overflow:hidden;" /></td>
+        </tr>
+
+        <tr>
+            <td><button type="button" onclick="Select_Image('ImagePath')" style="width:100%; border-radius:0px;" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-picture"></span> 选择品牌Logo</button></td>
+            <td><button type="button" onclick="UploadLogoForm()" style="width:100%; border-radius:0px;" class="btn btn-primary btn-sm">上传</button></td>
+        </tr>
+
+        <tr>
+            <td colspan="2" id="MyFilePath"></td>
+        </tr>
+
+    </table>
+
+    <!--上传Logo-->
+    <script>
+        function Select_Image(SourceID) { $("#" + SourceID).click(); }
+
+        function Show_PhotePreview(SourceID, TargetID) {
+            if (typeof (FileReader) != 'undefined') {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    var img = document.getElementById(TargetID);
+                    img.src = this.result;
+                }
+                reader.readAsDataURL(document.getElementById(SourceID).files[0]);
+            }
+        }
+
+        function UploadLogoForm()
+        {
+            $("#FileUploadText").show();
+            $("#UploadLogoForm").submit();
+        }
+    </script>
+
+    <form id="UploadLogoForm" action="~/Brand/Brand_Update_Sub_Logo_Post/@Model.BID" method="post" enctype="multipart/form-data" style="display:none;">
+        <input type="file" id="ImagePath" name="ImagePath" onchange="Show_PhotePreview('ImagePath', 'MyImgPreview')" />
+    </form>
+
+    <form id="DeleteLogoForm" action="~/Brand/Brand_Update_Sub_Logo_Delete/@Model.BID" method="post">
+        <script>
+            function DeleteLogoForm() {
+                if (confirm("确认删除?")) {
+                    $("#DeleteLogoForm").submit();
+                }
+            }
+        </script>
+    </form>
+    <!--上传Logo-->
+
+    <!--上传证书-->
+    <script>
+        function Select_File(SourceID) {
+            $("#" + SourceID).click();
+        }
+
+        function Show_FileName(SourceID, TargetID) {
+            var FileName = $("#" + SourceID).val();
+            $("#" + TargetID).text(FileName);
+        }
+
+        function UploadFileForm()
+        {
+            $("#FileUploadText").show();
+            $("#UploadFileForm").submit();
+        }
+    </script>
+
+    <form id="UploadFileForm" action="~/Brand/Brand_Update_Sub_Certificate_Post/@Model.BID" method="post" enctype="multipart/form-data" style="display:none;">
+        <input type="file" id="FilePath" name="FilePath" onchange="Show_FileName('FilePath', 'MyFilePath')" />
+    </form>
+
+    <form id="DeleteFileForm" action="~/Brand/Brand_Update_Sub_Certificate_Delete/@Model.BID" method="post">
+        <script>
+            function DeleteFileForm() {
+                if (confirm("确认删除?")) {
+                    $("#DeleteFileForm").submit();
+                }
+            }
+        </script>
+    </form>
+    <!--上传证书-->
+
+
+</body>
+</html>

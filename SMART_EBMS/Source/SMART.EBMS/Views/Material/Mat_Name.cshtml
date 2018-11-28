@@ -1,0 +1,153 @@
+﻿@model PageList<Material_Name>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Material_Filter MF = ViewData["MF"] as Material_Filter;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("产品名称");</script>
+
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/Material/Mat_Name" method="get">
+        <table style="width:100%;">
+            <tr>
+              
+                <td style="width:250px;">
+                    <div class="input-group input-group-sm" style="width: 250px; ">
+                        <input type="text" name="MatName" id="MatName" placeholder="产品名称" value="@MF.MatName" class="form-control ">
+                        <div class="input-group-btn">
+                            <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                        </div>
+                    </div>
+                </td>
+                <td style="width:90px;padding-left:10px;"><button type="button" onclick="ShowAddNewItem()" class="btn btn-primary btn-sm"><i class="icon-plus" style="font-size:12px;"> 新增名称</i></button></td>
+                <td style="width:50px;">&nbsp;</td>
+
+                <td style="width:50px;">&nbsp;</td>
+
+                <td style="vertical-align:bottom;">&nbsp;</td>
+
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:120px;">产品名称</th>
+            <th style="width:60px;">&nbsp;</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model.Rows)
+            {
+            <tr>
+                <td>&nbsp;</td>
+                <td>@x.Mat_Name</td>
+                <td style="text-align:center">
+                    <button type="button" class="btn btn-primary btn-xs" onclick="ShowSetItem('@x.Name_ID')">更新</button>
+                </td>
+                <td>&nbsp;</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>
+<!--新增-->
+<script>
+    function ShowAddNewItem()
+    {
+        ReloadAddNewItem();
+        $('#MyNewModel').modal({ backdrop: 'static' });
+    }
+
+    function CloseAddNewItem() { $('#MyNewModel').modal('hide'); }
+
+    function ReloadAddNewItem()
+    {
+        $("#NewContext").load("/Material/Mat_Name_Add");
+    }
+</script>
+<div class="modal fade" id="MyNewModel">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:380px;">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="CloseAddNewItem()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">新增产品名称</h5>
+            </div>
+            <div class="modal-body" id="NewContext"></div>
+        </div>
+    </div>
+</div>
+<!--新增-->
+<!--更新-->
+<script>
+    function ShowSetItem(Name_ID)
+    {
+        ReloadSetItem(Name_ID);
+        $('#MySetModel').modal({ backdrop: 'static' });
+    }
+
+    function CloseSetItem() { $('#MySetModel').modal('hide'); }
+
+    function ReloadSetItem(Name_ID)
+    {
+        $("#SetContext").load("/Material/Mat_Name_Sub/" + Name_ID);
+    }
+</script>
+<div class="modal fade" id="MySetModel">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:450px;">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="CloseSetItem()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">更新产品名称</h5>
+            </div>
+            <div class="modal-body" id="SetContext"></div>
+        </div>
+    </div>
+</div>
+<!--更新-->

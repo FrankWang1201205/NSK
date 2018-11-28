@@ -1,0 +1,189 @@
+﻿@model PageList<Material>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Material_Filter MF = ViewData["MF"] as Material_Filter;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("产品更新");</script>
+
+@if (TempData["Success_Delete"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success_Delete"]</div>
+}
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/Material/Mat_Update" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:150px;">
+                    <input type="text" name="MatSn" id="MatSn" placeholder="产品型号" value="@MF.MatSn" class="form-control input-xs">
+                </td>
+
+                <td style="width:120px; padding-left:5px;">
+                    <input type="text" name="MatName" id="MatName" placeholder="产品名称" value="@MF.MatName" class="form-control input-xs">
+                </td>
+
+                <td style="width:100px; padding-left:5px;">
+                    <select name="MatBrand" id="MatBrand" class="form-control input-xs" onchange="SubmitPageIndex(1)">
+                        <option value="">选择品牌</option>
+                        @foreach (var x in MF.BrandList)
+                        {
+                            if (MF.MatBrand == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:100px; padding-left:5px;">
+                    <select name="Price_Is_AM" id="Price_Is_AM" class="form-control input-xs" onchange="SubmitPageIndex(1)">
+                        <option value="">是否定价品</option>
+                        @foreach (var x in MF.Price_Is_AM_List)
+                        {
+                            if (MF.Price_Is_AM == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:120px; padding-left:5px;">
+                    <select name="Is_Stock" id="Is_Stock" class="form-control input-xs" onchange="SubmitPageIndex(1)">
+                        <option value="">是否重点备货</option>
+                        @foreach (var x in MF.Is_Stock_List)
+                        {
+                            if (MF.Is_Stock == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:100px; padding-left:5px;">
+                    <input type="text" name="PC_Place" id="PC_Place" placeholder="产地" value="@MF.PC_Place" class="form-control input-xs">
+                </td>
+
+
+                <td style="width:80px; padding-left:5px;">
+                    <input type="text" name="PC" id="PC" placeholder="PC" value="@MF.PC" class="form-control input-xs">
+                </td>
+
+                <td style="width:90px; padding-left:5px;">
+                    <input type="text" name="PC_Mon_Type" id="PC_Mon_Type" placeholder="生产月" value="@MF.PC_Mon_Type" class="form-control input-xs">
+                </td>
+
+                <td style="width:90px; padding-left:5px;">
+                    <input type="text" name="CODE" id="CODE" placeholder="CODE" value="@MF.CODE" class="form-control input-xs">
+                </td>
+
+                <td style="width:10px; padding-left:5px;">
+                    <button class="btn btn-danger btn-sm btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                </td>
+
+                <td style="width:50px;">&nbsp;</td>
+
+                <td style="vertical-align:bottom;">&nbsp;</td>
+
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:50px;">&nbsp;</th>
+            <th style="width:190px;">产品型号</th>
+            <th style="width:120px;">产品名称</th>
+            <th style="width:80px;">品牌</th>
+            <th style="width:60px; text-align:center;">定价品</th>
+            <th style="width:70px; text-align:center;">重点备货</th>
+            <th style="width:80px;">产地</th>
+            <th style="width:80px;">PC</th>
+            <th style="width:70px;">生产月</th>
+            <th>CODE</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model.Rows)
+            {
+            <tr>
+                <td>&nbsp;</td>
+                <td style="vertical-align:top; text-align:center;"><a class="btn btn-info btn-xs btn-xs-clean" href="~/Material/Mat_Update_Sub/@x.MatID">更新</a></td>
+                <td style="vertical-align:top;"><a href="javascript:void(0);" onclick="ShowMatPartModel('@x.MatID')" class="MatSn_Font">@x.MatSn</a></td>
+                <td style="vertical-align:top;">@x.MatName</td>
+                <td style="vertical-align:top;">@x.MatBrand</td>
+                <td style="vertical-align:top; text-align:center;">@x.Price_Is_AM</td>
+                <td style="vertical-align:top; text-align:center;">
+                    @if (x.Is_Stock == 1)
+                    {
+                        <span>是</span>
+                    }
+                    else
+                    {
+                        <span style="color:silver">否</span>
+                    }
+                </td>
+                <td style="vertical-align:top;">@x.PC_Place</td>
+                
+                <td style="vertical-align:top;">@x.PC</td>
+                <td style="vertical-align:top;">@x.PC_Mon_Type</td>
+                <td style="vertical-align:top;">
+                @foreach (var xx in x.Mat_CODE_List)
+                {
+                    <span style="padding-right:5px;">@xx.CODE</span>
+                }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>

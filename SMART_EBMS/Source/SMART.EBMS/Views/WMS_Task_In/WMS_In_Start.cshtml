@@ -1,0 +1,535 @@
+﻿@model PageList<WMS_In_Task>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    WMS_In_Filter MF = ViewData["MF"] as WMS_In_Filter;
+    List<WMS_Logistics> Logistics_List = ViewData["Logistics_List"] as List<WMS_Logistics>;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("任务导入");</script>
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/WMS_Task_In/WMS_In_Start" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:100px;">
+                    <select name="MatType" id="MatType" class="form-control input-sm" onchange="SubmitPageIndex(1)">
+                        <option value="">任务类型</option>
+                        @foreach (var x in MF.MatType_List)
+                        {
+                            if (MF.MatType == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:100px;  padding-left:5px;">
+                    <select name="Global_State" id="Global_State" class="form-control input-sm" onchange="SubmitPageIndex(1)">
+                        <option value="">任务状态</option>
+                        @foreach (var x in MF.Global_State_List.Where(x => x != WMS_In_Global_State_Enum.通知采购.ToString()))
+                        {
+                            if (MF.Global_State == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:100px;  padding-left:5px;">
+                    <select name="Logistics_Mode" id="Logistics_Mode" class="form-control input-sm" onchange="SubmitPageIndex(1)">
+                        <option value="">运输方式</option>
+                        @foreach (var x in MF.Logistics_Mode_List)
+                        {
+                            if (MF.Logistics_Mode== x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:100px; padding-left:5px;">
+                    <input type="text" name="Supplier" id="Supplier" placeholder="供应商" value="@MF.Supplier" class="form-control input-sm">
+                </td>
+
+                <td style="width:100px; padding-left:5px;">
+                    <input type="text" name="Logistics_Company" id="Logistics_Company" placeholder="快递物流公司" value="@MF.Logistics_Company" class="form-control input-sm">
+                </td>
+
+                <td style="width:100px; padding-left:5px;">
+                    <input type="text" name="Create_Person" id="Create_Person" placeholder="上传人" value="@MF.Create_Person" class="form-control input-sm">
+                </td>
+
+                <td style="width:250px; padding-left:5px;">
+                    <div class="input-group input-group-sm" style="width: 250px; ">
+                        <input type="text" name="Task_Bat_No" id="Task_Bat_No" placeholder="任务编号" value="@MF.Task_Bat_No" class="form-control ">
+                        <div class="input-group-btn">
+                            <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                        </div>
+                    </div>
+                </td>
+
+                <td style="width:150px;padding-left:20px;">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-info btn-sm" data-toggle="dropdown">导入指令</button>
+                        <button type="button" class="btn btn-info btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="caret"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a href="javascript:void(0)" onclick="Batch_Upload_First()">常规期货 Excel</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="javascript:void(0)" onclick="Batch_Upload_Second()">零星调货 Excel</a></li>
+                        </ul>
+                    </div>
+                </td>
+
+                <td style="float:right;width:30px;">&nbsp;</td>
+
+                <td style="float:right;width:200px;">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-default btn-sm">模板下载</button>
+                        <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="caret"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a href="~/Download/收货通知单_模板_常规期货.xlsx" target="_blank">常规期货-NSK</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="~/Download/收货通知单_模板_常规期货_NMB.xlsx" target="_blank">常规期货-NMB</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="~/Download/收货通知单_模板_零星调货.xlsx" target="_blank">零星调货</a></li>
+                        </ul>
+                    </div>
+                </td>
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:135px;">任务编号</th>
+            <th style="width:70px;">上传日期</th>
+            <th style="width:70px;">上传人</th>
+            <th style="width:100px;">品牌</th>
+            <th style="width:100px;">供应商</th>
+            <th style="width:70px;">收货类型</th>
+            <th style="width:70px;">物流公司</th>
+            <th style="width:70px;">运输方式</th>
+            <th style="width:60px;text-align:right">产品型号</th>
+            <th style="width:60px;text-align:right">通知到货</th>
+            <th style="width:70px;">当前状态</th>
+            <th style="width:70px;">&nbsp;</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model.Rows)
+        {
+            <tr>
+                <td>&nbsp;</td>
+                <td style="vertical-align:top;">@x.Task_Bat_No_Str</td>                
+                <td style="vertical-align:top;">@x.Create_DT.ToString("yyyy-MM-dd")</td>
+                <td style="vertical-align:top;">@x.Create_Person</td>
+                <td style="vertical-align:top;">@x.Brand</td>
+                <td style="vertical-align:top;">@x.Supplier_Name</td>
+                <td style="vertical-align:top;">@x.MatType</td>
+                <td style="vertical-align:top;">@x.Logistics_Company</td>
+                <td style="vertical-align:top;">@x.Logistics_Mode</td>
+                <td style="vertical-align:top;text-align:right">@x.MatSn_Count.ToString("N0")</td>
+                <td style="vertical-align:top;text-align:right">@x.Line_Quantity_Sum.ToString("N0")</td>
+                <td style="vertical-align:top;">@x.Global_State</td>
+                <td style="vertical-align:top;text-align:center">
+                    @if (x.MatType == WMS_In_Type_Enum.常规期货.ToString())
+                    {
+                        <a class="btn btn-info btn-xs" href="~/WMS_Task_In/WMS_In_Start_Manufacturer/@x.Head_ID">查看明细</a>
+                    }
+                    else
+                    {
+                        <a class="btn btn-info btn-xs" href="~/WMS_Task_In/WMS_In_Start_Distributor/@x.Head_ID">查看明细</a>
+                    }
+                </td>
+                <td>&nbsp;</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+
+    function Select_Supplier_Item(SupID, Sup_Name, Type) {
+        $("#Link_Sup_ID_" + Type).val(SupID);
+        $("#Sup_Name_" + Type).val(Sup_Name);
+        $("#SupList_Select_" + Type).hide();
+    }
+</script>
+
+<!--期货导入Excel-->
+<script>
+    function Batch_Upload_First() {
+        $('#Upload_First_Modal').modal({ backdrop: 'static' });
+    }
+
+    function Close_Upload_First_Modal() {
+        $('#Upload_First_Modal').modal('hide');
+    }
+</script>
+<div class="modal fade" id="Upload_First_Modal">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:480px;">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="Close_Upload_First_Modal()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">常规期货批量导入</h5>
+            </div>
+            <div class="modal-body">
+                <form id="Upload_First_Form" action="~/WMS_Task_In/WMS_In_Start_Manufacturer_Post" method="post" enctype="multipart/form-data">
+                    <table style="width:100%; border:1px solid silver;">
+                        <tr>
+                            <td colspan="2" style="padding:10px;">
+                                <table>
+                                    <tr>
+                                        <td style="width:60px;padding-top:10px;">供应商</td>
+                                        <td colspan="3"  style="padding-top:10px;">
+                                            <input class="form-control input-sm Not_Empty" name="Link_Sup_ID" type="hidden" id="Link_Sup_ID_A" value="" />
+                                            <input onclick="Reload_SupList_A('A')" onkeyup="Reload_SupList_A('A')" id="Sup_Name_A" name="Sup_Name" class="form-control input-sm" style="border-radius:0px;" value="" placeholder="输入或选择供应商" autocomplete="off" />
+                                            <div id="SupList_Select_A" class="EnterAndSelect_Box" style="min-height:100px;min-width:350px;"></div>
+
+                                            <script>
+                                                $(function () {
+                                                    $("#SupList_Select_A").hover(function () {
+                                                        $("#SupList_Select_A").show();
+                                                    },
+                                                        function () {
+                                                            $("#SupList_Select_A").hide();
+                                                        });
+                                                });
+
+                                                function Reload_SupList_A(Type) {
+                                                    $("#SupList_Select_A").show();
+                                                    var Sup_Name = $("#Sup_Name_A").val();
+                                                    $("#SupList_Select_A").text("Loading...");
+                                                    $("#SupList_Select_A").load("/WMS_Task_In/Supplier_List", { Sup_Name: Sup_Name, Type: Type });
+                                                }
+                                            </script>
+                                        </td>
+
+                                    </tr>
+                                    <tr>
+                                        <td style="width:60px;padding-top:10px;">物流公司</td>
+                                        <td style="padding-right:20px;padding-top:10px;">
+                                            <select class="form-control input-xs" name="Logistics_Company" id="Logistics_Company" style="width:135px;">
+                                                <option value="">请选择</option>
+                                                @foreach (var x in Logistics_List.Where(x => x.MatType == WMS_In_Type_Enum.常规期货.ToString()).Select(c => c.Company_Name).ToList())
+                                                {
+                                                    <option value="@x">@x</option>
+                                                }
+                                            </select>
+                                        </td>
+                                        <td style="width:60px;padding-top:10px;">运输方式</td>
+                                        <td style="padding-top:10px;">
+                                            <select class="form-control input-xs" name="Logistics_Mode" id="Logistics_Mode_First" style="float:left; width:135px;">
+                                                <option value="">请选择</option>
+                                                @foreach (var x in MF.Logistics_Mode_List)
+                                                {
+                                                    <option value="@x">@x</option>
+                                                }
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:60px;padding-top:10px;">品牌</td>
+                                        <td style="padding-top:10px;">
+                                            <select class="form-control input-xs Not_Empty" name="Brand" id="Brand" style="width:135px; margin-right:5px;">
+                                                <option value="">请选择</option>
+                                                @foreach (var x in MF.Brand_List)
+                                                {
+                                                    <option value="@x">@x</option>
+                                                }
+                                            </select>
+                                        </td>
+                                        <td style="width:60px;padding-top:10px;">到货时间</td>
+                                        <td style="padding-top:10px;">
+                                            <input autocomplete="off" style="width:135px;" class="form-control input-sm Time_Select Not_Empty" name="In_DT" type="text" id="In_DT" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr id="Upload_TR">
+                            <td style="width:100px; padding:10px;">
+                                <input type="file" onchange="ShowFileName()" data-val="true" name="ExcelFile" id="FirstExcelFile" />
+                                <script>
+                                    function Check_Upload_First() {
+                                        if ($("#FirstExcelFile").val() == "") {
+                                            alert("请选择Excel文件");
+                                            return false;
+                                        }
+
+                                        if (validateFormByClass("First_Not_Empty")) {
+                                            DisAndEnabledBtn(1);
+                                            Show_Load_First();
+                                            $("#Upload_First_Form").submit();
+                                        }
+                                    }
+
+                                    function Show_Load_First() {
+                                        $("#LoadImg_1").show();
+                                        $("#Upload_First_Form").hide();
+                                    }
+                                </script>
+                            </td>
+
+                            <td id="UpLoad_First" style="padding:10px;vertical-align:bottom;">
+                                <button type="button" class="btn btn-info btn-sm" onclick="Check_Upload_First()">保存并发送</button>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+
+                <div style="padding-top:15px; line-height:20px;">
+                    1. Excel单元格不能含有公式，单元格设为文本格式，文件小于4M<br />
+                    2. 时间内容的单元格设为日期格式！<br />
+                    2. 每次上传最大支持10000条产品信息！<br />
+                    3. 请选择正确的Excel上传！
+                </div>
+
+                <div style="width:100%; padding-top:10px; text-align:center; display:none; margin:auto;" id="LoadImg_1">
+                    <img src="~/Content/Images/Load.gif" /><br /><br />
+                    <span style="padding-left:5px; color:blue;">系统正在上传和检查Excel数据，请稍后...</span>
+                </div>
+
+                <p></p>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!--期货导入Excel-->
+<!--调货导入Excel-->
+<script>
+    function Batch_Upload_Second() {
+        $('#Upload_Second_Modal').modal({ backdrop: 'static' });
+    }
+
+    function Close_Upload_Second_Modal() {
+        $('#Upload_Second_Modal').modal('hide');
+    }
+</script>
+<div class="modal fade" id="Upload_Second_Modal">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:480px;">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="Close_Upload_Second_Modal()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">零星调货批量导入</h5>
+            </div>
+            <div class="modal-body">
+                <form id="Upload_Second_Form" action="~/WMS_Task_In/WMS_In_Start_Distributor_Post" method="post" enctype="multipart/form-data">
+                    <table style="width:100%; border:1px solid silver;">
+                        <tr>
+                            <td colspan="2" style="padding:10px;">
+                                <table>
+                                    <tr>
+                                        <td style="width:60px;padding-top:10px;">供应商</td>
+                                        <td colspan="3" style="padding-top:10px;">
+                                            <input class="form-control input-sm Not_Empty" name="Link_Sup_ID" type="hidden" id="Link_Sup_ID_B" value="" />
+                                            <input onclick="Reload_SupList_B('B')" onkeyup="Reload_SupList_B('B')" id="Sup_Name_B" name="Sup_Name" class="form-control input-sm" style="border-radius:0px;" value="" placeholder="输入或选择供应商" autocomplete="off" />
+                                            <div id="SupList_Select_B" class="EnterAndSelect_Box" style="min-height:100px;min-width:340px;"></div>
+
+                                            <script>
+                                                $(function () {
+                                                    $("#SupList_Select_B").hover(function () {
+                                                        $("#SupList_Select_B").show();
+                                                    },
+                                                        function () {
+                                                            $("#SupList_Select_B").hide();
+                                                        });
+                                                });
+
+                                                function Reload_SupList_B(Type) {
+                                                    $("#SupList_Select_B").show();
+                                                    var Sup_Name = $("#Sup_Name_B").val();
+                                                    $("#SupList_Select_B").text("Loading...");
+                                                    $("#SupList_Select_B").load("/WMS_Task_In/Supplier_List", { Sup_Name: Sup_Name, Type: Type });
+                                                }
+                                            </script>
+                                        </td>
+
+                                    </tr>
+                                    <tr>
+                                        <td style="width:60px;padding-top:10px;">到货时间</td>
+                                        <td style="padding-top:10px;">
+                                            <input autocomplete="off" style="width:135px;" class="form-control input-sm Time_Select Not_Empty" name="In_DT" type="text" id="In_DT" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                                        </td>
+                                        <td style="width:70px;padding-left:15px;padding-top:10px;">运输方式</td>
+                                        <td style="padding-top:10px;">
+                                            <select class="form-control input-xs" name="Logistics_Mode" id="Logistics_Mode_Second" style="float:left; width:135px;" onchange="Select_Logistics_Cost_Type('Second')">
+                                                <option value="">请选择</option>
+                                                @foreach (var x in MF.Logistics_Mode_List)
+                                                {
+                                                    <option value="@x">@x</option>
+                                                }
+                                            </select>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td style="width:60px;padding-top:10px;" class="Logistics_Company_Second">物流公司</td>
+                                        <td style="padding-top:10px;"  class="Logistics_Company_Second">
+                                            <select class="form-control input-xs" name="Logistics_Company" id="Logistics_Company" style="width:135px;">
+                                                <option value="">请选择</option>
+                                                @foreach (var x in Logistics_List.Where(x => x.MatType == WMS_In_Type_Enum.零星调货.ToString()).Select(c => c.Company_Name).ToList())
+                                                {
+                                                    <option value="@x">@x</option>
+                                                }
+                                            </select>
+                                        </td>
+
+                                        <td style="width:70px;padding-top:10px;padding-left:15px;" class="Logistics_Cost_Type_Second">有无快递</td>
+                                        <td style="padding-top:10px;" class="Logistics_Cost_Type_Second">
+                                            <select class="form-control input-xs" name="Logistics_Cost_Type" id="Logistics_Cost_Type" style="width:135px;">
+                                                <option value="">请选择</option>
+                                                @foreach (var x in MF.Logistics_Cost_Type_List)
+                                                {
+                                                    <option value="@x">@x</option>
+                                                }
+                                            </select>
+                                        </td>
+                                    </tr>
+
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width:100px; padding:10px;">
+                                <input type="file" onchange="ShowFileName()" data-val="true" name="ExcelFile" id="SecondExcelFile" />
+                                <script>
+                                    function Check_Upload_Second() {
+                                        if ($("#SecondExcelFile").val() == "") {
+                                            alert("请选择Excel文件");
+                                            return false;
+                                        }
+
+                                        if (validateFormByClass("Second_Not_Empty")) {
+                                            DisAndEnabledBtn(1);
+                                            Show_Load_Second();
+                                            $("#Upload_Second_Form").submit();
+                                            return true;
+                                        }
+                                    }
+
+                                    function Show_Load_Second() {
+                                        $("#LoadImg_2").show();
+                                        $("#Upload_Second_Form").hide();
+                                    }
+                                </script>
+                            </td>
+
+                            <td id="UpLoad_Second" style="padding:10px; vertical-align:bottom;">
+                                <button type="button" class="btn btn-info btn-sm" onclick="Check_Upload_Second()">保存并发送</button>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+
+                <div style="padding-top:15px; line-height:20px;">
+                    1. Excel单元格不能含有公式，单元格设为文本格式，文件小于4M<br />
+                    2. 时间内容的单元格设为日期格式！<br />
+                    2. 每次上传最大支持10000条产品信息！<br />
+                    3. 请选择正确的Excel上传！
+                </div>
+
+                <div style="width:100%; padding-top:10px; text-align:center; display:none; margin:auto;" id="LoadImg_2">
+                    <img src="~/Content/Images/Load.gif" /><br /><br />
+                    <span style="padding-left:5px; color:blue;">系统正在上传和检查Excel数据，请稍后...</span>
+                </div>
+                <p></p>
+            </div>
+        </div>
+    </div>
+</div>
+<!--调货导入Excel-->
+
+<script>
+    function Select_Logistics_Cost_Type(str) {
+        var Logistics_Mode = $("#Logistics_Mode_" + str).val();
+        var Logistics_Mode_DB = '@Logistics_Mode_Enum.自提.ToString()';
+        var RemoveClass = str + "_Not_Empty";
+        if (Logistics_Mode == Logistics_Mode_DB) {
+            $(".Logistics_Cost_Type_" + str).hide();
+            $(".Logistics_Company_" + str).hide();
+        } else {
+            $(".Logistics_Cost_Type_" + str).show();
+            $(".Logistics_Company_" + str).show();
+        }
+    }
+
+    $('.Time_Select').datetimepicker({
+        language: 'zh-CN',
+        weekStart: 1,
+        todayBtn: 1,
+        autoclose: 1,
+        format: "yyyy-mm-dd",
+        todayHighlight: 1,
+        startView: 2,
+        startDate: "2018-01-01",
+        minView: 2,
+        forceParse: 0
+    });
+</script>

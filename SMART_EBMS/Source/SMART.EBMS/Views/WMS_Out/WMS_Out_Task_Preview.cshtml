@@ -1,0 +1,283 @@
+﻿@model WMS_Out_Task
+@{
+    Layout = null;
+    WMS_Out_Filter MF = ViewData["MF"] as WMS_Out_Filter;
+    ViewBag.Title = Model.Task_Bat_No_Str;
+    User U = ViewData["User"] as User;
+}
+
+<!DOCTYPE html>
+<html>
+@Html.Partial("_JsAndCss")
+<body style="background-color:white; overflow:auto; padding:20px; max-width:1024px; margin:auto;">
+    @if (TempData["Error"] != null)
+    {
+        <div class="Textarea_Error">@TempData["Error"]</div>
+    }
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="Textarea_Success">@TempData["Success"]</div>
+    }
+    <table style="text-align:center; width:100%;" class="text-nowrap">
+        <tr>
+            <td style="width:10px;">&nbsp;</td>
+            <td><span style="text-align:center; padding-left:150px; font-size:24px;">出 库 验 货 单</span></td>
+            <td style="text-align:right; width:10px; text-align:right;"><span style="font-size:16px;">NO.</span><strong style="font-size:18px;">@Model.Task_Bat_No_Str</strong></td>
+        </tr>
+    </table>
+
+    <table class="table table-bordered text-nowrap" style="width:100%;font-size:14px;margin-top:15px;">
+        <tr>
+            <td class="active" style="width:10px;">运输方式</td>
+            <td><span>@Model.Logistics_Mode</span></td>
+            <td class="active" style="width:10px;">总箱数</td>
+            <td><span>@Model.Total_Cases</span></td>
+            <td class="active" style="width:10px;">验货方式</td>
+            <td>@Model.Scan_Mat_Type</td>
+        </tr>
+        <tr>
+            <td class="active" style="width:10px;">产品型号</td>
+            <td><strong>@Model.Line_List.Where(x => x.Quantity_Sum > 0).Count().ToString("N0")</strong> <span>项</span></td>
+            <td class="active" style="width:10px;">产品数量</td>
+            <td><strong>@Model.Line_List.Where(x => x.Quantity_Sum > 0).Sum(x => x.Quantity_Sum).ToString("N0")</strong></td>
+            <td class="active" style="width:10px;">当前状态</td>
+            <td>@Model.Global_State</td>
+        </tr>
+        <tr>
+            <td class="active" style="width:10px;">客户名称</td>
+            <td colspan="3">@Model.Customer_Name</td>
+            <td class="active" style="width:10px;">电话</td>
+            <td>@Model.Customer_Tel</td>
+        </tr>
+        <tr>
+            <td class="active" style="width:10px;">客户地址</td>
+            <td colspan="5">@Model.Customer_Address</td>
+        </tr>
+    </table>
+    <style>
+        .Return_Info strong {
+            font-size: 16px;
+            padding-left: 5px;
+            padding-right: 5px;
+            color: red;
+        }
+    </style>
+
+    <table style="width:100%; margin-top:-10px;" class="Table_Clean">
+        <tr>
+            <td class="Return_Info">@Html.Raw(MF.Return_Info)</td>
+            <td>&nbsp;</td>
+            <td style="width:10px;">
+                <button type="button" class="btn btn-default" onclick="ReloadPage()"><span class="glyphicon glyphicon-repeat"></span> 刷新</button>
+            </td>
+
+            @if (Model.Global_State == WMS_Out_Global_State_Enum.待验货.ToString())
+            {
+                <td style="text-align:right; width:10px; padding-left:10px;">
+                    <button type="button" class="btn btn-primary" onclick="Sent_To_WMS_Stock_Check()">已验货，保存并发送</button>
+                </td>
+            }
+            else if (Model.Global_State == WMS_Out_Global_State_Enum.待包装.ToString())
+            {
+                <td style="text-align:right; width:10px; padding-left:10px;">
+                    <button type="button" class="btn btn-primary" onclick="Sent_To_WMS_Stock()">已称重贴单，保存并发送</button>
+                </td>
+            }
+            else if (Model.Global_State == WMS_Out_Global_State_Enum.待出库.ToString())
+            {
+                <td style="text-align:right; width:10px; padding-left:10px;">
+                    @if (U.RoleTitle == User_RoleTitle_Emun.仓管主管.ToString() || U.RoleTitle == User_RoleTitle_Emun.系统管理员.ToString() || U.RoleTitle == User_RoleTitle_Emun.公司经理.ToString())
+                    {
+                        <button type="button" class="btn btn-primary" onclick="Sent_To_WMS_Stock_Again()">已出库，保存并发送</button>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-primary" disabled>已出库，保存并发送</button>
+                    }
+                </td>
+
+                <td style="text-align:right; width:10px;padding-left:10px;">
+                    <a href="~/WMS_Out/WMS_Out_Task_Preview_To_PDF/@Model.Head_ID" class="btn btn-primary" target="_blank">下载出库明细</a>
+                </td>
+            }
+            else if (Model.Global_State == WMS_Out_Global_State_Enum.已出库.ToString())
+            {
+                <td style="text-align:right; width:10px; padding-left:10px;">
+                    <a href="~/WMS_Out/WMS_Out_Task_Preview_To_PDF/@Model.Head_ID" class="btn btn-primary" target="_blank">下载出库明细</a>
+                </td>
+            }
+
+        </tr>
+    </table>
+
+    <p></p>
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="~/WMS_Out/WMS_Out_Task_Preview/@Model.Head_ID">产品型号</a></li>
+        <li>
+            @if (Model.Scan_Mat_Type == Scan_Mat_Type_Enum.按托.ToString())
+            {
+                <a href="~/WMS_Out/WMS_Out_Task_Preview_Tray/@Model.Head_ID">托盘列表</a>
+            }
+            else
+            {
+                <a href="~/WMS_Out/WMS_Out_Task_Preview_Tray/@Model.Head_ID">箱号列表</a>
+            }
+        </li>
+        <li><a href="~/WMS_Out/WMS_Out_Task_Preview_Track/@Model.Head_ID">物流信息</a></li>
+        <li><a href="~/WMS_Out/WMS_Out_Task_Preview_Source/@Model.Head_ID">原始表单</a></li>
+        <li><a href="~/WMS_Out/WMS_Out_Task_Preview_Scan/@Model.Head_ID">扫描列表</a></li>
+    </ul>
+    <p></p>
+    <p style="font-size:15px;">共扫描<span style="font-size:16px;font-weight:bold;padding:0px 5px">@Model.Scan_List.Count()</span> 次，扫描产品 <span style="font-size:16px;font-weight:bold;padding:0px 5px">@Model.Scan_List.Select(x => x.MatSn).Distinct().Count()</span> 项，扫描产品数量共 <span style="font-size:16px;font-weight:bold;padding:0px 5px">@Model.Scan_List.Sum(x => x.Scan_Quantity)</span></p>
+
+    <table class="table table-bordered text-nowrap" style="width:100%;font-size:14px;">
+        <tr class="active">
+            <td style="width:190px;">产品型号</td>
+            <td style="width:70px;text-align:right">扫码复核</td>
+            <td style="width:70px;text-align:right">差异数量</td>
+            <td>当前状态</td>
+        </tr>
+
+        @foreach (var x in Model.Line_List.Where(x => x.Line_State == WMS_Out_Task_Line_State_Enum.多出型号.ToString()).ToList())
+        {
+            <tr>
+                <td><a href="javascript:void(0)" onclick="Show_MatSn_Detail('@x.MatSn')"><span class="MatSn_Font">@x.MatSn</span></a></td>
+                <td style="text-align:right">@x.Quantity_Sum_Scan.ToString("N0")</td>
+                <td>&nbsp;</td>
+                <td style="color:silver">@x.Line_State</td>
+            </tr>
+        }
+
+        @foreach (var x in Model.Line_List.Where(x => x.Line_State == WMS_Out_Task_Line_State_Enum.超出出货.ToString()).ToList())
+        {
+            <tr>
+                <td><a href="javascript:void(0)" onclick="Show_MatSn_Detail('@x.MatSn')"><span class="MatSn_Font">@x.MatSn</span></a></td>
+                <td style="text-align:right">@x.Quantity_Sum_Scan.ToString("N0")</td>
+                <td>&nbsp;</td>
+                <td style="color:red">@x.Line_State</td>
+            </tr>
+        }
+
+        @foreach (var x in Model.Line_List.Where(x => x.Line_State == WMS_Out_Task_Line_State_Enum.低于出货.ToString()).ToList())
+        {
+            <tr>
+                <td><a href="javascript:void(0)" onclick="Show_MatSn_Detail('@x.MatSn')"><span class="MatSn_Font">@x.MatSn</span></a></td>
+                <td style="text-align:right">@x.Quantity_Sum_Scan.ToString("N0")</td>
+                <td>&nbsp;</td>
+                <td style="color:orange">@x.Line_State</td>
+            </tr>
+        }
+
+        @foreach (var x in Model.Line_List.Where(x => x.Line_State == WMS_Out_Task_Line_State_Enum.还未扫码.ToString()).ToList())
+        {
+            <tr>
+                <td><span class="MatSn_Font">@x.MatSn</span></td>
+                <td style="text-align:right">@x.Quantity_Sum_Scan.ToString("N0")</td>
+                <td>&nbsp;</td>
+                <td style="color:silver">@x.Line_State</td>
+            </tr>
+        }
+
+        @foreach (var x in Model.Line_List.Where(x => x.Line_State == WMS_Out_Task_Line_State_Enum.数量一致.ToString()).ToList())
+        {
+            <tr>
+                <td><a href="javascript:void(0)" onclick="Show_MatSn_Detail('@x.MatSn')"><span class="MatSn_Font">@x.MatSn</span></a></td>
+                <td style="text-align:right">@x.Quantity_Sum_Scan.ToString("N0")</td>
+                <td>&nbsp;</td>
+                <td style="color:green">@x.Line_State</td>
+            </tr>
+        }
+    </table>
+
+    <table class="table table-condensed" style="width:100%;font-size:14px;">
+        <tr>
+            <td>作业人：@Model.Work_Out_Person</td>
+        </tr>
+    </table>
+
+    <script>
+        function Sent_To_WMS_Stock_Check() {
+            if (confirm("确认保存并发送?") == false) {
+                return false;
+            }
+
+            $.post("/WMS_Out/WMS_Out_Task_Preview_To_WMS_Stock_Check/@Model.Head_ID", function (result) {
+                if (result == "") {
+                    ReloadPage();
+                } else {
+                    alert(result);
+                }
+            });
+        }
+
+        function Sent_To_WMS_Stock() {
+            if (confirm("确认保存并发送?") == false) {
+                return false;
+            }
+
+            $.post("/WMS_Out/WMS_Out_Task_Preview_To_WMS_Stock/@Model.Head_ID", function (result) {
+                if (result == "") {
+                    ReloadPage();
+                } else {
+                    alert(result);
+                }
+            });
+        }
+
+        function Sent_To_WMS_Stock_Again() {
+            if (confirm("确认保存并发送?") == false) {
+                return false;
+            }
+
+            $.post("/WMS_Out/WMS_Out_Task_Preview_To_WMS_Stock_Aagin/@Model.Head_ID", function (result) {
+                if (result == "") {
+                    ReloadPage();
+                } else {
+                    alert(result);
+                }
+            });
+        }
+    </script>
+
+    <!--产品信息-->
+    <script>
+        function Show_MatSn_Detail(MatSn) {
+            Reload_MatSn_Context(MatSn);
+            $('#MatSn_Modal').modal({ backdrop: 'static' });
+        }
+
+        function Reload_MatSn_Context(MatSn) {
+            var escape_MatSn = escape(MatSn);
+            $("#MatSn_Context").text("Loading...");
+            $("#MatSn_Context").load("/WMS_Out/WMS_Out_Task_Preview_Sub/@Model.Head_ID" + "?MatSn=" + escape_MatSn);
+        }
+
+        function Reset_Task_Bat_MatSn(MatSn) {
+            if (confirm("确认清空此产品型号的扫码数据？") == false) {
+                return false;
+            }
+
+            $.post("/WMS_Out/WMS_Out_Task_Preview_Sub_Reset/@Model.Head_ID", { MatSn: MatSn }, function (result) {
+                if (result != "") {
+                    alert(result);
+                } else {
+                    ReloadPage();
+                }
+            });
+        }
+    </script>
+    <div class="modal fade" id="MatSn_Modal">
+        <div class="modal-dialog" style="width:480px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title">产品明细</h5>
+                </div>
+                <div class="modal-body" id="MatSn_Context"></div>
+            </div>
+        </div>
+    </div>
+    <!--产品信息-->
+</body>
+</html>

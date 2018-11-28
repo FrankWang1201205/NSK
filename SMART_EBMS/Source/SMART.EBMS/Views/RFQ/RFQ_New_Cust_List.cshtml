@@ -1,0 +1,12 @@
+﻿@model List<Customer>
+@{ 
+    Layout = null;
+    Customer_Filter MF = ViewData["MF"] as Customer_Filter;
+}
+
+<table class="text-nowrap">
+    @foreach (var x in Model)
+    {
+        <tr onclick="Show_Add_RFQ('@x.CID')"><td style="width:10px;">@x.Cust_Code</td><td>@x.Cust_Name</td></tr>
+    }
+</table>

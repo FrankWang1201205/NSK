@@ -1,0 +1,28 @@
+﻿@model WMS_Track
+@{
+    Layout = null;
+}
+
+<form action="~/WMS_In/WMS_In_Operate_Track_Add_Post/@Model.Link_Head_ID" method="post" enctype="multipart/form-data" onsubmit="return validateFormByClass('NotEmpty')">
+    <table class="FormTable_Sim text-nowrap">
+        <tr>
+            <td style="width:10px;text-align:right">*车牌号</td>
+            <td style="width:10px;padding-left:5px;"><input class="form-control input-sm" id="Tracking_No" name="Tracking_No" type="text" style="width:180px;" value="@Model.Tracking_No" /></td>
+            
+        </tr>
+        <tr>
+            <td style="width:10px;text-align:right">* 金额</td>
+            <td style="width:10px;padding-left:5px;"><input class="form-control input-sm NotEmpty" id="Logistics_Cost" name="Logistics_Cost" type="number" min="0" style="width:180px;" value="@Model.Logistics_Cost.ToString("N2")" /></td>
+        </tr>
+        <tr>
+            <td style="width:10px;text-align:right">* 公里数</td>
+            <td style="width:10px;padding-left:5px;"><input class="form-control input-sm NotEmpty" id="Kilometers" name="Kilometers" type="number" min="0" style="width:180px;" value="@Model.Kilometers.ToString("N2")" /></td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td style="width:10px;">
+                <button type="submit" class="btn btn-primary btn-sm" style="width:60px; margin-right:5px;">递交</button>
+            </td>
+        </tr>
+    </table>
+</form>

@@ -1,0 +1,264 @@
+﻿@model PageList<Purchase_Temp>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Purchase_Temp_Filter MF = ViewData["MF"] as Purchase_Temp_Filter;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("价格比对");</script>
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/Purchase/Purchase_Temp_List" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:250px; padding-left:5px;">
+                    <div class="input-group input-group-sm" style="width: 250px; ">
+                        <input type="text" name="MatSn" id="MatSn" placeholder="产品型号" value="@MF.MatSn" class="form-control ">
+                        <div class="input-group-btn">
+                            <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                        </div>
+                    </div>
+                </td>
+
+                <td style="width:10px;padding-left:20px;">
+                    <button type="button" class="btn btn-info btn-sm" onclick="Batch_Upload()">导入数据</button>
+                </td>
+
+                <td style="width:10px;padding-left:20px;">
+                    <button type="button" class="btn btn-primary btn-sm" onclick="Batch_Search()">批量查找</button>
+                </td>
+
+                <td style="float:right;width:30px;">&nbsp;</td>
+
+                <td style="float:right;width:200px;">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-default btn-sm">模板下载</button>
+                        <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="caret"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a href="~/Download/导入数据模板.xlsx" target="_blank">导入数据模板</a></li>
+                            <li><a href="~/Download/查找数据模板.xlsx" target="_blank">查找数据模板</a></li>
+                        </ul>
+                    </div>
+                </td>
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:80px;">订货窗口编号</th>
+            <th style="width:220px;">产品型号</th>
+            <th style="width:70px;">品牌</th>
+            <th style="width:150px;">订货窗口</th>
+            <th style="width:70px;">销售代表</th>
+            <th style="width:60px;">指令代码</th>
+            <th style="width:60px;">供应商</th>
+            <th style="width:50px;">货币</th>
+            <th style="width:60px;text-align:right">价格</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model.Rows.OrderByDescending(x => x.Create_DT).ToList())
+        {
+            <tr>
+                <td>&nbsp;</td>
+                <td style="vertical-align:top;">@x.Cust_Code</td>
+                <td style="vertical-align:top;"><span class="MatSn_Font">@x.MatSn</span></td>
+                <td style="vertical-align:top;">@x.MatBrand</td>
+                <td style="vertical-align:top;">@x.Cust_Short_Name</td>
+                <td style="vertical-align:top;">@x.Sales_Rep_Name</td>
+                <td style="vertical-align:top;">@x.PC_Code</td>
+                <td style="vertical-align:top;">@x.AP_Sup_Code</td>
+                <td style="vertical-align:top;">@x.Currency_Code</td>
+                <td style="vertical-align:top;text-align:right">@x.Contract_Price.ToString("N4")</td>
+                <td>&nbsp;</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>
+
+<!--导入Excel-->
+<script>
+    function Batch_Upload() {
+        $('#Upload_Modal').modal({ backdrop: 'static' });
+    }
+
+    function Close_Upload_Modal() {
+        $('#Upload_Modal').modal('hide');
+    }
+</script>
+<div class="modal fade" id="Upload_Modal">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:480px;">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="Close_Upload_Modal()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">批量导入数据</h5>
+            </div>
+            <div class="modal-body">
+                <form id="Upload_First_Form" action="~/Purchase/Purchase_Temp_Create_Post" method="post" enctype="multipart/form-data">
+                    <table style="width:100%; border:1px solid silver;">
+                        <tr id="Upload_TR">
+                            <td style="width:100px; padding:10px;">
+                                <input type="file" onchange="ShowFileName()" data-val="true" name="ExcelFile" id="FirstExcelFile" />
+                                <script>
+                                    function Check_Upload_First() {
+                                        if ($("#FirstExcelFile").val() == "") {
+                                            alert("请选择Excel文件");
+                                            return false;
+                                        }
+
+                                        DisAndEnabledBtn(1);
+                                        Show_Load_First();
+                                        $("#Upload_First_Form").submit();
+                                    }
+
+                                    function Show_Load_First() {
+                                        $("#LoadImg_1").show();
+                                        $("#Upload_First_Form").hide();
+                                    }
+                                </script>
+                            </td>
+
+                            <td id="UpLoad_First" style="padding:10px;vertical-align:bottom;">
+                                <button type="button" class="btn btn-info btn-sm" onclick="Check_Upload_First()">递交</button>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+
+                <div style="padding-top:15px; line-height:20px;">
+                    1. Excel单元格不能含有公式，单元格设为文本格式，文件小于4M<br />
+                    2. 时间内容的单元格设为日期格式！<br />
+                    2. 每次上传最大支持10000条产品信息！<br />
+                    3. 请选择正确的Excel上传！
+                </div>
+
+                <div style="width:100%; padding-top:10px; text-align:center; display:none; margin:auto;" id="LoadImg_1">
+                    <img src="~/Content/Images/Load.gif" /><br /><br />
+                    <span style="padding-left:5px; color:blue;">系统正在上传和检查Excel数据，请稍后...</span>
+                </div>
+
+                <p></p>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!--导入Excel-->
+<!--批量查找-->
+<script>
+    function Batch_Search() {
+        $('#Search_Modal').modal({ backdrop: 'static' });
+    }
+
+    function Close_Search_Modal() {
+        $('#Search_Modal').modal('hide');
+    }
+</script>
+<div class="modal fade" id="Search_Modal">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:480px;">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="Close_Search_Modal()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">批量查找</h5>
+            </div>
+            <div class="modal-body">
+                <form id="Search_First_Form" action="~/Purchase/Purchase_Temp_Batch_Search_Post" method="post" enctype="multipart/form-data">
+                    <table style="width:100%; border:1px solid silver;">
+                        <tr id="Upload_TR">
+                            <td style="width:100px; padding:10px;">
+                                <input type="file" onchange="ShowFileName()" data-val="true" name="ExcelFile" id="SecondExcelFile" />
+                                <script>
+                                    function Check_Search_First() {
+                                        if ($("#SecondExcelFile").val() == "") {
+                                            alert("请选择Excel文件");
+                                            return false;
+                                        }
+
+                                        DisAndEnabledBtn(1);
+                                        Show_Load_Second();
+                                        $("#Search_First_Form").submit();
+                                    }
+
+                                    function Show_Load_Second() {
+                                        $("#LoadImg_2").show();
+                                        $("#Search_First_Form").hide();
+                                    }
+                                </script>
+                            </td>
+
+                            <td id="Search_First" style="padding:10px;vertical-align:bottom;">
+                                <button type="button" class="btn btn-info btn-sm" onclick="Check_Search_First()">查找</button>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+
+                <div style="padding-top:15px; line-height:20px;">
+                    1. Excel单元格不能含有公式，单元格设为文本格式，文件小于4M<br />
+                    2. 时间内容的单元格设为日期格式！<br />
+                    2. 每次上传最大支持10000条产品信息！<br />
+                    3. 请选择正确的Excel上传！
+                </div>
+
+                <div style="width:100%; padding-top:10px; text-align:center; display:none; margin:auto;" id="LoadImg_2">
+                    <img src="~/Content/Images/Load.gif" /><br /><br />
+                    <span style="padding-left:5px; color:blue;">系统正在上传和检查Excel数据，请稍后...</span>
+                </div>
+
+                <p></p>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!--批量查找-->

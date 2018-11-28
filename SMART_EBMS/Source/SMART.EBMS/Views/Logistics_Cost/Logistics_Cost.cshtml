@@ -1,0 +1,187 @@
+﻿@model Logistics_Cost_Year
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Logistics_Cost_Filter MF = ViewData["MF"] as Logistics_Cost_Filter;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("快递费用");</script>
+
+<script>
+    function SubmitForm() {
+        $("#MyForm").submit();
+    }
+</script>
+
+
+<form id="MyForm" class="DeductionDiv TopSearchDiv" action="~/Logistics_Cost/Logistics_Cost" method="get" style="width:100%;">
+    <table style="width:100%;">
+        <tr>
+            <td style="width:100px;">
+                <select name="Year" id="Year" class="form-control input-sm" onchange="SubmitForm()">
+                    @foreach (var x in Model.YearList)
+                        {
+                            if (MF.Year == x)
+                            {
+                        <option selected value="@x">@x 年</option>
+                            }
+                            else
+                            {
+                        <option value="@x">@x 年</option>
+                            }
+                        }
+                </select>
+            </td>
+
+            <td style="width:110px; padding-left:15px;">
+                <select name="TrackingType" id="TrackingType" class="form-control input-sm" onchange="SubmitForm()">
+                    <option value="">快递类型</option>
+                    @foreach (var x in Enum.GetNames(typeof(Tracking_Type_Enum)))
+                        {
+                            if (MF.TrackingType == x)
+                            {
+                        <option selected value="@x">@x</option>
+                            }
+                            else
+                            {
+                        <option value="@x">@x</option>
+                            }
+                        }
+                </select>
+            </td>
+
+            <td style="width:250px; padding-left:15px;">
+                <div class="input-group input-group-sm" style="width: 250px; ">
+                    <input type="text" name="Keyword" id="Keyword" placeholder="快递物流" value="@MF.Keyword" class="form-control ">
+                    <div class="input-group-btn">
+                        <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                    </div>
+                </div>
+            </td>
+
+            <td style="text-align:right; vertical-align:bottom;"></td>
+        </tr>
+    </table>
+</form>
+
+<div style="margin:20px;margin-top:5px;">
+    <div class="DeductionDiv">
+        <table id="DataTable" class="table-condensed table-bordered table-nowrap" style="width:100%;">
+            <thead>
+                <tr style="background-color:whitesmoke">
+                    <th style="width:120px; overflow:hidden; text-align:left;">快递物流</th>
+                    <th style="width:70px; overflow:hidden; text-align:center;">项</th>
+                    <th style="width:130px; overflow:hidden; text-align:right;">合计</th>
+                    @foreach (var x in Model.SubList)
+                    {
+                        <th style="text-align:right; width:80px; overflow: hidden;">@x.MonthStr 月</th>
+                    }
+                    <th>&nbsp;</th>
+                    <th style="width:18px;"></th>
+                </tr>
+
+                <tr style="background-color:whitesmoke;">
+                    <td rowspan="2" style="vertical-align:middle; text-align:left;width:120px; ">所有</td>
+                    <td style="text-align:center;width:70px;">单号数</td>
+                    <td style="text-align:right; font-size:14px; font-weight:bold;width: 130px;">@Model.SubList.Sum(c => c.Tracking_No_Amount)</td>
+                    @foreach (var x in Model.SubList)
+                    {
+                        <td style="text-align: right; font-size: 12px; font-weight: bold; width:80px;">
+                            @if (x.Tracking_No_Amount > 0)
+                            {
+                                <span>@x.Tracking_No_Amount</span>
+                            }
+                        </td>
+                    }
+                    <td></td>
+                    <td style="width:18px;"></td>
+                </tr>
+
+                <tr style="background-color:whitesmoke;">
+                    
+                    <td style="width:70px; text-align:center;">金额</td>
+                    <td style="text-align:right; font-size:14px; font-weight:bold; width:130px;">￥@Model.SubList.Sum(c => c.Price_Amount).ToString("0.00")</td>
+                    @foreach (var x in Model.SubList)
+                    {
+                        <td style="text-align: right; font-size: 12px; font-weight: bold; width:80px;">
+                            @if (x.Price_Amount > 0)
+                            {
+                                <span></span>
+                                <a href="~/Logistics_Cost/Logistics_Cost_Sub_ALL?SD=@x.SD.ToString("yyyy-MM-dd")&ED=@x.ED.ToString("yyyy-MM-dd")" target="_blank">￥@x.Price_Amount.ToString("0.00")</a>
+                            }
+                        </td>
+                    }
+                    <td></td>
+                    <td style="width:18px;"></td>
+                </tr>
+             
+            </thead>
+        </table>
+    </div>
+
+    <div id="MainDomDiv" style="overflow-y:scroll;">
+        <table class="table table-condensed table-bordered table-nowrap" style="width:100%">
+            <tbody>
+                @foreach (var xxx in Model.SubCustList)
+                {
+                    <tr style="background-color:white;">
+                        <td rowspan="2" style="white-space:nowrap;overflow:hidden; text-align:left; vertical-align:middle;width:120px;">
+                            <span>@xxx.Logistics_Name</span>
+                        </td>
+                        <td style="text-align:center;width:70px;">单号数</td>
+                        <td style="font-weight: bold; text-align: right; overflow: hidden;width: 130px;">
+                            @if (xxx.SubList.Sum(c => c.Tracking_No_Amount) > 0)
+                            {
+                                <span>@xxx.SubList.Sum(c => c.Tracking_No_Amount)</span>
+                            }
+                        </td>
+                        @foreach (var xxxx in xxx.SubList)
+                        {
+                            <td style="text-align: right; width:80px; overflow:hidden;font-weight: bold;">
+                                @if (xxxx.Tracking_No_Amount > 0)
+                                {
+                                    <span>@xxxx.Tracking_No_Amount</span>
+                                }
+                            </td>
+                        }
+                        <td></td>
+                    </tr>
+
+                    <tr style="font-family:Arial" class="@xxx.Logistics_ID">
+                        
+                        <td style="width:70px; text-align:center;">金额</td>
+                        <td style="font-weight: bold; text-align: right; width: 130px; overflow: hidden;">
+                            @if (xxx.SubList.Sum(c => c.Price_Amount) > 0)
+                            {
+                                <span>￥@xxx.SubList.Sum(c => c.Price_Amount).ToString("0.00")</span>
+                            }
+                        </td>
+                        @foreach (var xxxx in xxx.SubList)
+                        {
+                            <td style="text-align: right; width:80px; overflow:hidden;font-weight: bold;">
+                                @if (xxxx.Price_Amount > 0)
+                                {
+                                    <a href="~/Logistics_Cost/Logistics_Cost_Sub/@xxx.Logistics_ID?SD=@xxxx.MonthStr_SD&ED=@xxxx.MonthStr_ED" target="_blank">￥@xxxx.Price_Amount.ToString("0.00")</a>
+                                }
+                            </td>
+                        }
+                        <td></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    $(function () {
+        FixHeightExt();
+    });
+
+    $(window).resize(function () {
+        FixHeightExt();
+    });
+
+    function FixHeightExt() {
+        $('#MainDomDiv').css('height', FixHeightValue());
+    }
+</script>

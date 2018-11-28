@@ -1,0 +1,31 @@
+﻿@{
+    Layout = null;
+    Brand EmptyBrand = new Brand();
+}
+
+
+<form id="MyBrandItem_Form" action="~/Brand/Brand_Add_Post" method="post" enctype="multipart/form-data">
+    <table class="FormTable_Sim">
+        <tr>
+            <td style="text-align:right;">* 品牌名称</td>
+            <td><input class="form-control input-sm NotEmpty" id="Brand_Name" name="Brand_Name" type="text" style="width:190px;"  value="@EmptyBrand.Brand_Name" /></td>
+        </tr>
+
+        <tr>
+            <td>&nbsp;</td>
+            <td><button type="button" class="btn btn-primary btn-sm" style="width:70px;" onclick="MyBrandItem_FormSubmit()">递交</button></td>
+        </tr>
+
+    </table>
+</form>
+
+<script>
+    function MyBrandItem_FormSubmit() {
+        if (validateFormByClass('NotEmpty') == false) {
+            return false;
+        }
+
+        DisAndEnabledBtn(1);
+        $("#MyBrandItem_Form").submit();
+    }
+</script>

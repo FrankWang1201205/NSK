@@ -1,0 +1,241 @@
+﻿@model PageList<WMS_Move>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    WMS_Move_Filter MF = ViewData["MF"] as WMS_Move_Filter;
+    User U = ViewData["User"] as User;
+    WMS_In_Head Head = ViewData["Head"] as WMS_In_Head;
+    List<WMS_Work_Person> List = ViewData["List"] as List<WMS_Work_Person>;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("上架通知");</script>
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/WMS_Up/WMS_Up_Start_Sub/@MF.Link_HeadID" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:40px;padding-right:15px;"><a href="~/WMS_Up/WMS_Up_Start" class="btn btn-info btn-sm">返回</a></td>
+
+                @if (U.RoleTitle == User_RoleTitle_Emun.仓管主管.ToString() || U.RoleTitle == User_RoleTitle_Emun.系统管理员.ToString() || U.RoleTitle == User_RoleTitle_Emun.公司经理.ToString())
+                {
+                    <td style="width:10px;">
+                        <button type="button" onclick="ShowSetItem()" class="btn btn-primary btn-sm">批量派工</button>
+                    </td>
+                }
+                else
+                {
+                    <td style="width:10px;">
+                        <button type="button" disabled class="btn btn-primary btn-sm">批量派工</button>
+                    </td>
+                }
+
+                <td style="width:250px; padding-left:15px;">
+                    <div class="input-group input-group-sm" style="width: 250px; ">
+                        <input type="text" name="Location" id="Location" placeholder="移出库位" value="@MF.Location" class="form-control ">
+                        <div class="input-group-btn">
+                            <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                        </div>
+                    </div>
+                </td>
+
+                <td style="float:right;width:30px;">&nbsp;</td>
+                <td style="float:right;">
+                    <span style="font-size:14px;">任务编号：</span><strong style="font-size:15px;">@Head.Task_Bat_No_Str</strong>
+                </td>
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<form id="MyCreateForm" action="~/WMS_Up/WMS_Up_Task_Batch_Add_Post/@MF.Link_HeadID" method="post" enctype="multipart/form-data">
+    <table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+        <thead>
+            <tr>
+                <th style="width:10px;">&nbsp;</th>
+                <th style="width:40px; text-align:center; padding:0px;"><input type="checkbox" id="ALL" onclick="checkBoxCheckAll('ALL', 'Move_ID')" /></th>
+                <th style="width:80px;">供应商</th>
+                <th style="width:70px;">创建日期</th>
+                <th style="width:70px;">移出库位</th>
+                <th style="width:70px;">产品型号</th>
+                <th style="width:70px;">产品数量</th>
+                <th style="width:80px;">作业人</th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var x in Model.Rows.Where(x => x.Task_Bat_No != "").ToList())
+            {
+                <tr>
+                    <td>&nbsp;</td>
+                    <td style="text-align:center;"><input type="checkbox" value="@x.Move_ID" name="Move_ID" class="Move_ID" id="Move_ID_@x.Move_ID" /></td>
+                    <td style="vertical-align:top;">@x.Supplier_Name</td>
+                    <td style="vertical-align:top;">@x.Create_DT.ToString("yyyy-MM-dd")</td>
+                    <td style="vertical-align:top;"><a href="~/WMS_Up/WMS_Up_Start_Sub_Preview/@x.Move_ID" target="_blank">@x.Out_Location</a></td>
+                    <td style="vertical-align:top;">@x.MatSn_Count.ToString("N0")</td>
+                    <td style="vertical-align:top;">@x.Quantity_Sum.ToString("N0")</td>
+                    <td style="vertical-align:top;">@x.Work_Person</td>
+                    <td>&nbsp;</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="modal fade" id="MySetModal">
+        <div class="modal-dialog">
+            <div class="modal-content" style="width:350px;">
+                <div class="modal-header">
+                    <button type="button" class="close" onclick="CloseSetItem()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title">批量派工</h5>
+                </div>
+                <div class="modal-body">
+                    <table class="FormTable_Sim text-nowrap" style="width:100%">
+                        <tr>
+                            <td>
+                                <div class="panel-group" id="accordion">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <span style="cursor:pointer" data-toggle="collapse" data-parent="#accordion"
+                                                  href="#collapseOne">
+                                                选择上架作业人
+                                            </span>
+                                        </div>
+                                        <div id="collapseOne" class="panel-collapse collapse in">
+                                            <div class="panel-body">
+                                                @foreach (var x in List)
+                                                {
+                                                    <label style="width:100px;cursor:pointer;">
+                                                        <input type="checkbox" name="Work_Person" value="@x.Person_Name" />
+                                                        <span style="padding-left:5px;">@x.Person_Name</span>
+                                                    </label>
+                                                    <br />
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:center">
+                                <button type="button" onclick="Show_Create_Modal()" class="btn btn-primary btn-sm" style="width:60px;">递交</button>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>
+
+<!--派工-->
+<script>
+    function ShowSetItem() {
+        $('#MySetModal').modal({ backdrop: 'static' });
+    }
+
+    function CloseSetItem() { $('#MySetModal').modal('hide'); }
+
+    function Show_Create_Modal() {
+        if (checkBoxCheckLength("Move_ID") <= 0) {
+            alert("请选择上架任务！");
+            return false;
+        }
+
+        $("#MyCreateForm").submit();
+    }
+</script>
+
+<!--派工-->
+<!--查看-->
+<script>
+    function ShowModal(Move_ID) {
+        ReloadShowItem(Move_ID);
+        $('#MyShowModal').modal({ backdrop: 'static' });
+    }
+
+    function CloseShowItem() { $('#MyShowModal').modal('hide'); }
+
+    function ReloadShowItem(Move_ID) {
+        $("#ShowContext").text("Loading...");
+        $("#ShowContext").load("/WMS_Up/WMS_Up_Start_Sub_Sub/" + Move_ID);
+    }
+</script>
+<div class="modal fade" id="MyShowModal">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:350px;">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="CloseShowItem()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">任务信息</h5>
+            </div>
+            <div class="modal-body" id="ShowContext"></div>
+        </div>
+    </div>
+</div>
+<!--查看-->
+<!--详细信息-->
+<script>
+    function Show_Move_Detail(Out_Location) {
+
+        Reload_Move_Context(Out_Location);
+        $('#Move_Modal').modal({ backdrop: 'static' });
+    }
+
+    function Reload_Move_Context(Out_Location) {
+        var escape_Tray_No = escape(Out_Location);
+        $("#Move_Context").text("Loading...");
+        $("#Move_Context").load("/WMS_Up/WMS_Up_Start_Sub_Preview?Out_Location=" + escape_Tray_No);
+    }
+</script>
+<div class="modal fade" id="Move_Modal">
+    <div class="modal-dialog" style="width:550px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">库位明细</h5>
+            </div>
+            <div class="modal-body" id="Move_Context"></div>
+        </div>
+    </div>
+</div>
+<!--详细信息-->

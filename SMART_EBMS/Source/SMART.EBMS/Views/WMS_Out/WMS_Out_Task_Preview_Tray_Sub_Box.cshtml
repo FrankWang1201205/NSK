@@ -1,0 +1,63 @@
+﻿@model List<WMS_Out_Scan>
+@{
+    Layout = null;
+
+    WMS_Out_Head Head = ViewData["Head"] as WMS_Out_Head;
+
+    List<string> strList = Model.Select(x => x.MatSn).Distinct().ToList();
+    List<WMS_Out_Scan> List = new List<WMS_Out_Scan>();
+    WMS_Out_Scan Scan = new WMS_Out_Scan();
+    foreach (var x in strList)
+    {
+        Scan = new WMS_Out_Scan();
+        Scan.MatSn = x;
+        Scan.Scan_Quantity = Model.Where(c => c.MatSn == x).Sum(c => c.Scan_Quantity);
+        List.Add(Scan);
+    }
+}
+
+<table style="width:100%;">
+    <tr>
+        <td><h4>第 <strong style="font-size:22px;">@Model.FirstOrDefault().Tray_No</strong> 箱，<strong>@Model.Select(x => x.MatSn).Distinct().Count().ToString("N0")</strong>个型号</h4></td>
+
+        @if (Head.Status == WMS_Out_Global_State_Enum.待出库.ToString() || Head.Status == WMS_Out_Global_State_Enum.已出库.ToString()|| Head.Status == WMS_Out_Global_State_Enum.待包装.ToString())
+        {
+            <td style="text-align:right">
+                <a style="margin-left:15px;" href="~/WMS_Out/WMS_Out_Task_Preview_To_PDF_By_Tray/@Head.Head_ID?Tray_No=@Model.FirstOrDefault().Tray_No" class="btn btn-primary" target="_blank">下载出库明细</a>
+            </td>
+            <td style="text-align:right">
+                <a href="~/WMS_Out/WMS_Out_Task_Preview_To_PDF_By_Tray_Label/@Head.Head_ID?Tray_No=@Model.FirstOrDefault().Tray_No" class="btn btn-primary" target="_blank">打印明细标签</a>
+            </td>
+        }
+        else
+        {
+            <td style="text-align:right;">
+                <button style="text-align:right" type="button" class="btn btn-danger btn-sm" onclick="Reset_Task_Bat_Tray_No_Box('@Model.FirstOrDefault().Tray_No')">重置本箱</button>
+            </td>
+        }
+
+    </tr>
+
+</table>
+<p></p>
+<table class="table table-condensed table-bordered text-nowrap">
+    <tr class="active">
+        <td style="width:190px;">产品型号</td>
+        <td style="text-align:right; width:10px;">扫码数量</td>
+        <td>&nbsp;</td>
+    </tr>
+    @foreach (var x in List.OrderBy(c => c.MatSn).ToList())
+    {
+        <tr>
+            <td class="MatSn_Font">@x.MatSn</td>
+            <td style="text-align:right">@x.Scan_Quantity.ToString("N0")</td>
+            <td>&nbsp;</td>
+        </tr>
+    }
+
+    <tr>
+        <td style="text-align:right;">Total:</td>
+        <td style="text-align:right;">@List.Sum(c => c.Scan_Quantity).ToString("N0")</td>
+        <td>&nbsp;</td>
+    </tr>
+</table>

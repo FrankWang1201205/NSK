@@ -1,0 +1,181 @@
+﻿@model PageList<Mat_Excel>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Material_Filter MF = ViewData["MF"] as Material_Filter;
+    string ExcelFileName = "批量上传模版.xlsx";
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("批量创建");</script>
+
+@if (TempData["Error_Batch"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error_Batch"]</div>
+}
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/Material/Mat_Batch_Sub/@MF.Link_BID" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:150px;">
+                    <!-- Split button -->
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary btn-sm btn-sm-top" data-toggle="dropdown">批量导入</button>
+                        <button type="button" class="btn btn-primary btn-sm btn-sm-top dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="caret"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a href="javascript:void(0)" onclick="Show_Upload_Model()">上传 - 产品数据</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="~/DownLoad/@ExcelFileName" target="_blank">下载 - 数据模板</a></li>
+                        </ul>
+                    </div>
+                </td>
+
+                <td style="width:100px; padding-left:10px;">
+                    <input type="text" readonly="readonly" name="MatBrand" id="MatBrand" value="@MF.MatBrand" class="form-control input-xs">
+                </td>
+
+
+                <td style="width:200px; padding-left:5px;">
+                    <input type="text" name="Keyword" id="Keyword" placeholder="上传文件名称" value="@MF.Keyword" class="form-control input-xs">
+                </td>
+
+                <td style="width:10px; padding-left:5px;">
+                    <button class="btn btn-danger btn-sm btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                </td>
+
+                <td style="width:50px;">&nbsp;</td>
+
+                <td style="vertical-align:bottom;">&nbsp;</td>
+
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:80px;">上传日期</th>
+            <th style="width:80px;">上传人</th>
+            <th style="width:250px;">文件名称</th>
+            <th style="width:50px; text-align:center;">&nbsp;</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model.Rows)
+            {
+            <tr>
+                <td>&nbsp;</td>
+                <td style="vertical-align:top;">@x.Create_DT.ToString("yyyy-MM-dd")</td>
+                <td style="vertical-align:top;">@x.Upload_Person</td>
+                <td style="vertical-align:top;">@x.File_Name</td>
+                <td style="vertical-align:top; text-align:center;"><a class="btn btn-info btn-xs" href="~/Material/Mat_Batch_Sub_Record/@x.MEID">查看</a></td>
+                <td style="vertical-align:top;">&nbsp;</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>
+
+
+<!--导入Excel-->
+<script>
+    function Show_Upload_Model() {
+        $('#MyUploadModel').modal({ backdrop: 'static' });
+    }
+
+    function Close_Upload_Model() {
+        $('#MyUploadModel').modal('hide');
+    }
+</script>
+<div class="modal fade" id="MyUploadModel">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:480px;">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="Close_Upload_Model()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">@MF.MatBrand 批量导入</h5>
+            </div>
+            <div class="modal-body">
+                <form id="MyUploadForm" action="~/Material/Mat_Batch_Sub_Post/@MF.Link_BID" method="post" enctype="multipart/form-data">
+                    <table style="width:100%; border:1px solid silver;">
+                        <tr>
+                            <td style="width:100px; padding:10px;">
+                                <input type="file" onchange="ShowFileName()" data-val="true" name="ExcelFile" id="ExcelFile" />
+                                <script>
+                                    function CheckUpload() {
+                                        if ($("#ExcelFile").val() == "") {
+                                            alert("请选择Excel文件");
+                                            return false;
+                                        } else {
+                                            ShowLoad();
+                                            $("#MyUploadForm").submit();
+                                            return true;
+                                        }
+                                    }
+
+                                    function ShowLoad() {
+                                        $("#LoadImg").show();
+                                        $("#MyUploadForm").hide();
+                                    }
+                                </script>
+                            </td>
+
+                            <td id="MyUpLoad" style="padding:10px;  vertical-align:bottom;">
+                                <button type="button" onclick="CheckUpload()">确定上传</button>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+
+                <div style="padding-top:15px; line-height:20px;">
+                    1.Excel单元格不能含有公式，文件小于4M<br />2.每次上传最大支持10000条产品信息！
+                </div>
+
+                <div style="width:100%; padding-top:10px; text-align:center; display:none; margin:auto;" id="LoadImg">
+                    <img src="~/Content/Images/Load.gif" /><br /><br />
+                    <span style="padding-left:5px; color:blue;">系统正在上传和检查Excel数据，请稍后...</span>
+                </div>
+
+                <p></p>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!--导入Excel-->

@@ -1,0 +1,53 @@
+﻿@model List<MainCompany>
+@{ 
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("INIT");</script>
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+<div id="RightDivContext">
+    <div style="padding:30px; height:auto; overflow:hidden;">
+        <table class="table table-condensed table-bordered" style="width:auto;">
+            <tr class="active">
+                <td>经营主体</td>
+                <td>企业代码</td>
+                <td>系统管理员</td>
+                <td>登陆密码</td>
+            </tr>
+            @foreach (var x in Model)
+            {
+                <tr>
+                    <td>@x.MainCompanyName</td>
+                    <td>@x.PinCode</td>
+                    <td>@x.Admin_User_Name</td>
+                    <td>@x.Admin_User_Password</td>
+                </tr>
+            }
+        </table>
+
+        <form action="~/CodingStandard/INIT_Post" method="post">
+            <table class="FormTable_Sim FormTable_Sim_Input" style="width:auto;">
+                <tr>
+                    <td><input style="width:200px;" name="MainCompanyName" id="MainCompanyName" value="" placeholder="经营主体名称" /></td>
+                    <td><input style="width:100px;" name="MainCompanyShortName" id="MainCompanyShortName" value="" placeholder="经营主体简称" /></td>
+                    <td><input style="width:100px;" name="PinCode" id="PinCode" value="" placeholder="企业代码" /></td>
+                    <td><button type="submit">递交</button></td>
+                </tr>
+            </table>
+        </form>
+    </div>
+
+
+</div>
+

@@ -1,0 +1,33 @@
+﻿@model List<WMS_Stock_Group>
+@{
+    Layout = null;
+    WMS_Stock_Filter MF = ViewData["MF"] as WMS_Stock_Filter;
+}
+
+<table style="width:100%;">
+    <tr>
+        <td><h4>箱号：<strong style="font-size:22px;">@MF.Case</strong>，共<strong>@Model.Select(x => x.MatSn).Distinct().Count()</strong>个型号</h4></td>
+    </tr>
+</table>
+
+<table class="table table-condensed table-bordered text-nowrap">
+    <tr class="active">
+        <td style="width:190px;">产品型号</td>
+        <td style="text-align:right; width:80px;">产品数</td>
+        <td>&nbsp;</td>
+    </tr>
+    @foreach (var x in Model.OrderBy(c => c.MatSn).ToList())
+    {
+        <tr>
+            <td class="MatSn_Font">@x.MatSn</td>
+            <td style="text-align:right">@x.Quantity_Sum.ToString("N0")</td>
+            <td>&nbsp;</td>
+        </tr>
+    }
+
+    <tr>
+        <td style="text-align:right;">Total:</td>
+        <td style="text-align:right;">@Model.Sum(c => c.Quantity_Sum).ToString("N0")</td>
+        <td>&nbsp;</td>
+    </tr>
+</table>

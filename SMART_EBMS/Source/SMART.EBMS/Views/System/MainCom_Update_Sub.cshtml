@@ -1,0 +1,235 @@
+﻿@model MainCompany
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string Controller = ViewContext.RouteData.Values["controller"].ToString();
+    string Action = ViewContext.RouteData.Values["action"].ToString();
+}
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("企业资料");</script>
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+<div id="RightDivContext">
+    <div style="padding:20px;">
+        <table>
+            <tr>
+                <td style="vertical-align:top; width:460px;">
+                    <form action="~/System/MainCom_Update_Sub_Post" method="post" onsubmit="return validateFormByClass('NotEmpty')" style="width:460px;">
+                        <table class="FormTable">
+                            <tr>
+                                <td colspan="4" style="font-size:14px; font-weight:bold;">@Model.MainCompanyName</td>
+                            </tr>
+                            <tr>
+                                <th>* 内部登录口令	</th>
+                                <td colspan="3">
+                                    <input class="form-control input-sm NotEmpty" name="PinCode" id="PinCode" value="@Model.PinCode" style="width:200px;" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>公司经营地址	</th>
+                                <td colspan="3">
+                                    <input class="form-control input-sm" name="MainAddress" id="MainAddress" value="@Model.MainAddress" style="width:360px;" />
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>公司开票地址</th>
+                                <td colspan="3">
+                                    <input class="form-control input-sm" name="MainInvoiceAddress" id="MainInvoiceAddress" value="@Model.MainInvoiceAddress" />
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>纳税人识别号	</th>
+                                <td colspan="3">
+                                    <input class="form-control input-sm" name="TaxpayerIdentificationNo" id="TaxpayerIdentificationNo" value="@Model.TaxpayerIdentificationNo" style="width:200px;" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>开户银行名称	</th>
+                                <td colspan="3">
+                                    <input class="form-control input-sm" name="MainBankInfo" id="MainBankInfo" value="@Model.MainBankInfo" style="width:200px;" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>开户银行账号</th>
+                                <td colspan="3">
+                                    <input class="form-control input-sm" name="MainBankAccount" id="MainBankAccount" value="@Model.MainBankAccount" style="width:200px;" />
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>官网联系电话</th>
+                                <td colspan="3">
+                                    <input style="width:200px;" class="form-control input-sm" name="MainTel" id="MainTel" value="@Model.MainTel" />
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>官网电子邮箱	</th>
+                                <td colspan="3">
+                                    <input style="width:200px;" class="form-control input-sm" name="MainEmail" id="MainEmail" value="@Model.MainEmail" />
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td></td>
+                                <td colspan="3" style="color:white;">
+                                    <button type="submit" class="btn btn-primary btn-sm" style="width:80px;">更新</button>
+                                </td>
+                            </tr>
+                        </table>
+                    </form>
+
+                </td>
+                <td style="vertical-align:top; padding-left:40px; padding-top:5px;">
+                    <div class="panel panel-default" style="width:242px;">
+                        <div class="panel-heading">电子图章 <span style="color:#979797; padding-left:20px;">(240px*240px .Png格式)</span></div>
+                        <div class="panel-body" style="padding:0px; text-align:center; padding-top:0px;">
+                            <form id="MyForm" action="~/System/MainCom_Update_ElectronicStamp_Post/@Model.MainCID" method="post" enctype="multipart/form-data" onsubmit="return CheckUploadImg()">
+                                <table border="0" style="width:240px;">
+                                    @if (!string.IsNullOrEmpty(Model.ElectronicStamp))
+                                    {
+                                        <tr>
+                                            <td colspan="2" style="vertical-align: middle; text-align: center; text-align: center; background-color:white; border: 2px solid #FFF; ">
+                                                <a href="~/@Model.ElectronicStamp" target="_blank"><img src="~/@Model.ElectronicStamp" style="max-height: 140px; max-width: 140px; " /></a>
+                                            </td>
+                                        </tr>
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="2">
+                                                <div style="height: 140px; overflow: hidden; line-height: 140px; text-align: center; color: silver; background-color:white; border: 2px solid #FFF; ">
+                                                    未上传
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+
+                                    @if (TempData["Error_ElectronicStamp"] != null)
+                                    {
+                                        <tr>
+                                            <td colspan="2" style="padding-top:5px; padding-bottom: 5px; font-size: 12px; color: red; white-space: nowrap;">
+                                                <span class="glyphicon glyphicon-exclamation-sign"></span> @TempData["Error_ElectronicStamp"]
+                                            </td>
+                                        </tr>
+                                    }
+                                    <tr>
+                                        <td colspan="2" id="ImgName" style="font-size:12px; width:120px; overflow:hidden; word-break:break-all; white-space:nowrap;"></td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>
+                                            <button type="button" onclick="AddImg()" class="btn btn-default btn-sm" style="width:100%; border-radius:0px;"><span class="glyphicon glyphicon-picture"></span> <span style="padding-left:5px">选择电子图章</span></button>
+                                            <input type="file" onchange="ShowImgName()" data-val="true" name="ImagePath" id="ImagePath" style="display:none" />
+                                        </td>
+                                        <td>
+                                            <button type="submit" style="width:100%; border-radius:0px;" class="btn btn-primary btn-sm">上传</button>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="panel panel-default" style="width:242px;">
+                        <div class="panel-heading">公司Logo <span style="color:#979797; padding-left:20px;">(宽度：240px .Png格式)</span></div>
+                        <div class="panel-body" style="padding: 0px; text-align: center; padding-top: 0px;">
+                            <form id="MyFormLogo" action="~/System/MainCom_Update_ComLogo_Post/@Model.MainCID" method="post" enctype="multipart/form-data" onsubmit="return CheckUploadImgLogo()">
+                                <table border="0" style="width:240px;">
+                                    @if (!string.IsNullOrEmpty(Model.ComLogo))
+                                    {
+                                        <tr>
+                                            <td colspan="2" style="vertical-align: middle; text-align: center; text-align: center; background-color: #dbdbdb; border: 2px solid #FFF; ">
+                                                <a href="~/@Model.ComLogo" target="_blank"><img src="~/@Model.ComLogo" style="max-height:140px; max-width:140px;" /></a>
+                                            </td>
+                                        </tr>
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="2">
+                                                <div style="height: 140px; overflow: hidden; line-height: 140px; text-align: center; color: silver; background-color: white; border: 2px solid #FFF; ">未上传</div>
+                                            </td>
+                                        </tr>
+                                    }
+
+                                    @if (TempData["Error_Logo"] != null)
+                                    {
+                                        <tr>
+                                            <td colspan="2" style="padding-top:5px; padding-bottom: 5px; font-size: 12px; color: red; white-space: nowrap;">
+                                                <span class="glyphicon glyphicon-exclamation-sign"></span> @TempData["Error_Logo"]
+                                            </td>
+                                        </tr>
+                                    }
+                                    <tr>
+                                        <td colspan="2" id="ImgNameLogo" style="font-size:12px; width:120px; overflow:hidden; word-break:break-all; white-space:nowrap;"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <button type="button" onclick="AddImgLogo()" class="btn btn-default btn-sm" style="width:100%; border-radius:0px;"><span class="glyphicon glyphicon-picture"></span> <span style="padding-left:5px">选择公司Logo</span></button>
+                                            <input type="file" onchange="ShowImgLogoName()" data-val="true" name="ImagePath" id="ImagePathLogo" style="display:none" />
+                                        </td>
+                                        <td>
+                                            <button type="submit" style="width:100%; border-radius:0px;" class="btn btn-primary btn-sm">上传</button>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </form>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<script>
+    function AddImg() {
+        $("#ImagePath").click();
+    }
+
+    function ShowImgName() {
+        var ImgName = $("#ImagePath").val();
+        $("#ImgName").text(ImgName);
+    }
+
+    function CheckUploadImg() {
+        if ($("#ImagePath").val() == "") {
+            alert("请选择图片文件");
+            return false;
+        } else {
+            $("#MyForm").submit();
+            return true;
+        }
+    }
+</script>
+
+<script>
+    function AddImgLogo() {
+        $("#ImagePathLogo").click();
+    }
+
+    function ShowImgLogoName() {
+        var ImgNameLogo = $("#ImagePathLogo").val();
+        $("#ImgNameLogo").text(ImgNameLogo);
+    }
+
+    function CheckUploadImgLogo() {
+        if ($("#ImagePathLogo").val() == "") {
+            alert("请选择图片文件");
+            return false;
+        } else {
+            $("#MyFormLogo").submit();
+            return true;
+        }
+    }
+</script>

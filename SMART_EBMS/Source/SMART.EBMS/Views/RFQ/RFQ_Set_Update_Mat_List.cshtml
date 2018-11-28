@@ -1,0 +1,15 @@
+﻿@model List<Material>
+@{
+    Layout = null;
+}
+
+<table class="table table-condensed table-bordered table-hover text-nowrap">
+    @foreach (var x in Model)
+    {
+    <tr>
+        <td style="width:20px;"><button type="button" onclick="Mat_Select('@x.MatID', '@x.MatSn')" class="btn btn-info btn-xs">选</button></td>
+        <td><span class="MatSn_Font">@x.MatSn</span></td>
+        <td style="width:80px;">@x.MatBrand</td>
+    </tr>
+    }
+</table>

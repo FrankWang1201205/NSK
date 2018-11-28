@@ -1,0 +1,127 @@
+﻿@model SalesPlan
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    SalesPlan_Filter MF = ViewData["MF"] as SalesPlan_Filter;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("查看预测");</script>
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/SalesPlan/MonthPlan_Search_Sub/@Model.SPID" method="get">
+        <table style="width:100%;">
+            <tr>
+
+                <td style="width:20px; padding-left:0px;">
+                    <a href="~/SalesPlan/MonthPlan_Search" class="btn btn-default btn-sm" style="width:70px;">返回</a>
+                </td>
+
+                <td style="width:50px;">&nbsp;</td>
+
+                <td style="width:120px;">
+                    <select name="MatBrand" id="MatBrand" class="form-control input-sm" onchange="SubmitPageIndex(1)">
+                        <option value="">选择品牌</option>
+                        @foreach (var x in MF.BrandList)
+                        {
+                            if (MF.MatBrand == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:300px; padding-left:5px;">
+                    <div class="input-group input-group-sm" style="width: 300px; ">
+                        <input type="text" name="Keyword" id="Keyword" placeholder="产品信息关键词" value="@MF.Keyword" class="form-control ">
+                        <div class="input-group-btn">
+                            <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                        </div>
+                    </div>
+                </td>
+
+                <td style="width:50px;">&nbsp;</td>
+
+                <td style="vertical-align:bottom;">&nbsp;</td>
+
+                <td style="text-align:right; padding-right:20px; font-size:14px;">
+                    <span>销售经理：@Model.Sales_Person</span>
+                    <span style="padding-left:20px;">申报日期：@Model.Creata_DT.ToString("yyyy-MM-dd")</span>
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+        <thead>
+            <tr>
+                <th style="width:10px;">&nbsp;</th>
+                <th style="width:180px;">产品型号</th>
+                <th style="width:100px;">产品名称</th>
+                <th style="width:80px;">品牌</th>
+                <th style="width:60px; text-align:center;">单位</th>
+                <th style="width:70px; text-align:center;" title="前三个月月均销售">月均销售</th>
+                <th style="width:70px; text-align:center;" title="前三个月预测精度">预测精度</th>
+                <th style="width:70px; text-align:center;">@Model.This_Mon</th>
+                <th style="width:70px; text-align:center;">@Model.Next_Mon_A</th>
+                <th style="width:70px; text-align:center;">@Model.Next_Mon_B</th>
+                <th style="width:70px; text-align:center;">@Model.Next_Mon_C</th>
+
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var x in Model.SalesPlan_Line_PageList.Rows)
+            {
+                <tr>
+                    <td>&nbsp;</td>
+                    <td style="vertical-align:top;"><a href="javascript:void(0);" onclick="ShowMatPartModel('@x.MatID')" class="MatSn_Font">@x.MatInfo.MatSn</a></td>
+                    <td style="vertical-align:top;">@x.MatInfo.MatName</td>
+                    <td style="vertical-align:top;">@x.MatInfo.MatBrand</td>
+                    <td style="text-align:center; vertical-align:top;">@x.MatInfo.MatUnit</td>
+                    <td style="text-align:center; vertical-align:top;">@x.Month_Sales_Average</td>
+                    <td style="text-align:center; vertical-align:top;">@x.Forecast_Rate</td>
+                    <td style="text-align:center; vertical-align:top;"><input type="number" readonly step="1" class="MyInput ReadonlyInput" value="@x.This_Mon_Qty" style="text-align:center; width:95%;" /></td>
+                    <td style="text-align:center; vertical-align:top;"><input type="number" readonly step="1" class="MyInput ReadonlyInput  @x.Next_Mon_CSS_A" id="Next_Mon_Qty_A_@x.MatID" value="@x.Next_Mon_Qty_A" style="text-align:center; width:95%;" /></td>
+                    <td style="text-align:center; vertical-align:top;"><input type="number" readonly step="1" class="MyInput ReadonlyInput  @x.Next_Mon_CSS_B" id="Next_Mon_Qty_B_@x.MatID" value="@x.Next_Mon_Qty_B" style="text-align:center; width:95%;" /></td>
+                    <td style="text-align:center; vertical-align:top;"><input type="number" readonly step="1" class="MyInput ReadonlyInput" id="Next_Mon_Qty_C_@x.MatID" value="@x.Next_Mon_Qty_C" style="text-align:center; width:95%;" /></td>
+                    <td style="vertical-align:top; color:white; text-align:right;">&nbsp;</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.SalesPlan_Line_PageList.PageIndex, PageSize = Model.SalesPlan_Line_PageList.PageSize, TotalRecord = Model.SalesPlan_Line_PageList.TotalRecord, TotalPage = Model.SalesPlan_Line_PageList.TotalPage, PageSizeList = Model.SalesPlan_Line_PageList.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>

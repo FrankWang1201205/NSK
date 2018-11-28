@@ -1,0 +1,54 @@
+﻿@model WMS_Stocktaking
+@{
+    Layout = null;
+}
+
+<table style="width:100%;"></table>
+
+<form id="Set_WMS_Stocktaking_Scan_Form" action="~/WMS_Out_Stocktaking/WMS_Out_Stocktaking_Pick_Preview_For_MatSn_Sub_Post/@Model.Link_TaskID" method="post">
+    <table class="FormTable_Sim text-nowrap" style="width:100%;">
+        <tr>
+            <td style="width:10px;">
+                <input type="hidden" name="MatSn" id="MatSn" value="@Model.MatSn" />
+            </td>
+            <td><h5><strong style="font-size:20px;text-align:center" class="MatSn_Font">@Model.MatSn</strong></h5></td>
+        </tr>
+        <tr>
+            <td style="width:10px;text-align:right">盘点库位</td>
+            <td style="width:10px;"><input readonly class="form-control input-sm" id="Location" name="Location" type="text" style="width:200px;" value="@Model.Location" /></td>
+        </tr>
+        <tr>
+            <td style="width:10px;text-align:right">盘点数量</td>
+            <td style="width:10px;"><input class="form-control input-sm NotEmpty_Single" id="Quantity" name="Quantity" type="number" style="width:200px;" value="" /></td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td style="width:10px;">
+                <button type="button" onclick="Set_WMS_Stocktaking_Scan()" class="btn btn-primary btn-sm" style="width:60px;">递交</button>
+            </td>
+        </tr>
+    </table>
+</form>
+
+<script>
+    function Set_WMS_Stocktaking_Scan() {
+        DisAndEnabledBtn(1);
+        if (validateFormByClass('NotEmpty_Single')==false) {
+            return false;
+            DisAndEnabledBtn(0);
+        }
+
+        var FormObj = $("#Set_WMS_Stocktaking_Scan_Form");
+        var PostData = $(FormObj).serialize();
+        var Url = $(FormObj).prop("action");
+
+        $.post(Url, PostData, function (result) {
+            if (result == "") {
+                ReloadPage();
+            } else {
+                alert(result);
+                DisAndEnabledBtn(0);
+            }
+        });
+    }
+</script>

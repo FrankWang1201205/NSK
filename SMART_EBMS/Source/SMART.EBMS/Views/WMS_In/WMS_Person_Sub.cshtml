@@ -1,0 +1,33 @@
+﻿@model WMS_Work_Person
+@{
+    Layout = null;
+}
+
+<form action="~/WMS_In/WMS_Person_Sub_Post/@Model.Person_ID" method="post" enctype="multipart/form-data" onsubmit="return validateFormByClass('NotEmpty')">
+    <table class="FormTable_Sim text-nowrap">
+        <tr>
+            <td style="width:10px;text-align:right">* 作业人名称</td>
+            <td colspan="3"><input class="form-control input-sm NotEmpty" id="Person_Name" name="Person_Name" style="width:150px" type="text" value="@Model.Person_Name" /></td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td colspan="3">
+                <button type="submit" class="btn btn-primary btn-sm" style="width:60px; margin-right:15px;">递交</button>
+                <button type="button" onclick="DeleteLogisticsItem()" class="btn btn-danger btn-sm" style="width:60px;">删除</button>
+            </td>
+        </tr>
+    </table>
+
+</form>
+
+<!--删除-->
+<form id="DeletForm" action="~/WMS_In/WMS_Person_Sub_Delete_Post/@Model.Person_ID" method="post">
+    <script>
+        function DeleteLogisticsItem() {
+            if (confirm("确认删除？") == true) {
+                $("#DeletForm").submit();
+            }
+        }
+    </script>
+</form>
+<!--删除-->
