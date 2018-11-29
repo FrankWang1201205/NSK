@@ -40,6 +40,7 @@ namespace SMART.EBMS.Controllers
             MF.Create_Person = Request["Create_Person"] == null ? string.Empty : Request["Create_Person"].Trim();
             MF.Work_Distribution_Status = Request["Work_Distribution_Status"] == null ? string.Empty : Request["Work_Distribution_Status"].Trim();
             MF.Brand_List = IB.Get_Brand_Name_List(MF.LinkMainCID);
+            MF.Head_Type = Request["Head_Type"] == null ? string.Empty : Request["Head_Type"].Trim();
             PageList<WMS_In_Task> PList = IW.Get_WMS_In_Task_PageList_Distribute(MF);
             ViewData["MF"] = MF;
             return View(PList);
@@ -107,6 +108,8 @@ namespace SMART.EBMS.Controllers
             MF.Task_Bat_No = Request["Task_Bat_No"] == null ? string.Empty : Request["Task_Bat_No"].Trim();
             MF.Global_State = WMS_In_Global_State_Enum.等待收货.ToString();
             MF.MatType = Request["MatType"] == null ? string.Empty : Request["MatType"].Trim();
+            MF.Head_Type = Request["Head_Type"] == null ? string.Empty : Request["Head_Type"].Trim();
+
             PageList<WMS_In_Task> PList = IW.Get_WMS_In_Task_PageList(MF);
             ViewData["MF"] = MF;
             return View(PList);

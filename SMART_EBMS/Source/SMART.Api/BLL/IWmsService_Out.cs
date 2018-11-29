@@ -75,6 +75,9 @@ namespace SMART.Api
         string Get_Out_Task_List_To_Excel_By_Tray(Guid Head_ID, string Tray_No);
         List<WMS_Out_Scan> Get_WMS_Out_Scan_List(Guid Head_ID, string MatSn);
         void Reset_WMS_Out_Scan_By_MatSn(Guid Head_ID, string MatSn);
+
+        //退货作业（用于退货入库）
+        WMS_Out_Task Get_WMS_Out_Task_Item_DB(Guid HeadID);
     }
 
     //送货单创建
@@ -97,6 +100,11 @@ namespace SMART.Api
             if (!string.IsNullOrEmpty(MF.Logistics_Mode))
             {
                 query = query.Where(x => x.Logistics_Mode.Contains(MF.Logistics_Mode)).AsQueryable();
+            }
+
+            if (!string.IsNullOrEmpty(MF.Head_Type))
+            {
+                query = query.Where(x => x.Head_Type == MF.Head_Type).AsQueryable();
             }
 
             if (Enum.GetNames(typeof(WMS_Out_Global_State_Enum)).ToList().Where(x => x == MF.Global_State).Any())
@@ -185,6 +193,11 @@ namespace SMART.Api
                 query = query.Where(x => x.Work_Out_Person.Contains(MF.Work_Out_Person)).AsQueryable();
             }
 
+            if (!string.IsNullOrEmpty(MF.Head_Type))
+            {
+                query = query.Where(x => x.Head_Type == MF.Head_Type).AsQueryable();
+            }
+
             if (Enum.GetNames(typeof(WMS_Out_Global_State_Enum)).ToList().Where(x => x == MF.Global_State).Any())
             {
                 query = query.Where(x => x.Status == MF.Global_State).AsQueryable();
@@ -241,6 +254,11 @@ namespace SMART.Api
             if (!string.IsNullOrEmpty(MF.Work_Out_Person))
             {
                 query = query.Where(x => x.Work_Out_Person.Contains(MF.Work_Out_Person)).AsQueryable();
+            }
+
+            if (!string.IsNullOrEmpty(MF.Head_Type))
+            {
+                query = query.Where(x => x.Head_Type == MF.Head_Type).AsQueryable();
             }
 
             query = query.Where(x => x.Status == WMS_Out_Global_State_Enum.待验货.ToString() || x.Status == WMS_Out_Global_State_Enum.待包装.ToString() || x.Status == WMS_Out_Global_State_Enum.待出库.ToString()).AsQueryable();
@@ -376,6 +394,7 @@ namespace SMART.Api
             {
                 Head.Work_Down_Person = Head.Create_Person;
             }
+            Head.Head_Type = WMS_Out_Head_Type_Enum.订单出货.ToString();
 
             db.WMS_Out_Head.Add(Head);
 
@@ -1079,7 +1098,7 @@ namespace SMART.Api
             if (string.IsNullOrEmpty(MatSn)) { throw new Exception("产品型号为空"); }
 
             List<WMS_Out_Pick_Scan> Scan_List = db.WMS_Out_Pick_Scan.Where(x => x.Link_TaskID == Head.Head_ID && x.MatSn == MatSn).ToList();
-          
+
             return Scan_List;
         }
 
@@ -1595,7 +1614,7 @@ namespace SMART.Api
         {
             WMS_Location Loc = db.WMS_Location.Where(x => x.Location == Scan.Scan_Location).FirstOrDefault();
             Loc = Loc == null ? new WMS_Location() : Loc;
-            
+
             WMS_Stock_Task Task = db.WMS_Stock_Task.Where(x => x.Link_HeadID == Head.Head_ID && x.Location == Scan.Scan_Location).FirstOrDefault();
             if (Task != null)
             {
@@ -2024,7 +2043,6 @@ namespace SMART.Api
             T.Scan_Mat_Type = Head.Scan_Mat_Type;
             T.Work_Out_Person = Head.Work_Out_Person;
             T.Work_Down_Person = Head.Work_Down_Person;
-            T.Scan_Mat_Type = Head.Scan_Mat_Type;
             T.Customer_Name = Head.Customer_Name;
             T.Customer_Tel = Head.Customer_Tel;
             T.Customer_Address = Head.Customer_Address;
@@ -2567,6 +2585,59 @@ namespace SMART.Api
             Path = MyExcel.CreateNewExcel(DT);
             return Path;
         }
+    }
+
+    //退货作业（用于退货入库）
+    public partial class WmsService : IWmsService
+    {
+        public WMS_Out_Task Get_WMS_Out_Task_Item_DB(Guid HeadID)
+        {
+            WMS_Out_Head Head = db.WMS_Out_Head.Find(HeadID);
+            Head = Head == null ? new WMS_Out_Head() : Head;
+            List<WMS_Out_Line> List = db.WMS_Out_Line.Where(x => x.Link_Head_ID == Head.Head_ID).ToList();
+
+            WMS_Out_Task T = new WMS_Out_Task();
+            T.Head_ID = Head.Head_ID;
+            T.Task_Bat_No_Str = Head.Task_Bat_No_Str;
+            T.Create_DT = Head.Create_DT;
+            T.Create_Person = Head.Create_Person;
+            T.Logistics_Company = Head.Logistics_Company;
+            T.Logistics_Mode = Head.Logistics_Mode;
+            T.Logistics_Cost_Type = Head.Logistics_Cost_Type;
+            T.Global_State = Head.Status;
+            T.Scan_Mat_Type = Head.Scan_Mat_Type;
+            T.Work_Out_Person = Head.Work_Out_Person;
+            T.Work_Down_Person = Head.Work_Down_Person;
+            T.Customer_Name = Head.Customer_Name;
+            T.Customer_Tel = Head.Customer_Tel;
+            T.Customer_Address = Head.Customer_Address;
+            T.Link_Cus_ID = Head.Link_Cus_ID;
+            T.Line_List = new List<WMS_Out_Task_Line>();
+            var Line_Group = from x in List
+                             group x by x.MatSn into G
+                             select new
+                             {
+                                 MatSn = G.Key,
+                                 Quantity_Sum = G.Sum(c => c.Quantity),
+                                 Line_No = G.FirstOrDefault().Line_No,
+                             };
+
+            int i = 0;
+            WMS_Out_Task_Line T_Line = new WMS_Out_Task_Line();
+            foreach (var x in Line_Group.OrderBy(x => x.Line_No).ToList())
+            {
+                i++;
+                T_Line = new WMS_Out_Task_Line();
+                T_Line.Line_No = i;
+                T_Line.MatSn = x.MatSn;
+                T_Line.Quantity_Sum = x.Quantity_Sum;
+                T.Line_List.Add(T_Line);
+            }
+
+            T.Line_List = T.Line_List.OrderBy(x => x.Line_No).ToList();
+            return T;
+        }
+
     }
 }
 

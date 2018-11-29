@@ -35,6 +35,7 @@ namespace SMART.EBMS.Controllers
             MF.Task_Bat_No = Request["Task_Bat_No"] == null ? string.Empty : Request["Task_Bat_No"].Trim();
             MF.MatType = Request["MatType"] == null ? string.Empty : Request["MatType"].Trim();
             MF.Global_State = Request["Global_State"] == null ? WMS_Move_Status_Enum.待移库.ToString() : Request["Global_State"].Trim();
+            MF.Head_Type = Request["Head_Type"] == null ? string.Empty : Request["Head_Type"].Trim();
             PageList<WMS_In_Task> PList = IW.Get_WMS_Up_PageList(MF);
             ViewData["MF"] = MF;
             return View(PList);

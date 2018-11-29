@@ -37,7 +37,7 @@ namespace SMART.EBMS.Controllers
             MF.Work_Down_Person = Request["Work_Down_Person"] == null ? string.Empty : Request["Work_Down_Person"].Trim();
             MF.Work_Out_Person = Request["Work_Out_Person"] == null ? string.Empty : Request["Work_Out_Person"].Trim();
             MF.Create_Person = Request["Create_Person"] == null ? string.Empty : Request["Create_Person"].Trim();
-
+            MF.Head_Type = Request["Head_Type"] == null ? string.Empty : Request["Head_Type"].Trim();
             PageList<WMS_Out_Head> PList = IW.Get_WMS_Out_Head_PageList_Distribute(MF);
             ViewData["MF"] = MF;
             return View(PList);
@@ -246,6 +246,7 @@ namespace SMART.EBMS.Controllers
             MF.Global_State = WMS_Out_Global_State_Enum.待配货.ToString();
             MF.Logistics_Mode = Request["Logistics_Mode"] == null ? string.Empty : Request["Logistics_Mode"].Trim();
             MF.Work_Down_Person = Request["Work_Down_Person"] == null ? string.Empty : Request["Work_Down_Person"].Trim();
+            MF.Head_Type = Request["Head_Type"] == null ? string.Empty : Request["Head_Type"].Trim();
             PageList<WMS_Out_Head> PList = IW.Get_WMS_Out_Head_PageList_Distribute(MF);
             ViewData["MF"] = MF;
             return View(PList);
@@ -323,7 +324,7 @@ namespace SMART.EBMS.Controllers
             MF.Work_Out_Person = Request["Work_Out_Person"] == null ? string.Empty : Request["Work_Out_Person"].Trim();
             MF.Create_Person = Request["Create_Person"] == null ? string.Empty : Request["Create_Person"].Trim();
             MF.Global_State = Request["Global_State"] == null ? string.Empty : Request["Global_State"].Trim();
-
+            MF.Head_Type = Request["Head_Type"] == null ? string.Empty : Request["Head_Type"].Trim();
             PageList<WMS_Out_Head> PList = IW.Get_WMS_Out_Head_PageList_Temp(MF);
             ViewData["MF"] = MF;
             return View(PList);
@@ -741,6 +742,7 @@ namespace SMART.EBMS.Controllers
             MF.Work_Down_Person = Request["Work_Down_Person"] == null ? string.Empty : Request["Work_Down_Person"].Trim();
             MF.Time_Start = Request["Time_Start"] == null ? string.Empty : Request["Time_Start"].Trim();
             MF.Time_End = Request["Time_End"] == null ? string.Empty : Request["Time_End"].Trim();
+            MF.Head_Type = Request["Head_Type"] == null ? string.Empty : Request["Head_Type"].Trim();
             PageList<WMS_Out_Head> PList = IW.Get_WMS_Out_Head_PageList(MF);
             ViewData["MF"] = MF;
             return View(PList);
@@ -764,7 +766,7 @@ namespace SMART.EBMS.Controllers
             MF.Work_Out_Person = Request["Work_Out_Person"] == null ? string.Empty : Request["Work_Out_Person"].Trim();
             MF.Create_Person = Request["Create_Person"] == null ? string.Empty : Request["Create_Person"].Trim();
             MF.Global_State = WMS_Out_Global_State_Enum.待出库.ToString();
-
+            MF.Head_Type = Request["Head_Type"] == null ? string.Empty : Request["Head_Type"].Trim();
             PageList<WMS_Out_Head> PList = IW.Get_WMS_Out_Head_PageList_Distribute(MF);
             ViewData["MF"] = MF;
             return View(PList);

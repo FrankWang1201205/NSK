@@ -301,6 +301,10 @@ namespace SMART.Api.Models
             In_DT_Str = string.Empty;
             Scan_Mat_Type = string.Empty;
             Work_Person_List = new List<string>();
+            Head_Type = string.Empty;
+            Return_Remark = string.Empty;
+            Link_WMS_In_ID = Guid.Empty;
+            Link_WMS_In_No = string.Empty;
         }
 
         [Key]
@@ -320,8 +324,7 @@ namespace SMART.Api.Models
 
         [NotMapped]
         public DateTime In_DT { get; set; }
-
-        [Required]
+        
         public string In_DT_Str { get; set; }
 
         [NotMapped]
@@ -343,14 +346,12 @@ namespace SMART.Api.Models
         public int Track_Count { get; set; }
         
         public string Logistics_Company { get; set; }
-
-        [Required]
+        
         public string Logistics_Mode { get; set; }
 
         [NotMapped]
         public decimal Logistics_Cost_Total { get; set; }
-
-        [Required]
+        
         public string MatType { get; set; }
 
         public string Brand { get; set; }
@@ -385,6 +386,18 @@ namespace SMART.Api.Models
 
         public string Driver_Name { get; set; }
     
+        [Required]
+        public string Head_Type { get; set; }
+
+        //退货理由
+        public string Return_Remark { get; set; }
+
+        //收货ID
+        public Guid Link_WMS_In_ID { get; set; }
+
+        //收货批号
+        public string Link_WMS_In_No { get; set; }
+
         [NotMapped]
         public List<string> Work_Person_List { get; set; }
 
@@ -518,8 +531,7 @@ namespace SMART.Api.Models
 
         [Required]
         public Guid LinkMainCID { get; set; }
-
-        [Required]
+        
         public string MatType { get; set; }
         
         public string Logistics_Cost_Type { get; set; }
@@ -693,6 +705,12 @@ namespace SMART.Api.Models
         零星调货,
     }
 
+    public enum WMS_In_Head_Type_Enum
+    {
+        订单收货,
+        订单退货,   
+    }
+
     public enum Scan_Mat_Type_Enum
     {
         按托,
@@ -744,7 +762,8 @@ namespace SMART.Api.Models
             Supplier = string.Empty;
             Work_Distribution_Status = string.Empty;
             Work_Distribution_Status_List = Enum.GetNames(typeof(WMS_Work_Distribution_State_Enum)).ToList();
-
+            Head_Type = string.Empty;
+            Head_Type_List = Enum.GetNames(typeof(WMS_In_Head_Type_Enum)).ToList();
         }
 
         public int PageIndex { get; set; }
@@ -775,6 +794,8 @@ namespace SMART.Api.Models
         public string Return_Info { get; set; }
         public string Work_Distribution_Status { get; set; }
         public List<string> Work_Distribution_Status_List { get; set; }
+        public string Head_Type { get; set; }
+        public List<string> Head_Type_List { get; set; }
     }
 
     public class WMS_Logistics
@@ -1576,9 +1597,9 @@ namespace SMART.Api.Models
             Create_Person = string.Empty;
             Logistics_Company = string.Empty;
             Logistics_Mode = string.Empty;
-            MatType = string.Empty;
             Brand = string.Empty;
             Logistics_Cost_Type = string.Empty;
+            Link_Cus_ID = Guid.Empty;
             Customer_Name = string.Empty;
             Customer_Address = string.Empty;
             Customer_Tel = string.Empty;
@@ -1604,9 +1625,9 @@ namespace SMART.Api.Models
         public string Create_Person { get; set; }
         public string Logistics_Company { get; set; }
         public string Logistics_Mode { get; set; }
-        public string MatType { get; set; }
         public string Brand { get; set; }
         public string Logistics_Cost_Type { get; set; }
+        public Guid Link_Cus_ID { get; set; }
         public string Customer_Name { get; set; }
         public string Customer_Address { get; set; }
         public string Customer_Tel { get; set; }
@@ -1738,11 +1759,6 @@ namespace SMART.Api.Models
             Link_Cus_ID = Guid.Empty;
             Customer_Address = string.Empty;
             Customer_Tel = string.Empty;
-            WMS_Out_Task_ID = Guid.Empty;
-            WMS_Out_Task_No = 0;
-            WMS_Out_Task_No_Str = string.Empty;
-            Combine_Person = string.Empty;
-            Combine_DT = DateTime.Now;
             Driver_Name = string.Empty;
             Out_DT_Str = string.Empty;
             Scan_Mat_Type = string.Empty;
@@ -1750,6 +1766,10 @@ namespace SMART.Api.Models
             Work_Down_Person_List = new List<string>();
             Work_Out_Person_List = new List<string>();
             Driver_Person_List = new List<string>();
+            Head_Type = string.Empty;
+            Return_Remark = string.Empty;
+            Link_WMS_Out_ID = Guid.Empty;
+            Link_WMS_Out_No = string.Empty;
         }
 
         [Key]
@@ -1766,8 +1786,7 @@ namespace SMART.Api.Models
 
         [NotMapped]
         public DateTime Out_DT { get; set; }
-
-        [Required]
+        
         public string Out_DT_Str { get; set; }
 
         [Required]
@@ -1780,8 +1799,7 @@ namespace SMART.Api.Models
         public int Line_Count_Scan_Not { get; set; }
 
         public string Logistics_Company { get; set; }
-
-        [Required]
+        
         public string Logistics_Mode { get; set; }
 
         [NotMapped]
@@ -1804,8 +1822,7 @@ namespace SMART.Api.Models
 
         [Required]
         public Guid LinkMainCID { get; set; }
-
-        [Required]
+        
         public Guid Link_Cus_ID { get; set; }
 
         [NotMapped]
@@ -1821,20 +1838,21 @@ namespace SMART.Api.Models
 
         public string Work_Down_Person { get; set; }
 
-        //合并信息
-        public long WMS_Out_Task_No { get; set; }
-
-        public string WMS_Out_Task_No_Str { get; set; }
-
-        public string Combine_Person { get; set; }
-
-        public DateTime Combine_DT { get; set; }
-
-        public Guid WMS_Out_Task_ID { get; set; }
-
         public string Driver_Name { get; set; }
 
         public int Total_Cases { get; set; }
+
+        [Required]
+        public string Head_Type { get; set; }
+
+        //退货理由
+        public string Return_Remark { get; set; }
+
+        //出货ID
+        public Guid Link_WMS_Out_ID { get; set; }
+
+        //出货批号
+        public string Link_WMS_Out_No { get; set; }
 
         [NotMapped]
         public List<string> Work_Down_Person_List { get; set; }
@@ -2126,6 +2144,8 @@ namespace SMART.Api.Models
             Work_Down_Person = string.Empty;
             Work_Out_Person = string.Empty;
             Location = string.Empty;
+            Head_Type = string.Empty;
+            Head_Type_List = Enum.GetNames(typeof(WMS_Out_Head_Type_Enum)).ToList();
         }
 
         public int PageIndex { get; set; }
@@ -2153,7 +2173,8 @@ namespace SMART.Api.Models
         public string Work_Down_Person { get; set; }
         public string Work_Out_Person { get; set; }
         public string Location { get; set; }
-
+        public string Head_Type { get; set; }
+        public List<string> Head_Type_List { get; set; }
     }
 
     //送货单
@@ -2178,6 +2199,12 @@ namespace SMART.Api.Models
     {
         已完成,
         未完成,
+    }
+
+    public enum WMS_Out_Head_Type_Enum
+    {
+        订单出货,
+        订单退货,
     }
 
     public enum WMS_Out_Task_Line_State_Enum

@@ -39,6 +39,7 @@ namespace SMART.EBMS.Controllers
             MF.MatType = Request["MatType"] == null ? string.Empty : Request["MatType"].Trim();
             MF.Create_Person = Request["Create_Person"] == null ? string.Empty : Request["Create_Person"].Trim();
             MF.Brand_List = IB.Get_Brand_Name_List(MF.LinkMainCID);
+            MF.Head_Type = WMS_In_Head_Type_Enum.订单收货.ToString();
             PageList<WMS_In_Task> PList = IW.Get_WMS_In_Task_PageList(MF);
             List<WMS_Logistics> Logistics_List = IW.Get_WMS_Logistics_List(MF.LinkMainCID);
             ViewData["MF"] = MF;
@@ -164,6 +165,7 @@ namespace SMART.EBMS.Controllers
             try
             {
                 IW.Delete_Task_Bat(Head.Head_ID);
+                TempData["Success"] = "删除成功";
                 return RedirectToAction("WMS_In_Start");
             }
             catch (Exception Ex)
@@ -585,6 +587,7 @@ namespace SMART.EBMS.Controllers
             MF.Supplier = Request["Supplier"] == null ? string.Empty : Request["Supplier"].Trim();
             MF.MatType = Request["MatType"] == null ? string.Empty : Request["MatType"].Trim();
             MF.Create_Person = Request["Create_Person"] == null ? string.Empty : Request["Create_Person"].Trim();
+            MF.Head_Type = WMS_In_Head_Type_Enum.订单收货.ToString();
             PageList<WMS_In_Task> PList = IW.Get_WMS_In_Task_PageList(MF);
             ViewData["MF"] = MF;
             return View(PList);
@@ -612,6 +615,7 @@ namespace SMART.EBMS.Controllers
             MF.Time_Start = Request["Time_Start"] == null ? string.Empty : Request["Time_Start"].Trim();
             MF.Time_End = Request["Time_End"] == null ? string.Empty : Request["Time_End"].Trim();
             MF.Brand_List = IB.Get_Brand_Name_List(MF.LinkMainCID);
+            MF.Head_Type = WMS_In_Head_Type_Enum.订单收货.ToString();
             PageList<WMS_In_Task> PList = IW.Get_WMS_In_Task_PageList(MF);
             ViewData["MF"] = MF;
             return View(PList);

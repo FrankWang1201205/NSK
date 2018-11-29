@@ -26,6 +26,23 @@
         <table style="width:100%;">
             <tr>
                 <td style="width:100px;">
+                    <select name="Head_Type" id="Head_Type" class="form-control input-sm" onchange="SubmitPageIndex(1)">
+                        <option value="">订单类型</option>
+                        @foreach (var x in MF.Head_Type_List)
+                        {
+                            if (MF.Head_Type == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:100px;padding-left:5px;">
                     <select name="MatType" id="MatType" class="form-control input-sm" onchange="SubmitPageIndex(1)">
                         <option value="">任务类型</option>
                         @foreach (var x in MF.MatType_List)
@@ -41,7 +58,7 @@
                         }
                     </select>
                 </td>
-                <td style="width:100px;padding-left:15px;">
+                <td style="width:100px;padding-left:5px;">
                     <select name="Global_State" id="Global_State" class="form-control input-sm" onchange="SubmitPageIndex(1)">
                         @foreach (var x in Status_List)
                         {

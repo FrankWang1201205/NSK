@@ -1,0 +1,180 @@
+﻿@model WMS_Out_Task
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    WMS_In_Filter MF = ViewData["MF"] as WMS_In_Filter;
+    List<WMS_Logistics> Logistics_List = ViewData["Logistics_List"] as List<WMS_Logistics>;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("任务创建");</script>
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+<form id="MyCreateForm" action="~/WMS_Task_In_Return/WMS_In_Return_Search_Create_Sub_Add_Post/@Model.Head_ID" method="post" enctype="multipart/form-data">
+
+    <div style="margin:15px;">
+        <table class="FormTable_Sim text-nowrap" style="width:450px;font-size:14px;">
+            <tr>
+                <td style="width:10px;">退货客户</td>
+                <td colspan="3">
+                    <input class="form-control input-xs Not_Empty" readonly name="Supplier_Name" type="text" id="Supplier_Name" value="@Model.Customer_Name" />
+                    <input class="form-control input-xs" name="Sup_ID" type="hidden" id="Sup_ID" value="@Model.Link_Cus_ID" />
+                </td>
+            </tr>
+            <tr>
+                <td style="width:10px;">到货时间</td>
+                <td>
+                    <input autocomplete="off" style="width:135px;" class="form-control input-xs Time_Select Not_Empty" name="In_DT" type="text" id="In_DT" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                </td>
+
+                <td style="width:10px;">运输方式</td>
+                <td style="width:135px;">
+                    <select class="form-control input-xs Not_Empty" name="Logistics_Mode" id="Logistics_Mode">
+                        <option value="">请选择</option>
+                        @foreach (var x in MF.Logistics_Mode_List)
+                        {
+                            <option value="@x">@x</option>
+                        }
+                    </select>
+                </td>
+            </tr>
+
+            <tr>
+                <td style="width:10px;">物流公司</td>
+                <td>
+                    <select class="form-control input-xs Not_Empty" name="Logistics_Company" id="Logistics_Company" style="width:135px;">
+                        <option value="">请选择</option>
+                        @foreach (var x in Logistics_List.Where(x => x.MatType == WMS_In_Type_Enum.零星调货.ToString()).Select(c => c.Company_Name).ToList())
+                        {
+                            <option value="@x">@x</option>
+                        }
+                    </select>
+                </td>
+
+                <td style="width:10px;">有无快递</td>
+                <td style="width:135px;">
+                    <select class="form-control input-xs Not_Empty" name="Logistics_Cost_Type" id="Logistics_Cost_Type">
+                        <option value="">请选择</option>
+                        @foreach (var x in MF.Logistics_Cost_Type_List)
+                        {
+                            <option value="@x">@x</option>
+                        }
+                    </select>
+                </td>
+            </tr>
+
+            <tr>
+                <td style="width:10px;">退货理由</td>
+                <td colspan="3">
+                    <input class="form-control input-xs Not_Empty" name="Return_Remark" type="text" id="Return_Remark" value="" />
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="2">
+                    <button type="button" onclick="Create_WMS_Task_In_Return()" class="btn btn-primary btn-sm">递交创建</button>
+                </td>
+                <td>&nbsp;</td>
+                <td>
+                    <a href="~/WMS_Task_In_Return/WMS_In_Return_Search_Create" style="float:right" class="btn btn-info btn-sm">返回</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+        <thead>
+            <tr>
+                <th style="width:10px;">&nbsp;</th>
+                <th style="width:40px; text-align:center; padding:0px;"><input type="checkbox" id="ALL" onclick="checkBoxCheckAll('ALL', 'MatSn')" /></th>
+                <th style="width:40px;">序</th>
+                <th style="width:320px;">产品型号</th>
+                <th style="width:100px; text-align:center;">数量</th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var x in Model.Line_List)
+            {
+                <tr>
+                    <td>&nbsp;</td>
+                    <td style="text-align:center;"><input type="checkbox" value="@x.MatSn" name="MatSn" class="MatSn" id="MatSn_@x.MatSn" /></td>
+                    <td>@x.Line_No</td>
+                    <td>
+                        <strong class="MatSn_Font">@x.MatSn</strong>
+                    </td>
+                    <td style="text-align:center;">
+                        <input type="number" class="form-control input-xs" min="1" value="@x.Quantity_Sum" max="@x.Quantity_Sum" id="Quantity_@x.MatSn" name="Quantity_@x.MatSn" style="width:100px;text-align:center;" onchange="Change_Qty_Num(this,'@x.Quantity_Sum')" />
+                    </td>
+                    <td>&nbsp;</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</form>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+
+    $('.Time_Select').datetimepicker({
+        language: 'zh-CN',
+        weekStart: 1,
+        todayBtn: 1,
+        autoclose: 1,
+        format: "yyyy-mm-dd",
+        todayHighlight: 1,
+        startView: 2,
+        startDate: "2018-01-01",
+        minView: 2,
+        forceParse: 0
+    });
+</script>
+
+<script>
+    function Change_Qty_Num(Obj, Qty) {
+        var Qty_Line = $(Obj).val();
+        if (Qty_Line > Qty) {
+            $(Obj).val(Qty);
+        } else if (Qty_Line < 1) {
+            $(Obj).val(1);
+        }
+    }
+
+    function Create_WMS_Task_In_Return() {
+        if (checkBoxCheckLength("MatSn") <= 0) {
+            alert("请选择产品项！");
+            return false;
+        }
+
+        if (validateFormByClass("Not_Empty") == false) {
+            return false;
+        }
+
+        if (confirm("确认递交创建退货单？") == false) {
+            return false;
+        }
+
+        $("#MyCreateForm").submit();
+        DisAndEnabledBtn(1);
+    }
+</script>
+

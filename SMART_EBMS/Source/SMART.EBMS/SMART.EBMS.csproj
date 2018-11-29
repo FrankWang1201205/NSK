@@ -198,6 +198,8 @@
     <Compile Include="Controllers\WMS_InController.cs" />
     <Compile Include="Controllers\WMS_LocController.cs" />
     <Compile Include="Controllers\WMS_Out_StocktakingController.cs" />
+    <Compile Include="Controllers\WMS_Task_In_ReturnController.cs" />
+    <Compile Include="Controllers\WMS_Task_Out_ReturnController.cs" />
     <Compile Include="Controllers\WMS_Task_OutController.cs" />
     <Compile Include="Controllers\WMS_Profit_LossController.cs" />
     <Compile Include="Controllers\WMS_StocktakingController.cs" />
@@ -767,6 +769,36 @@
     <Content Include="Views\WMS_Out_Stocktaking\WMS_Out_Stocktaking_Pick_Preview.cshtml" />
     <Content Include="Views\WMS_Out_Stocktaking\WMS_Out_Stocktaking_Pick_Preview_Sub.cshtml" />
     <Content Include="Views\WMS_Out\WMS_Out_Record.cshtml" />
+    <Content Include="Views\WMS_Task_In_Return\_TopMenu.cshtml" />
+    <Content Include="Views\WMS_Task_In_Return\WMS_In_Process.cshtml" />
+    <Content Include="Views\WMS_Task_In_Return\WMS_In_Process_Sub.cshtml" />
+    <Content Include="Views\WMS_Task_In_Return\WMS_In_Record.cshtml" />
+    <Content Include="Views\WMS_Task_In_Return\WMS_In_Record_Distributor.cshtml" />
+    <Content Include="Views\WMS_Task_In_Return\WMS_In_Record_Manufacturer.cshtml" />
+    <Content Include="Views\WMS_Task_In_Return\WMS_In_Return_Search_Create_Sub.cshtml" />
+    <Content Include="Views\WMS_Task_In_Return\WMS_In_Task_Preview.cshtml" />
+    <Content Include="Views\WMS_Task_In_Return\WMS_In_Task_Preview_Diff.cshtml" />
+    <Content Include="Views\WMS_Task_In_Return\WMS_In_Task_Preview_Label.cshtml" />
+    <Content Include="Views\WMS_Task_In_Return\WMS_In_Task_Preview_QRCode.cshtml" />
+    <Content Include="Views\WMS_Task_In_Return\WMS_In_Task_Preview_Scan.cshtml" />
+    <Content Include="Views\WMS_Task_In_Return\WMS_In_Task_Preview_Source.cshtml" />
+    <Content Include="Views\WMS_Task_In_Return\WMS_In_Task_Preview_Track.cshtml" />
+    <Content Include="Views\WMS_Task_In_Return\WMS_In_Task_Preview_Tray.cshtml" />
+    <Content Include="Views\WMS_Task_In_Return\WMS_In_Task_Preview_Tray_Sub.cshtml" />
+    <Content Include="Views\WMS_Task_In_Return\WMS_In_Task_Preview_Tray_Sub_Box.cshtml" />
+    <Content Include="Views\WMS_Task_In_Return\WMS_In_Return_Search.cshtml" />
+    <Content Include="Views\WMS_Task_In_Return\WMS_In_Return_Search_Create.cshtml" />
+    <Content Include="Views\WMS_Task_Out_Return\_TopMenu.cshtml" />
+    <Content Include="Views\WMS_Task_Out_Return\Cust_List.cshtml" />
+    <Content Include="Views\WMS_Task_Out_Return\WMS_Out_Process.cshtml" />
+    <Content Include="Views\WMS_Task_Out_Return\WMS_Out_Record.cshtml" />
+    <Content Include="Views\WMS_Task_Out_Return\WMS_Out_Record_Sub.cshtml" />
+    <Content Include="Views\WMS_Task_Out_Return\WMS_Out_Return_Search.cshtml" />
+    <Content Include="Views\WMS_Task_Out_Return\WMS_Out_Start_Sub.cshtml" />
+    <Content Include="Views\WMS_Task_Out_Return\WMS_Out_Task_Preview.cshtml" />
+    <Content Include="Views\WMS_Task_Out_Return\WMS_Out_Task_Preview_Pick.cshtml" />
+    <Content Include="Views\WMS_Task_Out_Return\WMS_Out_Return_Search_Create.cshtml" />
+    <Content Include="Views\WMS_Task_In_Return\WMS_In_Return_Search_Sub.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SMART.Api\SMART.Api.csproj">

@@ -21,7 +21,16 @@
       <TopMenu URL="WMS_Task_Out/WMS_Out_Process" TopName="出库进程" RoleTitle="公司经理,采购主管,采购专员,销售经理,客服专员"/>
       <TopMenu URL="WMS_Task_Out/WMS_Out_Record" TopName="出库记录" RoleTitle="公司经理,采购主管,采购专员,销售经理,客服专员"/>
     </SubMenu>
-  
+    <SubMenu Name="退货入库">
+      <TopMenu URL="WMS_Task_In_Return/WMS_In_Return_Search" TopName="任务创建" RoleTitle="公司经理,采购主管,采购专员,销售经理,客服专员"/>
+      <TopMenu URL="WMS_Task_In_Return/WMS_In_Return_Process" TopName="入库进程" RoleTitle="公司经理,采购主管,采购专员,销售经理,客服专员"/>
+      <TopMenu URL="WMS_Task_In_Return/WMS_In_Return_Record" TopName="入库记录" RoleTitle="公司经理,采购主管,采购专员,销售经理,客服专员"/>
+    </SubMenu>
+    <SubMenu Name="退货出库">
+      <TopMenu URL="WMS_Task_Out_Return/WMS_Out_Return_Search" TopName="任务创建" RoleTitle="公司经理,采购主管,采购专员,销售经理,客服专员"/>
+      <TopMenu URL="WMS_Task_Out_Return/WMS_Out_Return_Process" TopName="出库进程" RoleTitle="公司经理,采购主管,采购专员,销售经理,客服专员"/>
+      <TopMenu URL="WMS_Task_Out_Return/WMS_Out_Return_Record" TopName="出库记录" RoleTitle="公司经理,采购主管,采购专员,销售经理,客服专员"/>
+    </SubMenu>
   </FunctionTree>
 
   <FunctionTree_OFF ModularName="产品" ModularIcon="glyphicon glyphicon-th-list">

@@ -1,0 +1,12 @@
+﻿@model List<Customer>
+@{ 
+    Layout = null;
+    Customer_Filter MF = ViewData["MF"] as Customer_Filter;
+}
+
+<table class="text-nowrap">
+    @foreach (var x in Model)
+    {
+        <tr onclick="Select_Customer_Item('@x.CID','@x.Cust_Name')"><td>@x.Cust_Name</td></tr>
+    }
+</table>
