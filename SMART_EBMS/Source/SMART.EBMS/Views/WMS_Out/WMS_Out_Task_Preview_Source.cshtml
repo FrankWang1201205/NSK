@@ -42,7 +42,7 @@
             <td><strong>@Model.Line_List.Where(x => x.Quantity_Sum > 0).Count().ToString("N0")</strong> <span>项</span></td>
             <td class="active" style="width:10px;">产品数量</td>
             <td><strong>@Model.Line_List.Where(x => x.Quantity_Sum > 0).Sum(x => x.Quantity_Sum).ToString("N0")</strong></td>
-            <td class="active" style="width:10px;">当前状态</td>
+            <td class="active" style="width:10px;">当前状态 </td>
             <td>@Model.Global_State</td>
         </tr>
         <tr>

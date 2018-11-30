@@ -21,6 +21,23 @@
     <form id="MyForm" action="~/WMS_Task_In_Return/WMS_In_Return_Search" method="get">
         <table style="width:100%;">
             <tr>
+                <td style="width:100px;  padding-left:5px;">
+                    <select name="Global_State" id="Global_State" class="form-control input-sm" onchange="SubmitPageIndex(1)">
+                        <option value="">当前状态 </option>
+                        @foreach (var x in MF.Global_State_List.Where(x => x != WMS_In_Global_State_Enum.完成入库.ToString()))
+                        {
+                            if (MF.Global_State == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
                 <td style="width:100px;padding-left:5px;">
                     <select name="Logistics_Mode" id="Logistics_Mode" class="form-control input-sm" onchange="SubmitPageIndex(1)">
                         <option value="">运输方式</option>
@@ -80,12 +97,13 @@
             <th style="width:150px;">任务编号</th>
             <th style="width:70px;">创建日期</th>
             <th style="width:70px;">创建人</th>
+            <th style="width:150px;">送货单编号</th>
             <th style="width:250px;">退货客户</th>
             <th style="width:70px;">物流公司</th>
             <th style="width:70px;">运输方式</th>
             <th style="width:60px;text-align:right">退货型号</th>
             <th style="width:60px;text-align:right">退货数量</th>
-            <th style="width:70px;">当前状态</th>
+            <th style="width:70px;">当前状态 </th>
             <th style="width:70px;">&nbsp;</th>
             <th>&nbsp;</th>
         </tr>
@@ -98,6 +116,7 @@
                 <td style="vertical-align:top;">@x.Task_Bat_No_Str</td>                
                 <td style="vertical-align:top;">@x.Create_DT.ToString("yyyy-MM-dd")</td>
                 <td style="vertical-align:top;">@x.Create_Person</td>
+                <td style="vertical-align:top;">@x.Link_WMS_In_No</td>
                 <td style="vertical-align:top;">@x.Supplier_Name</td>
                 <td style="vertical-align:top;">@x.Logistics_Company</td>
                 <td style="vertical-align:top;">@x.Logistics_Mode</td>

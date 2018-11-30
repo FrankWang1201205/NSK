@@ -40,7 +40,7 @@
 
                 <td style="width:120px; padding-left:15px;">
                     <select name="Global_State" id="Global_State" class="form-control input-sm" onchange="SubmitPageIndex(1)">
-                        <option value="">任务状态</option>
+                        <option value="">当前状态 </option>
                         @foreach (var x in MF.Global_State_List.Where(x=>x!= WMS_Out_Global_State_Enum.已出库.ToString()))
                         {
                             if (MF.Global_State == x)
@@ -93,7 +93,7 @@
             <th style="width:200px;">客户名称</th>
             <th style="width:60px;text-align:right">品项</th>
             <th style="width:60px;text-align:right">配货数量</th>
-            <th style="width:70px;text-align:right">任务状态</th>
+            <th style="width:70px;text-align:right">当前状态 </th>
             <th style="width:70px;">作业人</th>
             <th>&nbsp;</th>
         </tr>

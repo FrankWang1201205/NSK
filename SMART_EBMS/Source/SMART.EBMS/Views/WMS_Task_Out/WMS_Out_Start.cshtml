@@ -23,7 +23,7 @@
             <tr>
                 <td style="width:100px;  padding-left:5px;">
                     <select name="Global_State" id="Global_State" class="form-control input-sm" onchange="SubmitPageIndex(1)">
-                        <option value="">任务状态</option>
+                        <option value="">当前状态 </option>
                         @foreach (var x in MF.Global_State_List.Where(x => x != WMS_Out_Global_State_Enum.已出库.ToString()))
                         {
                             if (MF.Global_State == x)
@@ -118,7 +118,7 @@
             <th style="width:200px;">客户名称</th>
             <th style="width:60px;text-align:right">产品型号</th>
             <th style="width:60px;text-align:right">配货数量</th>
-            <th style="width:70px;">当前状态</th>
+            <th style="width:70px;">当前状态 </th>
             <th style="width:70px;">&nbsp;</th>
             <th>&nbsp;</th>
         </tr>
@@ -198,7 +198,7 @@
                             <td colspan="2" style="padding:10px;">
                                 <table>
                                     <tr>
-                                        <td style="width:60px;">送货方式</td>
+                                        <td style="width:60px;">运输方式</td>
                                         <td style="padding-right:20px;">
                                             <select class="form-control input-xs Not_Empty" name="Logistics_Mode" id="Logistics_Mode_First" style="float:left; width:100px; margin-right:5px;">
                                                 <option value="">请选择</option>
@@ -216,8 +216,8 @@
                                     <tr>
                                         <td style="width:60px;padding-top:15px;">客户名称</td>
                                         <td colspan="3" style="padding-top:15px;">
-                                            <input class="form-control input-sm Not_Empty" name="Link_Cus_ID" type="hidden" id="Link_Cus_ID" value="" />
-                                            <input onclick="Reload_CustList()" onkeyup="Reload_CustList()" id="Cust_Name" name="Cust_Name" class="form-control input-sm" style="border-radius:0px;" value="" placeholder="输入或选择客户" autocomplete="off" />
+                                            <input class="form-control input-sm" name="Link_Cus_ID" type="hidden" id="Link_Cus_ID" value="" />
+                                            <input onclick="Reload_CustList()" onkeyup="Reload_CustList()" id="Cust_Name" name="Cust_Name" class="form-control input-sm Not_Empty" style="border-radius:0px;" value="" placeholder="输入或选择客户" autocomplete="off" />
                                             <div id="CustList_Select" class="EnterAndSelect_Box" style="min-height:100px;min-width:285px;"></div>
 
                                             <script>
@@ -248,16 +248,18 @@
                                 <input type="file" onchange="ShowFileName()" data-val="true" name="ExcelFile" id="FirstExcelFile" />
                                 <script>
                                     function Check_Upload_First() {
+                                        if (validateFormByClass("Not_Empty")==false) {
+                                            return false;
+                                        }
+
                                         if ($("#FirstExcelFile").val() == "") {
                                             alert("请选择Excel文件");
                                             return false;
                                         }
 
-                                        if (validateFormByClass("Not_Empty")) {
-                                            DisAndEnabledBtn(1);
-                                            Show_Load_First();
-                                            $("#Upload_First_Form").submit();
-                                        }
+                                        DisAndEnabledBtn(1);
+                                        Show_Load_First();
+                                        $("#Upload_First_Form").submit();
                                     }
 
                                     function Show_Load_First() {

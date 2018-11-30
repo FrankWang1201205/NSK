@@ -76,8 +76,10 @@ namespace SMART.Api
         List<WMS_Out_Scan> Get_WMS_Out_Scan_List(Guid Head_ID, string MatSn);
         void Reset_WMS_Out_Scan_By_MatSn(Guid Head_ID, string MatSn);
 
-        //退货作业（用于退货入库）
+        //退货作业
         WMS_Out_Task Get_WMS_Out_Task_Item_DB(Guid HeadID);
+        void Create_WMS_Task_Out_Return(WMS_Out_Head Head, List<WMS_Out_Line> Line_List, User U);
+        WMS_Out_Task Get_WMS_Out_Task_Item_DB(WMS_Out_Filter MF);
     }
 
     //送货单创建
@@ -384,7 +386,7 @@ namespace SMART.Api
             //执行数据持久化
             Head.Head_ID = MyGUID.NewGUID();
             Head.Task_Bat_No = this.Auto_Create_Task_Bat_No_Out();
-            Head.Task_Bat_No_Str = Auto_Create_Task_Bat_No_Str_In(Head, C);
+            Head.Task_Bat_No_Str = Auto_Create_Task_Bat_No_Str_Out(Head, C);
             Head.Create_DT = DateTime.Now;
             Head.Create_Person = U.UserFullName;
             Head.Status = WMS_Out_Global_State_Enum.待配货.ToString();
@@ -532,7 +534,7 @@ namespace SMART.Api
             return Task_Bat_No;
         }
 
-        private string Auto_Create_Task_Bat_No_Str_In(WMS_Out_Head Head, Customer C)
+        private string Auto_Create_Task_Bat_No_Str_Out(WMS_Out_Head Head, Customer C)
         {
             List<string> Task_Bat_No_Str_List = db.WMS_Out_Head.Where(x => x.LinkMainCID == C.LinkMainCID && x.Out_DT_Str == Head.Out_DT_Str).Select(x => x.Task_Bat_No_Str).Distinct().ToList();
 
@@ -697,7 +699,7 @@ namespace SMART.Api
 
         public void Set_WMS_Out_Head_With_Work_Person(Guid Head_ID, List<string> Down_Person_List, List<string> Out_Person_List, List<string> Driver_List)
         {
-            if (Down_Person_List.Count <= 0) { throw new Exception("未勾选配货作业人！"); }
+            if (Down_Person_List.Count <= 0) { throw new Exception("未勾选配货人！"); }
 
             WMS_Out_Head Head_DB = db.WMS_Out_Head.Find(Head_ID);
             Head_DB = Head_DB == null ? new WMS_Out_Head() : Head_DB;
@@ -1291,7 +1293,7 @@ namespace SMART.Api
 
             if (Head.Status != WMS_Out_Global_State_Enum.待配货.ToString())
             {
-                throw new Exception("当前状态不支持取消配货指令");
+                throw new Exception("当前状态 不支持取消配货指令");
             }
 
             List<WMS_Out_Pick_Scan> Scan_List = db.WMS_Out_Pick_Scan.Where(x => x.Link_TaskID == Head.Head_ID).ToList();
@@ -1673,7 +1675,7 @@ namespace SMART.Api
 
             MatSn = MatSn.Trim();
             Location = Location.Trim();
-            if (string.IsNullOrEmpty(Head.Work_Down_Person)) { throw new Exception("未设置配货作业人"); }
+            if (string.IsNullOrEmpty(Head.Work_Down_Person)) { throw new Exception("未设置配货人"); }
 
             List<WMS_Out_Pick_Scan> Scan_List = db.WMS_Out_Pick_Scan.Where(x => x.Link_TaskID == Head.Head_ID && x.MatSn == MatSn).ToList();
             if (Scan_List.Where(x => x.Scan_Location == Location).Any())
@@ -1842,7 +1844,7 @@ namespace SMART.Api
 
             if (Head.Status != WMS_Out_Global_State_Enum.待配货.ToString())
             {
-                throw new Exception("当前状态不支持清空取货库位");
+                throw new Exception("当前状态 不支持清空取货库位");
             }
 
             MatSn = MatSn.Trim();
@@ -2136,7 +2138,7 @@ namespace SMART.Api
 
             return T;
         }
-
+        
         public WMS_Out_Line Get_WMS_Out_Line_Item(Guid Head_ID, string MatSn)
         {
             if (string.IsNullOrEmpty(MatSn)) { throw new Exception("产品型号为空"); }
@@ -2587,7 +2589,7 @@ namespace SMART.Api
         }
     }
 
-    //退货作业（用于退货入库）
+    //退货作业
     public partial class WmsService : IWmsService
     {
         public WMS_Out_Task Get_WMS_Out_Task_Item_DB(Guid HeadID)
@@ -2635,6 +2637,188 @@ namespace SMART.Api
             }
 
             T.Line_List = T.Line_List.OrderBy(x => x.Line_No).ToList();
+            return T;
+        }
+
+        public void Create_WMS_Task_Out_Return(WMS_Out_Head Head, List<WMS_Out_Line> Line_List, User U)
+        {
+            if (Line_List.Any() == false) { throw new Exception("未选择退货产品"); }
+
+            if (string.IsNullOrEmpty(Head.Logistics_Mode)) { throw new Exception("未选择运输方式"); }
+            
+            Supplier Sup = db.Supplier.Find(Head.Link_Cus_ID);
+            if (Sup == null) { throw new Exception("系统中不存在此供应商"); }
+
+            WMS_In_Head In_Head = db.WMS_In_Head.Find(Head.Head_ID);
+            if (In_Head == null) { throw new Exception("系统中不存在此收货单"); }
+
+            Head.Out_DT_Str = Head.Out_DT.ToString("yyyy-MM-dd");
+
+            WMS_Out_Head Head_New = new WMS_Out_Head();
+            Head_New.Head_ID = MyGUID.NewGUID();
+            Head_New.Task_Bat_No = this.Auto_Create_Task_Bat_No();
+            Head_New.Task_Bat_No_Str = this.Auto_Create_Task_Bat_No_Str_Out_Return(Head, Sup);
+            Head_New.Create_DT = DateTime.Now;
+            Head_New.Create_Person = U.UserFullName;
+            Head_New.Status = WMS_Out_Global_State_Enum.待配货.ToString();
+            Head_New.LinkMainCID = U.LinkMainCID;
+            Head_New.Logistics_Company = Head.Logistics_Company;
+            Head_New.Logistics_Mode = Head.Logistics_Mode;
+            Head_New.Logistics_Cost_Type = Head.Logistics_Cost_Type;
+            Head_New.Customer_Name = Sup.Sup_Name;
+            Head_New.Out_DT_Str = Head.Out_DT_Str;
+            Head_New.Link_Cus_ID = Sup.SupID;
+            Head_New.Brand = In_Head.Brand;
+            Head_New.Head_Type = WMS_Out_Head_Type_Enum.订单退货.ToString();
+            Head_New.Return_Remark = Head.Return_Remark.Trim();
+            Head_New.Link_WMS_Out_ID = In_Head.Head_ID;
+            Head_New.Link_WMS_Out_No = In_Head.Task_Bat_No_Str;
+            db.WMS_Out_Head.Add(Head_New);
+
+            List<WMS_In_Line> Line_List_DB = db.WMS_In_Line.Where(x => x.Link_Head_ID == In_Head.Head_ID).ToList();
+            WMS_In_Line Line_DB = new WMS_In_Line();
+            List<WMS_Out_Line> Line_List_New = new List<WMS_Out_Line>();
+            WMS_Out_Line Line = new WMS_Out_Line();
+            int i = 0;
+            foreach (var x in Line_List)
+            {
+                i++;
+                Line_DB = Line_List_DB.Where(c => c.MatSn == x.MatSn).FirstOrDefault();
+                if (Line_DB == null) { throw new Exception("送货单中不存在此产品型号"); }
+
+                Line = new WMS_Out_Line();
+                Line.Line_ID = MyGUID.NewGUID();
+                Line.MatSn = x.MatSn;
+                Line.Quantity = x.Quantity;
+                Line.LinkMainCID = Head_New.LinkMainCID;
+                Line.Link_Head_ID = Head_New.Head_ID;
+                Line.Task_Bat_No = Head_New.Task_Bat_No;
+                Line.Task_Bat_No_Str = Head_New.Task_Bat_No_Str;
+                Line.Create_DT = Head_New.Create_DT;
+                Line.Create_Person = Head_New.Create_Person;
+                Line.Line_No = i;
+                Line.MatUnit = "PCS";
+                Line.Price = Line_DB.Price_Cost;
+                Line.Customer_Name = Head_New.Customer_Name;
+                Line.Logistics_Company = Head_New.Logistics_Company; 
+                Line.Logistics_Mode = Head_New.Logistics_Mode;
+                Line.Logistics_Cost_Type = Head_New.Logistics_Cost_Type;
+                Line_List_New.Add(Line);
+            }
+
+            db.WMS_Out_Line.AddRange(Line_List_New);
+            MyDbSave.SaveChange(db);
+        }
+
+        private string Auto_Create_Task_Bat_No_Str_Out_Return(WMS_Out_Head Head, Supplier Sup)
+        {
+            List<string> Task_Bat_No_Str_List = db.WMS_Out_Head.Where(x => x.LinkMainCID == Sup.LinkMainCID && x.Out_DT_Str == Head.Out_DT_Str).Select(x => x.Task_Bat_No_Str).Distinct().ToList();
+
+            string Logistics_Mode_Code = string.Empty;
+
+            if (Head.Logistics_Mode == Logistics_Out_Mode_Enum.快递.ToString())
+            {
+                Logistics_Mode_Code = "KD";
+            }
+            else if (Head.Logistics_Mode == Logistics_Out_Mode_Enum.物流.ToString())
+            {
+                Logistics_Mode_Code = "WL";
+            }
+            else if (Head.Logistics_Mode == Logistics_Out_Mode_Enum.自送.ToString())
+            {
+                Logistics_Mode_Code = "ZS";
+            }
+            else if (Head.Logistics_Mode == Logistics_Out_Mode_Enum.自提.ToString())
+            {
+                Logistics_Mode_Code = "ZT";
+            }
+
+            Head.Task_Bat_No_Str = Sup.SupplierCode + "_" + Head.Out_DT.ToString("yyyyMMdd") + "_" + Logistics_Mode_Code + "_";
+
+            Task_Bat_No_Str_List = Task_Bat_No_Str_List.Where(x => x.Contains(Head.Task_Bat_No_Str)).ToList();
+            if (Task_Bat_No_Str_List.Any() == false)
+            {
+                Head.Task_Bat_No_Str = Head.Task_Bat_No_Str + "1";
+            }
+            else
+            {
+                List<long> Task_Bat_No_Num_List = new List<long>();
+
+                foreach (var No in Task_Bat_No_Str_List)
+                {
+                    string[] Source = No.Trim().Split('_');
+                    try
+                    {
+                        Task_Bat_No_Num_List.Add(Convert.ToInt64((Source[3].Trim())));
+                    }
+                    catch
+                    {
+                        Task_Bat_No_Num_List.Add(1);
+                    }
+
+                }
+
+                long Task_Bat_No_Num = Task_Bat_No_Num_List.Max() + 1;
+                Head.Task_Bat_No_Str = Head.Task_Bat_No_Str + Task_Bat_No_Num.ToString();
+            }
+
+            return Head.Task_Bat_No_Str;
+        }
+
+        public WMS_Out_Task Get_WMS_Out_Task_Item_DB(WMS_Out_Filter MF)
+        {
+            WMS_Out_Head Head = db.WMS_Out_Head.Find(MF.LinkHeadID);
+            Head = Head == null ? new WMS_Out_Head() : Head;
+            List<WMS_Out_Line> List = db.WMS_Out_Line.Where(x => x.Link_Head_ID == Head.Head_ID).ToList();
+
+            WMS_Out_Task T = new WMS_Out_Task();
+            T.Head_ID = Head.Head_ID;
+            T.Task_Bat_No_Str = Head.Task_Bat_No_Str;
+            T.Create_DT = Head.Create_DT;
+            T.Create_Person = Head.Create_Person;
+            T.Logistics_Company = Head.Logistics_Company;
+            T.Logistics_Mode = Head.Logistics_Mode;
+            T.Brand = Head.Brand;
+            T.Logistics_Cost_Type = Head.Logistics_Cost_Type;
+            T.Global_State = Head.Status;
+            T.Scan_Mat_Type = Head.Scan_Mat_Type;
+            T.Work_Out_Person = Head.Work_Out_Person;
+            T.Work_Down_Person = Head.Work_Down_Person;
+            T.Customer_Name = Head.Customer_Name;
+            T.Customer_Tel = Head.Customer_Tel;
+            T.Customer_Address = Head.Customer_Address;
+            T.Total_Cases = Head.Total_Cases;
+            T.Line_List = new List<WMS_Out_Task_Line>();
+            var Line_Group = from x in List
+                             group x by x.MatSn into G
+                             select new
+                             {
+                                 MatSn = G.Key,
+                                 Quantity_Sum = G.Sum(c => c.Quantity),
+                                 Line_No = G.FirstOrDefault().Line_No,
+                             };
+
+            int i = 0;
+            WMS_Out_Task_Line T_Line = new WMS_Out_Task_Line();
+            foreach (var x in Line_Group.OrderBy(x => x.Line_No).ToList())
+            {
+                i++;
+                T_Line = new WMS_Out_Task_Line();
+                T_Line.Line_No = i;
+                T_Line.MatSn = x.MatSn;
+                T_Line.Quantity_Sum = x.Quantity_Sum;
+
+
+                T.Line_List.Add(T_Line);
+            }
+
+            if (!string.IsNullOrEmpty(MF.MatSn))
+            {
+                T.Line_List = T.Line_List.Where(x => x.MatSn.ToLower().Contains(MF.MatSn.ToLower())).ToList();
+            }
+
+            T.Line_List = T.Line_List.OrderBy(x => x.Line_No).ToList();
+
             return T;
         }
 
@@ -3369,7 +3553,7 @@ namespace SMART.Api
 
             if (Head.Status != WMS_Out_Global_State_Enum.待包装.ToString())
             {
-                throw new Exception("验货任务状态异常");
+                throw new Exception("验货当前状态 异常");
             }
 
             List<WMS_Track> OLD_Track_List = db.WMS_Track.Where(x => x.Link_Head_ID == Head.Head_ID).ToList();

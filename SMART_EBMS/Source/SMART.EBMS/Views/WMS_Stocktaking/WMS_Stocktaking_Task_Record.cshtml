@@ -25,7 +25,7 @@
             <tr>
                 <td style="width:100px;">
                     <select name="Status" id="Status" class="form-control input-sm" onchange="SubmitPageIndex(1)">
-                        <option value="">任务状态</option>
+                        <option value="">当前状态 </option>
                         @foreach (var x in MF.Task_Status_List)
                         {
                             if (MF.Status == x)
@@ -83,7 +83,7 @@
             <th style="width:70px;">创建日期</th>
             <th style="width:70px;">库位</th>
             <th style="width:70px;">类型</th>
-            <th style="width:70px;">当前状态</th>
+            <th style="width:70px;">当前状态 </th>
             <th>&nbsp;</th>
         </tr>
     </thead>

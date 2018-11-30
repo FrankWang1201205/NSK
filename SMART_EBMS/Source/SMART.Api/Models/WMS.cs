@@ -149,6 +149,8 @@ namespace SMART.Api.Models
             Work_Person = string.Empty;
             Driver_Name = string.Empty;
             Scan_Mat_Type = string.Empty;
+            Link_WMS_In_No = string.Empty;
+            Sup_ID = Guid.Empty;
         }
 
         public Guid Head_ID { get; set; }
@@ -164,6 +166,8 @@ namespace SMART.Api.Models
         public string Supplier_Name { get; set; }
         public string Global_State { get; set; }
         public string Scan_Mat_Type { get; set; }
+        public string Link_WMS_In_No { get; set; }
+        public Guid Sup_ID { get; set; }
 
         //型号数
         public int MatSn_Count { get; set; }
@@ -764,6 +768,7 @@ namespace SMART.Api.Models
             Work_Distribution_Status_List = Enum.GetNames(typeof(WMS_Work_Distribution_State_Enum)).ToList();
             Head_Type = string.Empty;
             Head_Type_List = Enum.GetNames(typeof(WMS_In_Head_Type_Enum)).ToList();
+            Work_Person = string.Empty;
         }
 
         public int PageIndex { get; set; }
@@ -796,6 +801,7 @@ namespace SMART.Api.Models
         public List<string> Work_Distribution_Status_List { get; set; }
         public string Head_Type { get; set; }
         public List<string> Head_Type_List { get; set; }
+        public string Work_Person { get; set; }
     }
 
     public class WMS_Logistics
@@ -894,178 +900,6 @@ namespace SMART.Api.Models
         public int PageIndex { get; set; }
         public int PageSize { get; set; }
         public string Keyword { get; set; }
-        public Guid LinkMainCID { get; set; }
-    }
-}
-
-//快递费用
-namespace SMART.Api.Models
-{
-    public class WMS_Track
-    {
-        public WMS_Track()
-        {
-            Tracking_ID = Guid.Empty;
-            Logistics_Company = string.Empty;
-            Logistics_Mode = string.Empty;
-            Logistics_Cost = 0;
-            Kilometers = 0;
-            Tracking_No = string.Empty;
-            Scan_PDA_Date = DateTime.Now;
-            LinkMainCID = Guid.Empty;
-            Link_Head_ID = Guid.Empty;
-            Create_DT = DateTime.Now;
-            Link_Head_Com_Name = string.Empty;
-            Tracking_Type = string.Empty;
-            Driver_Name = string.Empty;
-            Weight = 0;
-            Tray_No = string.Empty;
-        }
-
-        [Key]
-        public Guid Tracking_ID { get; set; }
-
-        public string Logistics_Company { get; set; }
-
-        [Required]
-        public string Logistics_Mode { get; set; }
-
-        [Required]
-        public decimal Logistics_Cost { get; set; }
-
-        [Required]
-        public string Tracking_No { get; set; }
-
-        public decimal Kilometers { get; set; }
-
-        public decimal Weight { get; set; }
-
-        [Required]
-        public DateTime Scan_PDA_Date { get; set; }
-
-        [Required]
-        public Guid LinkMainCID { get; set; }
-
-        [Required]
-        public Guid Link_Head_ID { get; set; }
-
-        public string Link_Head_Com_Name { get; set; }
-
-        [Required]
-        public DateTime Create_DT { get; set; }
-
-        [Required]
-        public string Tracking_Type { get; set; }
-
-        public string Driver_Name { get; set; }
-
-        public string Tray_No { get; set; }
-    }
-
-    public enum Tracking_Type_Enum
-    {
-        收货,
-        送货,
-        发票,
-        其他,
-    }
-
-    [NotMapped]
-    public class Logistics_Cost_Year
-    {
-        public Logistics_Cost_Year()
-        {
-            YearList = new List<string>();
-            SubList = new List<Logistics_Cost_Year_Sub>();
-            SubCustList = new List<Logistics_Cost_Year_Sub_By_Logistics>();
-        }
-        public string Year { get; set; }
-        public List<string> YearList { get; set; }
-        public Guid LinkMainCID { get; set; }
-        public List<Logistics_Cost_Year_Sub> SubList { get; set; }
-        public List<Logistics_Cost_Year_Sub_By_Logistics> SubCustList { get; set; }
-    }
-
-    [NotMapped]
-    public class Logistics_Cost_Year_Sub
-    {
-        public DateTime SD { get; set; }
-        public DateTime ED { get; set; }
-
-        public string MonthStr { get; set; }
-
-        //金额合计
-        public decimal Price_Amount { get; set; }
-
-        //快递单合计
-        public decimal Tracking_No_Amount { get; set; }
-    }
-
-    [NotMapped]
-    public class Logistics_Cost_Year_Sub_By_Logistics
-    {
-        public Logistics_Cost_Year_Sub_By_Logistics()
-        {
-            SubList = new List<Logistics_Cost_Year_Sub_By_Logistics_Sub>();
-        }
-
-        public Guid Logistics_ID { get; set; }
-        public string Logistics_Name { get; set; }
-
-        //金额合计
-        public decimal Price_Amount { get; set; }
-
-        //快递单合计
-        public decimal Tracking_No_Amount { get; set; }
-
-        public List<Logistics_Cost_Year_Sub_By_Logistics_Sub> SubList { get; set; }
-    }
-
-    [NotMapped]
-    public class Logistics_Cost_Year_Sub_By_Logistics_Sub
-    {
-        public Guid Logistics_ID { get; set; }
-
-        public string MonthStr { get; set; }
-
-        public string MonthStr_SD { get; set; }
-
-        public string MonthStr_ED { get; set; }
-
-        //金额合计
-        public decimal Price_Amount { get; set; }
-
-        //快递单合计
-        public decimal Tracking_No_Amount { get; set; }
-        
-    }
-
-    [NotMapped]
-    public class Logistics_Cost_Filter
-    {
-        public Logistics_Cost_Filter()
-        {
-            PageIndex = 1;
-            PageSize = 20;
-            Keyword = string.Empty;
-            Com_Name = string.Empty;
-            Logistics_Name = string.Empty;
-            Year = string.Empty;
-            TrackingType = string.Empty;
-            SD = string.Empty;
-            ED = string.Empty;
-          
-        }
-
-        public int PageIndex { get; set; }
-        public int PageSize { get; set; }
-        public string Com_Name { get; set; }
-        public string Logistics_Name { get; set; }
-        public string Year { get; set; }
-        public string Keyword { get; set; }
-        public string TrackingType { get; set; }
-        public string SD { get; set; }
-        public string ED { get; set; }
         public Guid LinkMainCID { get; set; }
     }
 }
@@ -2756,5 +2590,270 @@ namespace SMART.Api.Models
 
         //盈亏数量
         public int Profit_Loss_Quantity { get; set; }
+    }
+}
+
+//快递费用
+namespace SMART.Api.Models
+{
+    public class WMS_Track
+    {
+        public WMS_Track()
+        {
+            Tracking_ID = Guid.Empty;
+            Logistics_Company = string.Empty;
+            Logistics_Mode = string.Empty;
+            Logistics_Cost = 0;
+            Kilometers = 0;
+            Tracking_No = string.Empty;
+            Scan_PDA_Date = DateTime.Now;
+            LinkMainCID = Guid.Empty;
+            Link_Head_ID = Guid.Empty;
+            Create_DT = DateTime.Now;
+            Link_Head_Com_Name = string.Empty;
+            Tracking_Type = string.Empty;
+            Driver_Name = string.Empty;
+            Weight = 0;
+            Tray_No = string.Empty;
+        }
+
+        [Key]
+        public Guid Tracking_ID { get; set; }
+
+        public string Logistics_Company { get; set; }
+
+        [Required]
+        public string Logistics_Mode { get; set; }
+
+        [Required]
+        public decimal Logistics_Cost { get; set; }
+
+        [Required]
+        public string Tracking_No { get; set; }
+
+        public decimal Kilometers { get; set; }
+
+        public decimal Weight { get; set; }
+
+        [Required]
+        public DateTime Scan_PDA_Date { get; set; }
+
+        [Required]
+        public Guid LinkMainCID { get; set; }
+
+        [Required]
+        public Guid Link_Head_ID { get; set; }
+
+        public string Link_Head_Com_Name { get; set; }
+
+        [Required]
+        public DateTime Create_DT { get; set; }
+
+        [Required]
+        public string Tracking_Type { get; set; }
+
+        public string Driver_Name { get; set; }
+
+        public string Tray_No { get; set; }
+    }
+
+    public enum Tracking_Type_Enum
+    {
+        收货,
+        送货,
+        发票,
+        其他,
+    }
+
+    [NotMapped]
+    public class Logistics_Cost_Year
+    {
+        public Logistics_Cost_Year()
+        {
+            YearList = new List<string>();
+            SubList = new List<Logistics_Cost_Year_Sub>();
+            SubCustList = new List<Logistics_Cost_Year_Sub_By_Logistics>();
+        }
+        public string Year { get; set; }
+        public List<string> YearList { get; set; }
+        public Guid LinkMainCID { get; set; }
+        public List<Logistics_Cost_Year_Sub> SubList { get; set; }
+        public List<Logistics_Cost_Year_Sub_By_Logistics> SubCustList { get; set; }
+    }
+
+    [NotMapped]
+    public class Logistics_Cost_Year_Sub
+    {
+        public DateTime SD { get; set; }
+        public DateTime ED { get; set; }
+
+        public string MonthStr { get; set; }
+
+        //金额合计
+        public decimal Price_Amount { get; set; }
+
+        //快递单合计
+        public decimal Tracking_No_Amount { get; set; }
+    }
+
+    [NotMapped]
+    public class Logistics_Cost_Year_Sub_By_Logistics
+    {
+        public Logistics_Cost_Year_Sub_By_Logistics()
+        {
+            SubList = new List<Logistics_Cost_Year_Sub_By_Logistics_Sub>();
+        }
+
+        public Guid Logistics_ID { get; set; }
+        public string Logistics_Name { get; set; }
+
+        //金额合计
+        public decimal Price_Amount { get; set; }
+
+        //快递单合计
+        public decimal Tracking_No_Amount { get; set; }
+
+        public List<Logistics_Cost_Year_Sub_By_Logistics_Sub> SubList { get; set; }
+    }
+
+    [NotMapped]
+    public class Logistics_Cost_Year_Sub_By_Logistics_Sub
+    {
+        public Guid Logistics_ID { get; set; }
+
+        public string MonthStr { get; set; }
+
+        public string MonthStr_SD { get; set; }
+
+        public string MonthStr_ED { get; set; }
+
+        //金额合计
+        public decimal Price_Amount { get; set; }
+
+        //快递单合计
+        public decimal Tracking_No_Amount { get; set; }
+
+    }
+
+    [NotMapped]
+    public class Logistics_Cost_Filter
+    {
+        public Logistics_Cost_Filter()
+        {
+            PageIndex = 1;
+            PageSize = 20;
+            Keyword = string.Empty;
+            Com_Name = string.Empty;
+            Logistics_Name = string.Empty;
+            Year = string.Empty;
+            TrackingType = string.Empty;
+            SD = string.Empty;
+            ED = string.Empty;
+
+        }
+
+        public int PageIndex { get; set; }
+        public int PageSize { get; set; }
+        public string Com_Name { get; set; }
+        public string Logistics_Name { get; set; }
+        public string Year { get; set; }
+        public string Keyword { get; set; }
+        public string TrackingType { get; set; }
+        public string SD { get; set; }
+        public string ED { get; set; }
+        public Guid LinkMainCID { get; set; }
+    }
+
+    public class WMS_Track_Info
+    {
+        public WMS_Track_Info()
+        {
+            Info_ID = Guid.Empty;
+            Sender_Name = string.Empty;
+            Sender_Phone = string.Empty;
+            Sender_Tel = string.Empty;
+            Sender_Address = string.Empty;
+            Receiver_Name = string.Empty;
+            Receiver_Phone = string.Empty;
+            Receiver_Tel = string.Empty;
+            Receiver_Address = string.Empty;
+            Item_Info = string.Empty;
+            Logistics_Company = string.Empty;
+            Logistics_Company_Loc = string.Empty;
+            Tracking_No = string.Empty;
+            LinkMainCID = Guid.Empty;
+            Create_DT = DateTime.Now;
+            Create_Person = string.Empty;
+        }
+
+        [Key]
+        public Guid Info_ID { get; set; }
+
+        [Required]
+        public string Sender_Name { get; set; }
+
+        public string Sender_Phone { get; set; }
+
+        public string Sender_Tel { get; set; }
+
+        [Required]
+        public string Sender_Address { get; set; }
+
+        [Required]
+        public string Receiver_Name { get; set; }
+
+        public string Receiver_Phone { get; set; }
+
+        public string Receiver_Tel { get; set; }
+
+        [Required]
+        public string Receiver_Address { get; set; }
+
+        [Required]
+        public string Item_Info { get; set; }
+
+        [Required]
+        public string Logistics_Company { get; set; }
+        
+        public string Logistics_Company_Loc { get; set; }
+        
+        [Required]
+        public string Tracking_No { get; set; }
+
+        [Required]
+        public Guid LinkMainCID { get; set; }
+
+        [Required]
+        public DateTime Create_DT { get; set; }
+
+        [Required]
+        public string Create_Person { get; set; }
+    }
+
+    [NotMapped]
+    public class Track_Info_Filter
+    {
+        public Track_Info_Filter()
+        {
+            PageIndex = 1;
+            PageSize = 20;
+            Tracking_No = string.Empty;
+            Logistics_Company = string.Empty;
+            Sender_Name = string.Empty;
+            Receiver_Name = string.Empty;
+            LinkMainCID = Guid.Empty;
+            Time_Start = string.Empty;
+            Time_End = string.Empty;
+        }
+
+        public int PageIndex { get; set; }
+        public int PageSize { get; set; }
+        public string Sender_Name { get; set; }
+        public string Logistics_Company { get; set; }
+        public string Receiver_Name { get; set; }
+        public string Tracking_No { get; set; }
+        public string Time_Start { get; set; }
+        public string Time_End { get; set; }
+        public Guid LinkMainCID { get; set; }
     }
 }

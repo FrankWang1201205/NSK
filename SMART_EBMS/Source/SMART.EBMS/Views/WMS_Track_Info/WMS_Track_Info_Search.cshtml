@@ -1,11 +1,11 @@
-﻿@model PageList<WMS_Out_Head>
+﻿@model PageList<WMS_Track_Info>
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    WMS_Out_Filter MF = ViewData["MF"] as WMS_Out_Filter;
+    Track_Info_Filter MF = ViewData["MF"] as Track_Info_Filter;
 }
 
 @{Html.RenderPartial("_TopMenu");}
-<script>TopMenuToAction("出库记录");</script>
+<script>TopMenuToAction("信息查看");</script>
 
 @if (TempData["Error"] != null)
 {
@@ -18,7 +18,7 @@
 }
 
 <div class="DeductionDiv TopSearchDiv">
-    <form id="MyForm" action="~/WMS_Task_Out/WMS_Out_Record" method="get">
+    <form id="MyForm" action="~/WMS_Track_Info/WMS_Track_Info_Search" method="get">
         <table style="width:100%;">
             <tr>
                 <td style="width:10px;padding-left:5px;">
@@ -31,41 +31,28 @@
                     <input autocomplete="off" style="width:90px;" class="form-control input-sm Time_Select" name="Time_End" type="text" id="Time_End" placeholder="结束时间" value="@MF.Time_End" />
                 </td>
 
-                <td style="width:100px;padding-left:5px;">
-                    <select name="Logistics_Mode" id="Logistics_Mode" class="form-control input-sm" onchange="SubmitPageIndex(1)">
-                        <option value="">运输方式</option>
-                        @foreach (var x in MF.Logistics_Mode_List)
-                        {
-                            if (MF.Logistics_Mode == x)
-                            {
-                                <option selected="selected" value="@x">@x</option>
-                            }
-                            else
-                            {
-                                <option value="@x">@x</option>
-                            }
-                        }
-                    </select>
+                <td style="width:100px; padding-left:5px;">
+                    <input type="text" name="Logistics_Company" id="Logistics_Company" placeholder="快递公司" value="@MF.Logistics_Company" class="form-control input-sm">
                 </td>
 
-                <td style="width:150px; padding-left:5px;">
-                    <input type="text" name="Customer_Name" id="Customer_Name" placeholder="客户" value="@MF.Customer_Name" class="form-control input-sm">
+                <td style="width:100px; padding-left:5px;">
+                    <input type="text" name="Sender_Name" id="Sender_Name" placeholder="寄件人" value="@MF.Sender_Name" class="form-control input-sm">
                 </td>
 
-                <td style="width:120px; padding-left:5px;">
-                    <input type="text" name="Create_Person" id="Create_Person" placeholder="创建人" value="@MF.Create_Person" class="form-control input-sm">
+                <td style="width:100px; padding-left:5px;">
+                    <input type="text" name="Receiver_Name" id="Receiver_Name" placeholder="收件人" value="@MF.Receiver_Name" class="form-control input-sm">
                 </td>
 
                 <td style="width:250px; padding-left:5px;">
                     <div class="input-group input-group-sm" style="width: 250px; ">
-                        <input type="text" name="Task_Bat_No" id="Task_Bat_No" placeholder="任务编号" value="@MF.Task_Bat_No" class="form-control ">
+                        <input type="text" name="Tracking_No" id="Tracking_No" placeholder="快递单号" value="@MF.Tracking_No" class="form-control ">
                         <div class="input-group-btn">
                             <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
                         </div>
                     </div>
                 </td>
-
-                <td style="float:right;width:30px;">&nbsp;</td>
+                
+                <td>&nbsp;</td>
 
                 <td style="text-align:right;">
                     <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
@@ -79,14 +66,12 @@
     <thead>
         <tr>
             <th style="width:10px;">&nbsp;</th>
-            <th style="width:220px;">任务编号</th>
+            <th style="width:100px;">快递单号</th>
             <th style="width:70px;">创建日期</th>
             <th style="width:70px;">创建人</th>
-            <th style="width:70px;">运输方式</th>
-            <th style="width:200px;">客户名称</th>
-            <th style="width:60px;text-align:right">品项</th>
-            <th style="width:60px;text-align:right">配货数量</th>
-            <th style="width:70px;text-align:right">任务状态</th>
+            <th style="width:70px;">快递公司</th>
+            <th style="width:70px;">寄件人</th>
+            <th style="width:70px;">收件人</th>
             <th style="width:70px;">&nbsp;</th>
             <th>&nbsp;</th>
         </tr>
@@ -96,16 +81,14 @@
         {
             <tr>
                 <td>&nbsp;</td>
-                <td style="vertical-align:top;">@x.Task_Bat_No_Str</td>
+                <td style="vertical-align:top;">@x.Tracking_No</td>                
                 <td style="vertical-align:top;">@x.Create_DT.ToString("yyyy-MM-dd")</td>
                 <td style="vertical-align:top;">@x.Create_Person</td>
-                <td style="vertical-align:top;">@x.Logistics_Mode</td>
-                <td style="vertical-align:top;">@x.Customer_Name</td>
-                <td style="vertical-align:top;text-align:right">@x.MatSn_Count.ToString("N0")</td>
-                <td style="vertical-align:top;text-align:right">@x.Quantity_Sum.ToString("N0")</td>
-                <td style="vertical-align:top;text-align:right">@x.Status</td>
+                <td style="vertical-align:top;">@x.Logistics_Company</td>
+                <td style="vertical-align:top;">@x.Sender_Name</td>
+                <td style="vertical-align:top;">@x.Receiver_Name</td>
                 <td style="vertical-align:top;text-align:center">
-                    <a class="btn btn-info btn-xs" href="~/WMS_Task_Out/WMS_Out_Record_Sub/@x.Head_ID">查看明细</a>
+                    <button type="button" onclick="Show_Detail('@x.Info_ID')" class="btn btn-primary btn-xs">查看</button>
                 </td>
                 <td>&nbsp;</td>
             </tr>
@@ -154,3 +137,6 @@
         forceParse: 0
     });
 </script>
+
+
+

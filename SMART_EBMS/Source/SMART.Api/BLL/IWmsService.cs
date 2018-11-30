@@ -102,6 +102,12 @@ namespace SMART.Api
         void Delete_WMS_In_Track(Guid Tracking_ID);
         void Delete_WMS_Out_Track(Guid Tracking_ID);
 
+        //快递资料
+        PageList<WMS_Track_Info> Get_WMS_Track_Info_PageList(Track_Info_Filter MF);
+        //PageList<WMS_Track_Info> Get_WMS_Track_Info_PageList(WMS_Out_Filter MF);
+        //WMS_Track_Info Get_WMS_Track_Info_Empty();
+        //WMS_Track_Info Get_WMS_Track_Info_Item(Guid Info_ID);
+
         //快递费用统计
         Logistics_Cost_Year GetLogistics_Cost_YearList(Logistics_Cost_Filter MF);
         List<WMS_Track> Get_WMS_In_Track_By_Month(DateTime SD, DateTime ED, Guid Logistics_ID, Guid LinkMainCID);
@@ -3132,7 +3138,7 @@ namespace SMART.Api
             {
                 DateTime Start_DT = Convert.ToDateTime((MF.Time_Start));
                 DateTime End_DT = Convert.ToDateTime((MF.Time_End));
-
+                End_DT = End_DT.AddDays(1);
                 if (DateTime.Compare(Start_DT, End_DT) > 0)
                 {
                     throw new Exception("起始时间不可大于结束时间！");
@@ -3172,6 +3178,7 @@ namespace SMART.Api
             {
                 DateTime Start_DT = Convert.ToDateTime((MF.Time_Start));
                 DateTime End_DT = Convert.ToDateTime((MF.Time_End));
+                End_DT = End_DT.AddDays(1);
 
                 if (DateTime.Compare(Start_DT, End_DT) > 0)
                 {
@@ -3723,6 +3730,58 @@ namespace SMART.Api
             Path = MyExcel.CreateNewExcel(DT);
             return Path;
         }
+    }
+
+    //快递资料
+    public partial class WmsService : IWmsService
+    {
+        public PageList<WMS_Track_Info> Get_WMS_Track_Info_PageList(Track_Info_Filter MF)
+        {
+            var query = db.WMS_Track_Info.Where(x => x.LinkMainCID == MF.LinkMainCID).AsQueryable();
+            
+            if (!string.IsNullOrEmpty(MF.Logistics_Company))
+            {
+                query = query.Where(x => x.Logistics_Company.Contains(MF.Logistics_Company)).AsQueryable();
+            }
+
+            if (!string.IsNullOrEmpty(MF.Sender_Name))
+            {
+                query = query.Where(x => x.Sender_Name.Contains(MF.Sender_Name)).AsQueryable();
+            }
+
+            if (!string.IsNullOrEmpty(MF.Receiver_Name))
+            {
+                query = query.Where(x => x.Receiver_Name.Contains(MF.Receiver_Name)).AsQueryable();
+            }
+
+            if (!string.IsNullOrEmpty(MF.Tracking_No))
+            {
+                query = query.Where(x => x.Tracking_No.Contains(MF.Tracking_No)).AsQueryable();
+            }
+
+            if (!string.IsNullOrEmpty(MF.Time_Start) && !string.IsNullOrEmpty(MF.Time_End))
+            {
+                DateTime Start_DT = Convert.ToDateTime((MF.Time_Start));
+                DateTime End_DT = Convert.ToDateTime((MF.Time_End));
+                End_DT = End_DT.AddDays(1);
+                if (DateTime.Compare(Start_DT, End_DT) > 0)
+                {
+                    throw new Exception("起始时间不可大于结束时间！");
+                }
+
+                query = query.Where(x => x.Create_DT >= Start_DT && x.Create_DT <= End_DT).AsQueryable();
+            }
+
+            PageList<WMS_Track_Info> PList = new PageList<WMS_Track_Info>();
+            PList.PageIndex = MF.PageIndex;
+            PList.PageSize = MF.PageSize;
+            PList.TotalRecord = query.Count();
+            PList.Rows = query.OrderByDescending(x => x.Create_DT).Skip((MF.PageIndex - 1) * MF.PageSize).Take(MF.PageSize).ToList();
+            return PList;
+        }
+
+
+
     }
 }
 

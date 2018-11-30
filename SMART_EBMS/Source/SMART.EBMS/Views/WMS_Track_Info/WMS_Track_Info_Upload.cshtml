@@ -1,0 +1,110 @@
+﻿@model WMS_Out_Task
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    WMS_In_Filter MF = ViewData["MF"] as WMS_In_Filter;
+    List<WMS_Logistics> Logistics_List = ViewData["Logistics_List"] as List<WMS_Logistics>;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("信息导入");</script>
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+<form id="MyCreateForm" action="~/WMS_Task_In_Return/WMS_In_Return_Search_Create_Sub_Add_Post/@Model.Head_ID" method="post" enctype="multipart/form-data">
+
+    <div style="margin:15px;">
+        <table class="FormTable_Sim text-nowrap" style="width:450px;font-size:14px;">
+            <tr>
+                <td>
+                    <button type="button" onclick="Create_WMS_Task_In_Return()" class="btn btn-primary btn-sm">递交创建</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+        <thead>
+            <tr>
+                <th style="width:10px;">&nbsp;</th>
+                <th style="width:40px;">序</th>
+                <th style="width:320px;">寄件人</th>
+                <th style="width:100px;">寄件人手机</th>
+                <th style="width:100px;">寄件人座机</th>
+                <th style="width:100px;">寄件地址</th>
+                <th style="width:100px;">寄件人手机</th>
+                <th style="width:100px;">寄件人手机</th>
+                <th style="width:100px;">寄件人手机</th>
+                <th style="width:100px;">寄件人手机</th>
+                <th style="width:100px;">寄件人手机</th>
+                <th style="width:100px;">寄件人手机</th>
+                <th style="width:100px;">寄件人手机</th>
+                <th style="width:100px;">寄件人手机</th>
+                <th style="width:100px;">寄件人手机</th>
+
+
+
+
+
+
+
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var x in Model.Line_List)
+            {
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>@x.Line_No</td>
+                    <td></td>
+                    <td style="text-align:center;"></td>
+                    <td>&nbsp;</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</form>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>
+
+<script>
+    function Create_WMS_Task_In_Return() {
+        if (validateFormByClass("Not_Empty") == false) {
+            return false;
+        }
+
+        if (checkBoxCheckLength("MatSn") <= 0) {
+            alert("请选择产品项！");
+            return false;
+        }
+
+        if (confirm("确认递交创建退货单？") == false) {
+            return false;
+        }
+
+        $("#MyCreateForm").submit();
+        DisAndEnabledBtn(1);
+    }
+</script>
+

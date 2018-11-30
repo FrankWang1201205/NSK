@@ -91,7 +91,7 @@ namespace SMART.Api
         void Batch_Finish_WMS_Up_Process(List<string> MatSn_List, string Location, Guid MoveID);
         void Finish_WMS_Move_Task(Guid MoveID);
 
-        //退货作业(用于退货出库)
+        //退货作业
         WMS_In_Task Get_WMS_In_Task_Item_DB(Guid Head_ID);
         void Create_WMS_Task_In_Return(WMS_In_Head Head, List<WMS_In_Line> Line_List, User U);
 
@@ -141,7 +141,12 @@ namespace SMART.Api
 
             if (!string.IsNullOrEmpty(MF.Create_Person))
             {
-                query = query.Where(x => x.Create_Person == MF.Create_Person).AsQueryable();
+                query = query.Where(x => x.Create_Person.Contains(MF.Create_Person)).AsQueryable();
+            }
+
+            if (!string.IsNullOrEmpty(MF.Work_Person))
+            {
+                query = query.Where(x => x.Work_Person.Contains(MF.Work_Person)).AsQueryable();
             }
 
             if (!string.IsNullOrEmpty(MF.Time_Start) && !string.IsNullOrEmpty(MF.Time_End))
@@ -181,6 +186,7 @@ namespace SMART.Api
                 T.Logistics_Cost_Type = x.Logistics_Cost_Type;
                 T.Supplier_Name = x.Supplier_Name;
                 T.Global_State = x.Status;
+                T.Link_WMS_In_No = x.Link_WMS_In_No;
                 T.Work_Person = x.Work_Person;
                 T.Driver_Name = x.Driver_Name;
                 T.Scan_Mat_Type = x.Scan_Mat_Type;
@@ -242,6 +248,11 @@ namespace SMART.Api
                 query = query.Where(x => x.Create_Person.Contains(MF.Create_Person)).AsQueryable();
             }
 
+            if (!string.IsNullOrEmpty(MF.Work_Person))
+            {
+                query = query.Where(x => x.Work_Person.Contains(MF.Work_Person)).AsQueryable();
+            }
+
             if (!string.IsNullOrEmpty(MF.Work_Distribution_Status))
             {
                 if (MF.Work_Distribution_Status == WMS_Work_Distribution_State_Enum.已派工.ToString())
@@ -279,6 +290,7 @@ namespace SMART.Api
                 T.Supplier_Name = x.Supplier_Name;
                 T.Global_State = x.Status;
                 T.Work_Person = x.Work_Person;
+                T.Link_WMS_In_No = x.Link_WMS_In_No;
                 T.Driver_Name = x.Driver_Name;
                 T.Scan_Mat_Type = x.Scan_Mat_Type;
                 WMS_In_Line_List_Sub = WMS_In_Line_List.Where(c => c.Link_Head_ID == x.Head_ID).ToList();
@@ -623,7 +635,7 @@ namespace SMART.Api
             Head = Head == null ? new WMS_In_Head() : Head;
             if (Head.Status != WMS_In_Global_State_Enum.等待收货.ToString())
             {
-                throw new Exception("该产品当前状态，已不支持更新到货型号");
+                throw new Exception("该产品当前状态 ，已不支持更新到货型号");
             }
 
             WMS_In_Line_Other Line_Other = new WMS_In_Line_Other();
@@ -933,9 +945,18 @@ namespace SMART.Api
             Supplier S = db.Supplier.Find(Head.Sup_ID);
             if (S == null) { throw new Exception("未选择供应商"); }
 
-            if (Head.Logistics_Mode != Logistics_Mode_Enum.自提.ToString() && string.IsNullOrEmpty(Head.Logistics_Company)) { throw new Exception("未选择物流公司"); }
+            if (Head.Logistics_Mode == Logistics_Mode_Enum.快递.ToString() || Head.Logistics_Mode == Logistics_Mode_Enum.物流.ToString())
+            {
+                if (string.IsNullOrEmpty(Head.Logistics_Company))
+                {
+                    throw new Exception("未选择物流公司");
+                }
 
-            if (Head.Logistics_Mode != Logistics_Mode_Enum.自提.ToString() && string.IsNullOrEmpty(Head.Logistics_Cost_Type)) { throw new Exception("未选择快递费用"); }
+                if (string.IsNullOrEmpty(Head.Logistics_Cost_Type))
+                {
+                    throw new Exception("未选择快递费用");
+                }
+            }
 
             Head.In_DT_Str = Head.In_DT.ToString("yyyy-MM-dd");
 
@@ -948,9 +969,9 @@ namespace SMART.Api
             Head.Status = WMS_In_Global_State_Enum.等待收货.ToString();
             Head.LinkMainCID = U.LinkMainCID;
             Head.MatType = WMS_In_Type_Enum.零星调货.ToString();
-            Head.Logistics_Company = Head.Logistics_Company.Trim();
-            Head.Logistics_Mode = Head.Logistics_Mode.Trim();
-            Head.Logistics_Cost_Type = Head.Logistics_Cost_Type.Trim();
+            Head.Logistics_Company = Head.Logistics_Company;
+            Head.Logistics_Mode = Head.Logistics_Mode;
+            Head.Logistics_Cost_Type = Head.Logistics_Cost_Type;
             Head.Supplier_Name = S.Sup_Short_Name.Trim();
             Head.Sup_ID = S.SupID;
             Head.Head_Type = WMS_In_Head_Type_Enum.订单收货.ToString();
@@ -1987,7 +2008,7 @@ namespace SMART.Api
             }
 
             TableHeads.Add("快递单号");
-            TableHeads.Add("当前状态");
+            TableHeads.Add("当前状态 ");
             foreach (string TableHead in TableHeads)
             {
                 //TableHead
@@ -2019,7 +2040,7 @@ namespace SMART.Api
                 }
 
                 newRow["快递单号"] = x.Track_No_List_Str;
-                newRow["当前状态"] = x.Line_State;
+                newRow["当前状态 "] = x.Line_State;
                 DT.Rows.Add(newRow);
             }
             Path = MyExcel.CreateNewExcel(DT);
@@ -2951,7 +2972,7 @@ namespace SMART.Api
         }
     }
 
-    //退货作业(用于退货出库)
+    //退货作业
     public partial class WmsService : IWmsService
     {
         public WMS_In_Task Get_WMS_In_Task_Item_DB(Guid Head_ID)
@@ -2975,6 +2996,7 @@ namespace SMART.Api
             T.Work_Person = Head.Work_Person;
             T.Driver_Name = Head.Driver_Name;
             T.Scan_Mat_Type = Head.Scan_Mat_Type;
+            T.Sup_ID = Head.Sup_ID;
             T.Line_List = new List<WMS_In_Task_Line>();
             var Line_Group = from x in List
                              group x by x.MatSn into G
@@ -3007,9 +3029,18 @@ namespace SMART.Api
 
             if (string.IsNullOrEmpty(Head.Logistics_Mode)) { throw new Exception("未选择运输方式"); }
 
-            if (Head.Logistics_Mode != Logistics_Mode_Enum.自提.ToString() && string.IsNullOrEmpty(Head.Logistics_Company)) { throw new Exception("未选择物流公司"); }
+            if (Head.Logistics_Mode == Logistics_Mode_Enum.快递.ToString() || Head.Logistics_Mode == Logistics_Mode_Enum.物流.ToString())
+            {
+                if (string.IsNullOrEmpty(Head.Logistics_Company))
+                {
+                    throw new Exception("未选择物流公司");
+                }
 
-            if (Head.Logistics_Mode != Logistics_Mode_Enum.自提.ToString() && string.IsNullOrEmpty(Head.Logistics_Cost_Type)) { throw new Exception("未选择快递费用"); }
+                if (string.IsNullOrEmpty(Head.Logistics_Cost_Type))
+                {
+                    throw new Exception("未选择快递费用");
+                }
+            }
 
             Customer Cus = db.Customer.Find(Head.Sup_ID);
             if (Cus == null) { throw new Exception("系统中不存在此客户"); }
@@ -3027,9 +3058,9 @@ namespace SMART.Api
             Head_New.Create_Person = U.UserFullName;
             Head_New.Status = WMS_In_Global_State_Enum.等待收货.ToString();
             Head_New.LinkMainCID = U.LinkMainCID;
-            Head_New.Logistics_Company = Head.Logistics_Company.Trim();
-            Head_New.Logistics_Mode = Head.Logistics_Mode.Trim();
-            Head_New.Logistics_Cost_Type = Head.Logistics_Cost_Type.Trim();
+            Head_New.Logistics_Company = Head.Logistics_Company;
+            Head_New.Logistics_Mode = Head.Logistics_Mode;
+            Head_New.Logistics_Cost_Type = Head.Logistics_Cost_Type;
             Head_New.Supplier_Name = Cus.Cust_Name;
             Head_New.In_DT_Str = Head.In_DT_Str;
             Head_New.Sup_ID = Cus.CID;

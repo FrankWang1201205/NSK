@@ -24,7 +24,7 @@
                 <td style="width:20px;"><a href="~/WMS_Task_In/WMS_In_Start" class="btn btn-info btn-sm">返回</a></td>
                 <td style="width:120px;padding-left:10px;">
                     <select name="Line_Status" id="Line_Status" class="form-control input-xs" onchange="SubmitPageIndex(1)">
-                        <option value="">任务状态</option>
+                        <option value="">当前状态 </option>
                         @foreach (var x in MF.Line_Status_List)
                         {
                             if (x == MF.Line_Status)

@@ -7,7 +7,7 @@
 }
 
 @{Html.RenderPartial("_TopMenu");}
-<script>TopMenuToAction("收货进程");</script>
+<script>TopMenuToAction("收货记录");</script>
 
 @if (TempData["Error"] != null)
 {
@@ -20,12 +20,39 @@
 }
 
 <div class="DeductionDiv TopSearchDiv">
-    <form id="MyForm" action="~/WMS_Task_In/WMS_In_Process" method="get">
+    <form id="MyForm" action="~/WMS_In/WMS_In_Record" method="get">
         <table style="width:100%;">
             <tr>
-                <td style="width:100px;">
-                    <select name="MatType" id="MatType" class="form-control input-sm" onchange="SubmitPageIndex(1)">
+                <td style="width:10px;padding-left:5px;">
+                    <input autocomplete="off" style="width:90px;" class="form-control input-sm Time_Select" name="Time_Start" type="text" id="Time_Start" placeholder="起始时间" value="@MF.Time_Start" />
+                </td>
+
+                <td style="width:10px; text-align:center;">~</td>
+
+                <td style="width:10px;">
+                    <input autocomplete="off" style="width:90px;" class="form-control input-sm Time_Select" name="Time_End" type="text" id="Time_End" placeholder="结束时间" value="@MF.Time_End" />
+                </td>
+
+                <td style="width:100px;padding-left:5px;">
+                    <select name="Head_Type" id="Head_Type" class="form-control input-sm" onchange="SubmitPageIndex(1)">
                         <option value="">任务类型</option>
+                        @foreach (var x in MF.Head_Type_List)
+                        {
+                            if (MF.Head_Type == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:100px;padding-left:5px;">
+                    <select name="MatType" id="MatType" class="form-control input-sm" onchange="SubmitPageIndex(1)">
+                        <option value="">到货类型</option>
                         @foreach (var x in MF.MatType_List)
                         {
                             if (MF.MatType == x)
@@ -40,15 +67,43 @@
                     </select>
                 </td>
 
+                <td style="width:100px;  padding-left:5px;">
+                    <select name="Logistics_Mode" id="Logistics_Mode" class="form-control input-sm" onchange="SubmitPageIndex(1)">
+                        <option value="">运输方式</option>
+                        @foreach (var x in MF.Logistics_Mode_List)
+                        {
+                            if (MF.Logistics_Mode == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:100px; padding-left:5px;">
+                    <input type="text" name="Supplier" id="Supplier" placeholder="供应商" value="@MF.Supplier" class="form-control input-sm">
+                </td>
+
+                <td style="width:100px; padding-left:5px;">
+                    <input type="text" name="Logistics_Company" id="Logistics_Company" placeholder="快递物流公司" value="@MF.Logistics_Company" class="form-control input-sm">
+                </td>
+
+                <td style="width:100px; padding-left:5px;">
+                    <input type="text" name="Work_Person" id="Work_Person" placeholder="作业人" value="@MF.Work_Person" class="form-control input-sm">
+                </td>
+
                 <td style="width:250px; padding-left:5px;">
-                    <div class="input-group input-group-sm" style="width: 250px; ">
+                    <div class="input-group input-group-sm" style="width:250px;">
                         <input type="text" name="Task_Bat_No" id="Task_Bat_No" placeholder="任务编号" value="@MF.Task_Bat_No" class="form-control ">
                         <div class="input-group-btn">
                             <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
                         </div>
                     </div>
                 </td>
-
 
                 <td style="float:right;width:30px;">&nbsp;</td>
 
@@ -74,7 +129,7 @@
             <th style="width:60px;">运输方式</th>
             <th style="width:50px;text-align:right">产品型号</th>
             <th style="width:60px;text-align:right">通知到货</th>
-            <th style="width:60px;text-align:center">当前状态</th>
+            <th style="width:60px;text-align:center">当前状态 </th>
             <th style="width:60px;">收货方式</th>
             <th style="width:70px;">作业人</th>
             <th style="width:70px;">驾驶员</th>
@@ -89,7 +144,7 @@
                 <td style="vertical-align:top;">
                     @if (!string.IsNullOrEmpty(x.Scan_Mat_Type))
                     {
-                        <a href="~/WMS_Task_In/WMS_In_Task_Preview/@x.Head_ID" target="_blank">@x.Task_Bat_No_Str</a>
+                        <a href="~/WMS_In/WMS_In_Operate_Preview/@x.Head_ID" target="_blank">@x.Task_Bat_No_Str</a>
                     }
                     else
                     {
@@ -142,4 +197,18 @@
             }
         });
     });
+
+    $('.Time_Select').datetimepicker({
+        language: 'zh-CN',
+        weekStart: 1,
+        todayBtn: 1,
+        autoclose: 1,
+        format: "yyyy-mm-dd",
+        todayHighlight: 1,
+        startView: 2,
+        startDate: "2018-01-01",
+        minView: 2,
+        forceParse: 0
+    });
+
 </script>

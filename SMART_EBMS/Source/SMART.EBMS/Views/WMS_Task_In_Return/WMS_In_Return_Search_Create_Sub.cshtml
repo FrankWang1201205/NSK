@@ -37,7 +37,7 @@
 
                 <td style="width:10px;">运输方式</td>
                 <td style="width:135px;">
-                    <select class="form-control input-xs Not_Empty" name="Logistics_Mode" id="Logistics_Mode">
+                    <select class="form-control input-xs Not_Empty" name="Logistics_Mode" id="Logistics_Mode" onchange="Change_Logistics_Mode()">
                         <option value="">请选择</option>
                         @foreach (var x in MF.Logistics_Mode_List)
                         {
@@ -47,7 +47,7 @@
                 </td>
             </tr>
 
-            <tr>
+            <tr class="Logistics_Company">
                 <td style="width:10px;">物流公司</td>
                 <td>
                     <select class="form-control input-xs Not_Empty" name="Logistics_Company" id="Logistics_Company" style="width:135px;">
@@ -147,6 +147,22 @@
         minView: 2,
         forceParse: 0
     });
+
+    function Change_Logistics_Mode() {
+        var Logistics_Mode = $("#Logistics_Mode").val();
+        var Logistics_Mode_DB_A = '@Logistics_Mode_Enum.自提.ToString()';
+        var Logistics_Mode_DB_B = '@Logistics_Mode_Enum.自送.ToString()';
+
+        if (Logistics_Mode == Logistics_Mode_DB_A || Logistics_Mode == Logistics_Mode_DB_B) {
+            $(".Logistics_Company").hide();
+            $("#Logistics_Company").removeClass('Not_Empty');
+            $("#Logistics_Cost_Type").removeClass('Not_Empty');
+        } else {
+            $(".Logistics_Company").show();
+            $("#Logistics_Company").addClass('Not_Empty');
+            $("#Logistics_Cost_Type").addClass('Not_Empty');
+        }
+    }
 </script>
 
 <script>
@@ -160,12 +176,12 @@
     }
 
     function Create_WMS_Task_In_Return() {
-        if (checkBoxCheckLength("MatSn") <= 0) {
-            alert("请选择产品项！");
+        if (validateFormByClass("Not_Empty") == false) {
             return false;
         }
 
-        if (validateFormByClass("Not_Empty") == false) {
+        if (checkBoxCheckLength("MatSn") <= 0) {
+            alert("请选择产品项！");
             return false;
         }
 

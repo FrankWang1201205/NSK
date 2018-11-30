@@ -32,12 +32,13 @@ namespace SMART.EBMS.Controllers
             MF.PageSize = 100;
             MF.LinkMainCID = U.LinkMainCID;
             MF.Task_Bat_No = Request["Task_Bat_No"] == null ? string.Empty : Request["Task_Bat_No"].Trim();
-            MF.Global_State = Request["Global_State"] == null ? WMS_In_Global_State_Enum.等待收货.ToString() : Request["Global_State"].Trim();
+            MF.Global_State = Request["Global_State"] == null ? string.Empty : Request["Global_State"].Trim();
             MF.Logistics_Company = Request["Logistics_Company"] == null ? string.Empty : Request["Logistics_Company"].Trim();
             MF.Logistics_Mode = Request["Logistics_Mode"] == null ? string.Empty : Request["Logistics_Mode"].Trim();
             MF.Supplier = Request["Supplier"] == null ? string.Empty : Request["Supplier"].Trim();
             MF.MatType = Request["MatType"] == null ? string.Empty : Request["MatType"].Trim();
             MF.Create_Person = Request["Create_Person"] == null ? string.Empty : Request["Create_Person"].Trim();
+            MF.Work_Person = Request["Work_Person"] == null ? string.Empty : Request["Work_Person"].Trim();
             MF.Work_Distribution_Status = Request["Work_Distribution_Status"] == null ? string.Empty : Request["Work_Distribution_Status"].Trim();
             MF.Brand_List = IB.Get_Brand_Name_List(MF.LinkMainCID);
             MF.Head_Type = Request["Head_Type"] == null ? string.Empty : Request["Head_Type"].Trim();
@@ -99,18 +100,21 @@ namespace SMART.EBMS.Controllers
         {
             User U = this.MyUser();
             ViewData["User"] = U;
-
             WMS_In_Filter MF = new WMS_In_Filter();
             try { MF.PageIndex = Convert.ToInt32(Request["PageIndex"].ToString()); } catch { }
             MF.PageIndex = MF.PageIndex <= 0 ? 1 : MF.PageIndex;
             MF.PageSize = 100;
             MF.LinkMainCID = U.LinkMainCID;
             MF.Task_Bat_No = Request["Task_Bat_No"] == null ? string.Empty : Request["Task_Bat_No"].Trim();
-            MF.Global_State = WMS_In_Global_State_Enum.等待收货.ToString();
+            MF.Global_State = Request["Global_State"] == null ? string.Empty : Request["Global_State"].Trim();
+            MF.Logistics_Company = Request["Logistics_Company"] == null ? string.Empty : Request["Logistics_Company"].Trim();
+            MF.Logistics_Mode = Request["Logistics_Mode"] == null ? string.Empty : Request["Logistics_Mode"].Trim();
+            MF.Supplier = Request["Supplier"] == null ? string.Empty : Request["Supplier"].Trim();
             MF.MatType = Request["MatType"] == null ? string.Empty : Request["MatType"].Trim();
+            MF.Work_Person = Request["Work_Person"] == null ? string.Empty : Request["Work_Person"].Trim();
+            MF.Brand_List = IB.Get_Brand_Name_List(MF.LinkMainCID);
             MF.Head_Type = Request["Head_Type"] == null ? string.Empty : Request["Head_Type"].Trim();
-
-            PageList<WMS_In_Task> PList = IW.Get_WMS_In_Task_PageList(MF);
+            PageList<WMS_In_Task> PList = IW.Get_WMS_In_Task_PageList_Distribute(MF);
             ViewData["MF"] = MF;
             return View(PList);
         }
@@ -485,6 +489,34 @@ namespace SMART.EBMS.Controllers
             return RedirectToAction("WMS_In_Operate_Preview_Track", new { ID = ID });
         }
 
+    }
+
+    //收货记录
+    public partial class WMS_InController : Controller
+    {
+        public ActionResult WMS_In_Record()
+        {
+            User U = this.MyUser();
+            ViewData["User"] = U;
+            WMS_In_Filter MF = new WMS_In_Filter();
+            try { MF.PageIndex = Convert.ToInt32(Request["PageIndex"].ToString()); } catch { }
+            MF.PageIndex = MF.PageIndex <= 0 ? 1 : MF.PageIndex;
+            MF.PageSize = 100;
+            MF.LinkMainCID = U.LinkMainCID;
+            MF.Task_Bat_No = Request["Task_Bat_No"] == null ? string.Empty : Request["Task_Bat_No"].Trim();
+            MF.Global_State = WMS_In_Global_State_Enum.完成入库.ToString();
+            MF.Logistics_Company = Request["Logistics_Company"] == null ? string.Empty : Request["Logistics_Company"].Trim();
+            MF.Logistics_Mode = Request["Logistics_Mode"] == null ? string.Empty : Request["Logistics_Mode"].Trim();
+            MF.Supplier = Request["Supplier"] == null ? string.Empty : Request["Supplier"].Trim();
+            MF.MatType = Request["MatType"] == null ? string.Empty : Request["MatType"].Trim();
+            MF.Work_Person = Request["Work_Person"] == null ? string.Empty : Request["Work_Person"].Trim();
+            MF.Head_Type = Request["Head_Type"] == null ? string.Empty : Request["Head_Type"].Trim();
+            MF.Time_Start = Request["Time_Start"] == null ? string.Empty : Request["Time_Start"].Trim();
+            MF.Time_End = Request["Time_End"] == null ? string.Empty : Request["Time_End"].Trim();
+            PageList<WMS_In_Task> PList = IW.Get_WMS_In_Task_PageList(MF);
+            ViewData["MF"] = MF;
+            return View(PList);
+        }
     }
 
     //作业人管理

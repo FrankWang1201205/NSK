@@ -42,39 +42,74 @@ namespace SMART.EBMS.Controllers
             return View(PList);
         }
 
+        public ActionResult WMS_Out_Return_Search_Create()
+        {
+            User U = this.MyUser();
+            ViewData["User"] = U;
+            WMS_In_Filter MF = new WMS_In_Filter();
+            try { MF.PageIndex = Convert.ToInt32(Request["PageIndex"].ToString()); } catch { }
+            MF.PageIndex = MF.PageIndex <= 0 ? 1 : MF.PageIndex;
+            MF.PageSize = 100;
+            MF.LinkMainCID = U.LinkMainCID;
+            MF.Task_Bat_No = Request["Task_Bat_No"] == null ? string.Empty : Request["Task_Bat_No"].Trim();
+            MF.Global_State = WMS_In_Global_State_Enum.完成入库.ToString();
+            MF.Logistics_Company = Request["Logistics_Company"] == null ? string.Empty : Request["Logistics_Company"].Trim();
+            MF.Logistics_Mode = Request["Logistics_Mode"] == null ? string.Empty : Request["Logistics_Mode"].Trim();
+            MF.Supplier = Request["Supplier"] == null ? string.Empty : Request["Supplier"].Trim();
+            MF.MatType = Request["MatType"] == null ? string.Empty : Request["MatType"].Trim();
+            MF.Create_Person = Request["Create_Person"] == null ? string.Empty : Request["Create_Person"].Trim();
+            MF.Time_Start = Request["Time_Start"] == null ? string.Empty : Request["Time_Start"].Trim();
+            MF.Time_End = Request["Time_End"] == null ? string.Empty : Request["Time_End"].Trim();
+            MF.Brand_List = IB.Get_Brand_Name_List(MF.LinkMainCID);
+            PageList<WMS_In_Task> PList = IW.Get_WMS_In_Task_PageList(MF);
+            ViewData["MF"] = MF;
+            return View(PList);
+        }
+
+        public ActionResult WMS_Out_Return_Search_Create_Sub(Guid ID)
+        {
+            User U = this.MyUser();
+            ViewData["User"] = U;
+            WMS_Out_Filter MF = new WMS_Out_Filter();
+            ViewData["MF"] = MF;
+            Guid Head_ID = ID;
+            WMS_In_Task T = IW.Get_WMS_In_Task_Item_DB(Head_ID);
+            return View(T);
+        }
+
         [HttpPost]
-        public RedirectToRouteResult WMS_Out_Start_Post()
+        public RedirectToRouteResult WMS_Out_Return_Search_Create_Sub_Add_Post(Guid ID, FormCollection FC)
         {
             User U = this.MyUser();
             try
             {
-                HttpPostedFileBase ExcelFile = Request.Files["ExcelFile"];
+                Guid HeadID = ID;
                 WMS_Out_Head Head = new WMS_Out_Head();
-                Head.Out_DT = Convert.ToDateTime(Request.Form["Out_DT"].Trim());
-                Head.Logistics_Mode = Request.Form["Logistics_Mode"].Trim();
-                Head.Customer_Name = Request.Form["Cust_Name"].Trim();
-                Head.Link_Cus_ID = new Guid(Request.Form["Link_Cus_ID"].Trim());
-                IW.Batch_Create_WMS_Out(ExcelFile, Head, U);
+                Head.Head_ID = HeadID;
+                TryUpdateModel(Head, FC);
+                List<string> MatSnList = CommonLib.StringListStrToStringArray(Request.Form["MatSn"].ToString());
+                List<WMS_Out_Line> Line_List = new List<WMS_Out_Line>();
+                WMS_Out_Line Line = new WMS_Out_Line();
+                foreach (var MatSn in MatSnList)
+                {
+                    Line = new WMS_Out_Line();
+                    Line.MatSn = MatSn;
+                    Line.Quantity = Convert.ToInt32(Request.Form["Quantity_" + MatSn].ToString());
+                    Line_List.Add(Line);
+                }
+
+                IW.Create_WMS_Task_Out_Return(Head, Line_List, U);
+                TempData["Success"] = "退货单创建成功！";
+                return RedirectToAction("WMS_Out_Return_Search");
             }
             catch (Exception Ex)
             {
                 TempData["Error"] = Ex.Message.ToString();
+                return RedirectToAction("WMS_Out_Return_Search_Create_Sub", new { ID = ID });
             }
-            return RedirectToAction("WMS_Out_Start");
         }
 
-        public PartialViewResult Cust_List()
-        {
-            User U = this.MyUser();
-            Customer_Filter MF = new Customer_Filter();
-            MF.LinkMainCID = U.LinkMainCID;
-            MF.Cust_Name = Request["Cust_Name"] == null ? string.Empty : Request["Cust_Name"].Trim();
-            List<Customer> List = IC.Get_Customer_List(MF);
-            ViewData["MF"] = MF;
-            return PartialView(List);
-        }
-
-        public ActionResult WMS_Out_Start_Sub(Guid ID)
+        public ActionResult WMS_Out_Return_Search_Sub(Guid ID)
         {
             User U = this.MyUser();
             ViewData["User"] = U;
@@ -82,66 +117,33 @@ namespace SMART.EBMS.Controllers
             WMS_Out_Filter MF = new WMS_Out_Filter();
             MF.MatSn = Request["MatSn"] == null ? string.Empty : Request["MatSn"].Trim();
             MF.LinkHeadID = ID;
-            WMS_Out_Head Head = IW.Get_WMS_Out_Head_DB(MF.LinkHeadID);
-            ViewData["Head"] = Head;
-            MF.Task_Bat_No = Head.Task_Bat_No_Str;
-            List<WMS_Out_Line> List = IW.Get_WMS_Out_Line_List(MF);
+            WMS_Out_Task T = IW.Get_WMS_Out_Task_Item_DB(MF);
             ViewData["MF"] = MF;
-            return View(List);
+            return View(T);
         }
 
         [HttpPost]
-        public RedirectToRouteResult WMS_Out_Start_Delete(Guid ID)
+        public RedirectToRouteResult WMS_Out_Return_Search_Sub_Delete_Post(Guid ID)
         {
-            Guid Head_ID = ID;
-            WMS_Out_Head Head = IW.Get_WMS_Out_Head_DB(Head_ID);
             try
             {
-                IW.Delete_Task_Bat_Out(Head.Head_ID);
-                return RedirectToAction("WMS_Out_Start");
+                Guid Head_ID = ID;
+                IW.Delete_Task_Bat_Out(Head_ID);
+                TempData["Success"] = "退货单删除成功";
+                return RedirectToAction("WMS_Out_Return_Search");
             }
             catch (Exception Ex)
             {
                 TempData["Error"] = Ex.Message.ToString();
-                return RedirectToAction("WMS_Out_Start_Sub", new { ID = Head_ID });
+                return RedirectToAction("WMS_Out_Return_Search_Sub", new { ID = ID });
             }
-        }
-
-        public ActionResult WMS_Out_Start_To_Excel(Guid ID)
-        {
-            User U = this.MyUser();
-            ViewData["User"] = U;
-            Guid Head_ID = ID;
-            string Path = IW.Get_WMS_Out_Line_List_To_Excel(Head_ID);
-            WMS_Out_Head Head = IW.Get_WMS_Out_Head_DB(Head_ID);
-            return File(Path, @"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", Head.Task_Bat_No_Str + "_出库送货单" + ".xlsx");
-
-        }
-
-        [HttpPost]
-        public RedirectToRouteResult WMS_Out_Start_Sub_Post(Guid ID)
-        {
-            User U = this.MyUser();
-            Guid HeadID = ID;
-            try
-            {
-                HttpPostedFileBase ExcelFile = Request.Files["ExcelFile"];
-                IW.Batch_Create_WMS_Out(ExcelFile, HeadID, U);
-                TempData["Success"] = "上传成功";
-            }
-            catch (Exception Ex)
-            {
-                TempData["Error"] = Ex.Message.ToString();
-            }
-
-            return RedirectToAction("WMS_Out_Start_Sub", new { ID = ID });
         }
     }
 
-    //进程
+    //出库进程
     public partial class WMS_Task_Out_ReturnController : Controller
     {
-        public ActionResult WMS_Out_Process()
+        public ActionResult WMS_Out_Return_Process()
         {
             User U = this.MyUser();
             ViewData["User"] = U;
@@ -160,33 +162,12 @@ namespace SMART.EBMS.Controllers
             ViewData["MF"] = MF;
             return View(PList);
         }
-
-        public ActionResult WMS_Out_Task_Preview_Pick(Guid ID)
-        {
-            User U = this.MyUser();
-            ViewData["User"] = U;
-            WMS_Out_Filter MF = new WMS_Out_Filter();
-            MF.LinkHeadID = ID;
-            WMS_Out_Task Task = IW.Get_WMS_Out_Task_Item_Pick(MF);
-            return View(Task);
-        }
-
-        public ActionResult WMS_Out_Task_Preview(Guid ID)
-        {
-            User U = this.MyUser();
-            ViewData["User"] = U;
-            WMS_Out_Filter MF = new WMS_Out_Filter();
-            MF.LinkHeadID = ID;
-            WMS_Out_Task Task = IW.Get_WMS_Out_Task_Item(MF);
-            ViewData["MF"] = MF;
-            return View(Task);
-        }
     }
     
     //出库记录
     public partial class WMS_Task_Out_ReturnController : Controller
     {
-        public ActionResult WMS_Out_Record()
+        public ActionResult WMS_Out_Return_Record()
         {
             User U = this.MyUser();
             ViewData["User"] = U;
@@ -208,7 +189,7 @@ namespace SMART.EBMS.Controllers
             return View(PList);
         }
 
-        public ActionResult WMS_Out_Record_Sub(Guid ID)
+        public ActionResult WMS_Out_Return_Record_Sub(Guid ID)
         {
             User U = this.MyUser();
             ViewData["User"] = U;

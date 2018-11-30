@@ -23,7 +23,24 @@
     <form id="MyForm" action="~/WMS_In/WMS_In_Task" method="get">
         <table style="width:100%;">
             <tr>
-                <td style="width:100px;">
+                <td style="width:100px;padding-left:5px;">
+                    <select name="Head_Type" id="Head_Type" class="form-control input-sm" onchange="SubmitPageIndex(1)">
+                        <option value="">任务类型</option>
+                        @foreach (var x in MF.Head_Type_List)
+                        {
+                            if (MF.Head_Type == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:100px;padding-left:5px;">
                     <select name="Work_Distribution_Status" id="Work_Distribution_Status" class="form-control input-sm" onchange="SubmitPageIndex(1)">
                         <option value="">派工状态</option>
                         @foreach (var x in MF.Work_Distribution_Status_List)
@@ -41,7 +58,7 @@
                 </td>
                 <td style="width:100px;padding-left:5px;">
                     <select name="Global_State" id="Global_State" class="form-control input-sm" onchange="SubmitPageIndex(1)">
-                        <option value="">任务状态</option>
+                        <option value="">当前状态 </option>
                         @foreach (var x in MF.Global_State_List.Where(c => c != WMS_In_Global_State_Enum.完成入库.ToString()))
                         {
                             if (MF.Global_State == x)
@@ -98,6 +115,10 @@
                     <input type="text" name="Create_Person" id="Create_Person" placeholder="创建人" value="@MF.Create_Person" class="form-control input-sm">
                 </td>
 
+                <td style="width:100px; padding-left:5px;">
+                    <input type="text" name="Work_Person" id="Work_Person" placeholder="作业人" value="@MF.Work_Person" class="form-control input-sm">
+                </td>
+
                 <td style="width:250px; padding-left:5px;">
                     <div class="input-group input-group-sm" style="width: 250px; ">
                         <input type="text" name="Task_Bat_No" id="Task_Bat_No" placeholder="任务编号" value="@MF.Task_Bat_No" class="form-control ">
@@ -130,7 +151,7 @@
             <th style="width:70px;">运输方式</th>
             <th style="width:60px;text-align:right">产品型号</th>
             <th style="width:60px;text-align:right">数量</th>
-            <th style="width:70px;">任务状态</th>
+            <th style="width:70px;">当前状态 </th>
             <th style="width:100px;">作业人</th>
             <th style="width:70px;">驾驶员</th>
             <th style="width:60px;">&nbsp;</th>

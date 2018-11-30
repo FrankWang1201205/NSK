@@ -61,6 +61,7 @@ namespace SMART.EBMS.Controllers
                 Head.Sup_ID = new Guid(Request.Form["Link_Sup_ID"].Trim());
                 Head.In_DT = Convert.ToDateTime(Request.Form["In_DT"].Trim());
                 IW.Batch_Create_Manufacturer_WMS_In(ExcelFile, Head, U);
+                TempData["Success"] = "创建成功";
             }
             catch (Exception Ex)
             {
@@ -82,8 +83,8 @@ namespace SMART.EBMS.Controllers
                 Head.Sup_ID = new Guid(Request.Form["Link_Sup_ID"].Trim());
                 Head.Logistics_Cost_Type = Request.Form["Logistics_Cost_Type"] == null ? string.Empty : Request.Form["Logistics_Cost_Type"].Trim();
                 Head.In_DT = Convert.ToDateTime(Request.Form["In_DT"].Trim());
-
                 IW.Batch_Create_Distributor_WMS_In(ExcelFile, Head, U);
+                TempData["Success"] = "创建成功";
             }
             catch (Exception Ex)
             {
@@ -594,6 +595,7 @@ namespace SMART.EBMS.Controllers
         }
     }
 
+    //收货记录
     public partial class WMS_Task_InController : Controller
     {
         public ActionResult WMS_In_Record()
@@ -619,34 +621,6 @@ namespace SMART.EBMS.Controllers
             PageList<WMS_In_Task> PList = IW.Get_WMS_In_Task_PageList(MF);
             ViewData["MF"] = MF;
             return View(PList);
-        }
-        public ActionResult WMS_In_Record_Manufacturer(Guid ID)
-        {
-            User U = this.MyUser();
-            ViewData["User"] = U;
-
-            WMS_In_Filter MF = new WMS_In_Filter();
-            MF.MatSn = Request["MatSn"] == null ? string.Empty : Request["MatSn"].Trim();
-            MF.Line_Status = Request["Line_Status"] == null ? string.Empty : Request["Line_Status"].Trim();
-            ViewData["MF"] = MF;
-
-            Guid Head_ID = ID;
-            WMS_In_Task T = IW.Get_WMS_In_Task_Item(Head_ID, MF);
-            return View(T);
-        }
-        public ActionResult WMS_In_Record_Distributor(Guid ID)
-        {
-            User U = this.MyUser();
-            ViewData["User"] = U;
-
-            WMS_In_Filter MF = new WMS_In_Filter();
-            MF.MatSn = Request["MatSn"] == null ? string.Empty : Request["MatSn"].Trim();
-            MF.Line_Status = Request["Line_Status"] == null ? string.Empty : Request["Line_Status"].Trim();
-            ViewData["MF"] = MF;
-
-            Guid Head_ID = ID;
-            WMS_In_Task T = IW.Get_WMS_In_Task_Item(Head_ID, MF);
-            return View(T);
         }
     }
 }

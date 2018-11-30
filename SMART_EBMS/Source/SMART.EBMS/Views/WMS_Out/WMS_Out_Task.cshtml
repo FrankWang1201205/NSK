@@ -21,9 +21,26 @@
     <form id="MyForm" action="~/WMS_Out/WMS_Out_Task" method="get">
         <table style="width:100%;">
             <tr>
-                <td style="width:100px;  padding-left:5px;">
+                <td style="width:100px;padding-left:5px;">
+                    <select name="Head_Type" id="Head_Type" class="form-control input-sm" onchange="SubmitPageIndex(1)">
+                        <option value="">任务类型</option>
+                        @foreach (var x in MF.Head_Type_List)
+                        {
+                            if (MF.Head_Type == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:100px; padding-left:5px;">
                     <select name="Global_State" id="Global_State" class="form-control input-sm" onchange="SubmitPageIndex(1)">
-                        <option value="">任务状态</option>
+                        <option value="">当前状态 </option>
                         @foreach (var x in MF.Global_State_List.Where(c => c != WMS_Out_Global_State_Enum.已出库.ToString()))
                         {
                             if (MF.Global_State == x)
@@ -38,7 +55,7 @@
                     </select>
                 </td>
 
-                <td style="width:120px;padding-left:15px;">
+                <td style="width:100px;padding-left:5px;">
                     <select name="Logistics_Mode" id="Logistics_Mode" class="form-control input-sm" onchange="SubmitPageIndex(1)">
                         <option value="">运输方式</option>
                         @foreach (var x in MF.Logistics_Mode_List)
@@ -55,20 +72,20 @@
                     </select>
                 </td>
 
-                <td style="width:150px; padding-left:15px;">
+                <td style="width:150px; padding-left:5px;">
                     <input type="text" name="Customer_Name" id="Customer_Name" placeholder="客户" value="@MF.Customer_Name" class="form-control input-sm">
                 </td>
 
-                <td style="width:120px; padding-left:15px;">
+                <td style="width:100px; padding-left:5px;">
                     <input type="text" name="Create_Person" id="Create_Person" placeholder="创建人" value="@MF.Create_Person" class="form-control input-sm">
                 </td>
 
-                <td style="width:120px; padding-left:15px;">
-                    <input type="text" name="Work_Down_Person" id="Work_Down_Person" placeholder="配货作业人" value="@MF.Work_Down_Person" class="form-control input-sm">
+                <td style="width:120px; padding-left:5px;">
+                    <input type="text" name="Work_Down_Person" id="Work_Down_Person" placeholder="配货人" value="@MF.Work_Down_Person" class="form-control input-sm">
                 </td>
 
-                <td style="width:120px; padding-left:15px;">
-                    <input type="text" name="Work_Out_Person" id="Work_Out_Person" placeholder="验货作业人" value="@MF.Work_Out_Person" class="form-control input-sm">
+                <td style="width:120px; padding-left:5px;">
+                    <input type="text" name="Work_Out_Person" id="Work_Out_Person" placeholder="验货人" value="@MF.Work_Out_Person" class="form-control input-sm">
                 </td>
 
                 <td style="width:250px; padding-left:15px;">
@@ -101,9 +118,9 @@
             <th style="width:200px;">客户名称</th>
             <th style="width:60px;text-align:right">品项</th>
             <th style="width:60px;text-align:right">数量</th>
-            <th style="width:70px;text-align:right">任务状态</th>
-            <th style="width:70px;">配货作业人</th>
-            <th style="width:70px;">验货作业人</th>
+            <th style="width:70px;text-align:right">当前状态 </th>
+            <th style="width:70px;">配货人</th>
+            <th style="width:70px;">验货人</th>
             <th style="width:70px;">驾驶员</th>
             <th style="width:70px;">&nbsp;</th>
             <th>&nbsp;</th>

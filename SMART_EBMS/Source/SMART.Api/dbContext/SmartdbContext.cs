@@ -128,6 +128,7 @@ namespace SMART.Api
         public DbSet<WMS_In_Scan_Error> WMS_In_Scan_Error { get; set; }
         
         public DbSet<WMS_Track> WMS_Track { get; set; }
+        public DbSet<WMS_Track_Info> WMS_Track_Info { get; set; }
 
         public DbSet<WMS_Stock> WMS_Stock { get; set; }
         public DbSet<WMS_Stock_Temp> WMS_Stock_Temp { get; set; }
