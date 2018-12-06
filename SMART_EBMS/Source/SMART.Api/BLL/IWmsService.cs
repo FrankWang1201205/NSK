@@ -12,6 +12,7 @@ using NPOI.XSSF.UserModel;
 using NPOI.SS.UserModel;
 using System.Data;
 using System.Threading;
+using NPOI.HSSF.UserModel;
 
 namespace SMART.Api
 {
@@ -30,6 +31,8 @@ namespace SMART.Api
         //当前库存
         PageList<WMS_Stock_Group> Get_WMS_Stock_Group_PageList(WMS_Stock_Filter MF);
         PageList<WMS_Stock_Group_Location> Get_WMS_Stock_By_Location_List(WMS_Stock_Filter MF);
+        PageList<WMS_Stock_Group_Location> Get_WMS_Stock_By_Location_List_For_Move(WMS_Stock_Filter MF);
+        List<WMS_Stock_Group> Get_WMS_Stock_Group_List_For_Move(WMS_Stock_Filter MF);
         List<WMS_Stock_Group> Get_WMS_Stock_Group_List(WMS_Stock_Filter MF);
         WMS_Stock Get_WMS_Stock_Item(Guid Stock_ID);
         List<WMS_Stock_Group> Get_WMS_Stock_Group_List_By_Case(WMS_Stock_Filter MF);
@@ -44,6 +47,7 @@ namespace SMART.Api
 
         List<WMS_Stock_Group> Get_WMS_Stock_Group_List_For_WMS_Up(Guid Move_ID);
         List<WMS_Stock_Group> Get_WMS_Stock_Group_List_For_WMS_Move(Guid Move_ID);
+
 
         //盘库任务
         PageList<WMS_Location> Get_WMS_Stocktaking_Task_PageList_Notice(WMS_Stock_Filter MF);
@@ -117,7 +121,10 @@ namespace SMART.Api
 
         //驾驶员
         PageList<WMS_Track> Get_WMS_In_Track_With_Driver(Logistics_Cost_Filter MF);
+        WMS_Track_Info Get_WMS_Track_Info_DB(Guid InfoID);
         string Get_WMS_In_Track_With_Driver_To_Excel(Logistics_Cost_Filter MF);
+        List<WMS_Track_Info> Get_WMS_Track_Info_List_From_Upload(HttpPostedFileBase ExcelFile, User U);
+        void Batch_Create_WMS_Track_Info(List<WMS_Track_Info> List, User U);
     }
 
     public partial class WmsService : IWmsService
@@ -479,10 +486,21 @@ namespace SMART.Api
 
             //临时库存信息
             List<string> MatSn_List_Temp = Group_List.Select(x => x.MatSn).Distinct().ToList();
-            var query_Temp = db.WMS_Stock_Temp.Where(x => x.LinkMainCID == MF.LinkMainCID && MatSn_List_Temp.Contains(x.MatSn) == false).AsQueryable();
+            var query_Temp = db.WMS_Stock_Temp.Where(x => x.LinkMainCID == MF.LinkMainCID).AsQueryable();
+
             if (!string.IsNullOrEmpty(MF.MatSn))
             {
                 query_Temp = query_Temp.Where(x => x.MatSn.Contains(MF.MatSn)).AsQueryable();
+            }
+
+            if (!string.IsNullOrEmpty(MF.MatSn_A))
+            {
+                query_Temp = query_Temp.Where(x => x.MatSn.Contains(MF.MatSn_A)).AsQueryable();
+            }
+
+            if (!string.IsNullOrEmpty(MF.MatSn_B))
+            {
+                query_Temp = query_Temp.Where(x => x.MatSn.Contains(MF.MatSn_B)).AsQueryable();
             }
 
             if (!string.IsNullOrEmpty(MF.Keyword))
@@ -494,23 +512,28 @@ namespace SMART.Api
             {
                 query_Temp = query_Temp.Where(x => x.MatBrand.Contains(MF.MatBrand)).AsQueryable();
             }
-
+            
             List<WMS_Stock_Temp> Stock_Temp_List_DB = query_Temp.ToList();
-            var Group_Temp = from x in Stock_Temp_List_DB
-                             group x by x.MatSn into g
-                             select new
-                             {
-                                 MatSn = g.Key,
-                                 MatName = g.Select(c => c.MatName).FirstOrDefault(),
-                                 MatBrand = g.Select(c => c.MatBrand).FirstOrDefault(),
-                             };
-            foreach (var x in Group_Temp)
+
+            List<WMS_Stock_Temp> Stock_Temp_List_Search = Stock_Temp_List_DB.Where(x => MatSn_List_Temp.Contains(x.MatSn) == false).ToList();
+            if (Stock_Temp_List_Search.Any())
             {
-                Stock_Group = new WMS_Stock_Group();
-                Stock_Group.MatSn = x.MatSn;
-                Stock_Group.MatName = x.MatName;
-                Stock_Group.MatBrand = x.MatBrand;
-                Group_List.Add(Stock_Group);
+                var Group_Temp = from x in Stock_Temp_List_Search
+                                 group x by x.MatSn into g
+                                 select new
+                                 {
+                                     MatSn = g.Key,
+                                     MatName = g.Select(c => c.MatName).FirstOrDefault(),
+                                     MatBrand = g.Select(c => c.MatBrand).FirstOrDefault(),
+                                 };
+                foreach (var x in Group_Temp)
+                {
+                    Stock_Group = new WMS_Stock_Group();
+                    Stock_Group.MatSn = x.MatSn;
+                    Stock_Group.MatName = x.MatName;
+                    Stock_Group.MatBrand = x.MatBrand;
+                    Group_List.Add(Stock_Group);
+                }
             }
 
             PageList<WMS_Stock_Group> PList = new PageList<WMS_Stock_Group>();
@@ -524,7 +547,7 @@ namespace SMART.Api
             //预占用库存
             List<Guid> Out_HeadID_List_DB = db.WMS_Out_Head.Where(x => x.LinkMainCID == MF.LinkMainCID && x.Status == WMS_Out_Global_State_Enum.待配货.ToString()).Select(x => x.Head_ID).ToList();
             List<Guid> Out_HeadID_List = new List<Guid>();
-            List<WMS_Stock_Temp> Stock_Temp_List_Sub = db.WMS_Stock_Temp.Where(x => Out_HeadID_List_DB.Contains(x.WMS_Out_Head_ID)).ToList();
+            List<WMS_Stock_Temp> Stock_Temp_List_Sub = Stock_Temp_List_DB.Where(x => Out_HeadID_List_DB.Contains(x.WMS_Out_Head_ID)).ToList();
 
             foreach (var ID in Out_HeadID_List_DB)
             {
@@ -538,7 +561,7 @@ namespace SMART.Api
             Out_Line_List = Out_Line_List.Where(x => MatSn_List.Contains(x.MatSn)).ToList();
 
             //已占用库存
-            List<WMS_Stock_Temp> Stock_Temp_List = db.WMS_Stock_Temp.Where(x => x.LinkMainCID == MF.LinkMainCID && MatSn_List.Contains(x.MatSn)).ToList();
+            List<WMS_Stock_Temp> Stock_Temp_List = Stock_Temp_List_DB.Where(x => MatSn_List.Contains(x.MatSn)).ToList();
 
             foreach (var x in Group_List)
             {
@@ -1267,6 +1290,130 @@ namespace SMART.Api
             PList.Rows = query.OrderBy(x => x.Create_DT).Skip((MF.PageIndex - 1) * MF.PageSize).Take(MF.PageSize).ToList();
             return PList;
         }
+
+        public PageList<WMS_Stock_Group_Location> Get_WMS_Stock_By_Location_List_For_Move(WMS_Stock_Filter MF)
+        {
+            List<string> Loc_Str_List_DB = db.WMS_Location.Where(x => x.LinkMainCID == MF.LinkMainCID && x.Type == Type_Enum.端数.ToString()).Select(x => x.Location).Distinct().ToList();
+
+            var query = db.WMS_Stock.Where(x => x.LinkMainCID == MF.LinkMainCID).AsQueryable();
+
+            if (!string.IsNullOrEmpty(MF.MatSn))
+            {
+                query = query.Where(x => x.MatSn.Contains(MF.MatSn)).AsQueryable();
+            }
+
+            if (!string.IsNullOrEmpty(MF.Location))
+            {
+                query = query.Where(x => x.Location.Contains(MF.Location)).AsQueryable();
+            }
+
+            List<WMS_Stock> Stock_List_DB = query.Where(x => Loc_Str_List_DB.Contains(x.Location)).ToList();
+            List<string> Mat_List_Str_DB = Stock_List_DB.Select(x => x.MatSn).Distinct().ToList();
+            List<Material> Mat_List = db.Material.Where(x => x.LinkMainCID == MF.LinkMainCID && Mat_List_Str_DB.Contains(x.MatSn)).ToList();
+
+            Material Mat = new Material();
+            List<WMS_Stock> Stock_List = new List<WMS_Stock>();
+            List<WMS_Stock> Stock_List_Sub = new List<WMS_Stock>();
+            List<string> Loc_List_Str_DB = new List<string>();
+            List<string> Loc_List_Str = new List<string>();
+
+            int Sum = 0;
+            foreach (var MatSn in Mat_List_Str_DB)
+            {
+                Mat = Mat_List.Where(c => c.MatSn == MatSn).FirstOrDefault();
+                if (Mat != null)
+                {
+                    Stock_List = Stock_List_DB.Where(c => c.MatSn == MatSn).ToList();
+                    Loc_List_Str_DB = Stock_List_DB.Select(c => c.Location).Distinct().ToList();
+                    foreach (var Loc in Loc_List_Str_DB)
+                    {
+                        Sum = Stock_List.Where(c => c.Location == Loc).Sum(c => c.Quantity);
+                        if (Mat.Pack_Qty > 0 && Mat.Pack_Qty < Sum)
+                        {
+                            Loc_List_Str.Add(Loc);
+                        }
+                    }
+                }
+            }
+
+            List<WMS_Stock_Group_Location> List = new List<WMS_Stock_Group_Location>();
+            WMS_Stock_Group_Location T = new WMS_Stock_Group_Location();
+            foreach (var Location in Loc_List_Str.Distinct())
+            {
+                T = new WMS_Stock_Group_Location();
+                T.Location = Location;
+                List.Add(T);
+            }
+            
+            PageList<WMS_Stock_Group_Location> PList = new PageList<WMS_Stock_Group_Location>();
+            PList.PageIndex = MF.PageIndex;
+            PList.PageSize = MF.PageSize;
+            PList.TotalRecord = List.Count();
+            PList.Rows = List.OrderBy(x => x.Location).Skip((MF.PageIndex - 1) * MF.PageSize).Take(MF.PageSize).ToList();
+            return PList;
+        }
+
+        public List<WMS_Stock_Group> Get_WMS_Stock_Group_List_For_Move(WMS_Stock_Filter MF)
+        {
+            var query = db.WMS_Stock.Where(x => x.LinkMainCID == MF.LinkMainCID && x.Location == MF.Location).AsQueryable();
+
+            List<WMS_Stock> Stock_List_DB = query.ToList();
+            List<string> Mat_List_Str_DB = Stock_List_DB.Select(x => x.MatSn).Distinct().ToList();
+            List<Material> Mat_List = db.Material.Where(x => x.LinkMainCID == MF.LinkMainCID && Mat_List_Str_DB.Contains(x.MatSn)).ToList();
+            Material Mat = new Material();
+            List<string> Loc_List_Str_DB = new List<string>();
+            List<string> Mat_List_Str = new List<string>();
+            int Sum = 0;
+            foreach (var MatSn in Mat_List_Str_DB)
+            {
+                Mat = Mat_List.Where(c => c.MatSn == MatSn).FirstOrDefault();
+                if (Mat != null)
+                {
+                    Sum = Stock_List_DB.Where(c => c.MatSn == MatSn).Sum(c => c.Quantity);
+                    if (Mat.Pack_Qty >= 0 && Mat.Pack_Qty < Sum)
+                    {
+                        Mat_List_Str.Add(MatSn);
+                    }
+                }
+            }
+
+            List<WMS_Stock> Stock_List_Recommend = db.WMS_Stock.Where(x => x.LinkMainCID == MF.LinkMainCID && Mat_List_Str.Contains(x.MatSn)).ToList();
+
+            List<string> Loc_Str_List_DB = db.WMS_Location.Where(x => x.LinkMainCID == MF.LinkMainCID && x.Type == Type_Enum.整箱.ToString()).Select(x => x.Location).Distinct().ToList();
+
+            Stock_List_Recommend = Stock_List_Recommend.Where(x => Loc_Str_List_DB.Contains(x.Location)).ToList();
+
+            var Group = from x in Stock_List_DB.Where(x => Mat_List_Str.Contains(x.MatSn))
+                        group x by new { x.MatSn} into g
+                        select new
+                        {
+                            MatSn = g.Key.MatSn,
+                            Quantity_Sum = g.Sum(c => c.Quantity),
+                        };
+
+            List<WMS_Stock_Group> Group_List = new List<WMS_Stock_Group>();
+            WMS_Stock_Group Stock_Group = new WMS_Stock_Group();
+            foreach (var x in Group)
+            {
+                Stock_Group = new WMS_Stock_Group();
+                Stock_Group.MatSn = x.MatSn;
+                Stock_Group.Quantity_Sum = x.Quantity_Sum;
+                Group_List.Add(Stock_Group);
+            }
+            
+            foreach (var x in Group_List)
+            {
+                Mat = Mat_List.Where(c => c.MatSn == x.MatSn).FirstOrDefault();
+                if (Mat != null)
+                {
+                    x.Pack_Qty = Mat.Pack_Qty;
+                }
+                x.Loc_List = Stock_List_Recommend.Where(c => c.MatSn == x.MatSn).Select(c => c.Location).Distinct().ToList();
+            }
+
+            return Group_List;
+        }
+
     }
 
     //盘库任务
@@ -1300,19 +1447,7 @@ namespace SMART.Api
             {
                 Location_List = Location_List.Where(x => x.Type == MF.Type).ToList();
             }
-
-            //List<WMS_Stock> Stock_List = db.WMS_Stock.Where(x => x.LinkMainCID == MF.LinkMainCID && Location_List.Contains(x.Location)).ToList();
-
-            //List<string> Location_List_Temp = new List<string>();
-
-            //foreach (var Loc in Location_List)
-            //{
-            //    if (Stock_List.Where(c => c.Location == Loc).Any())
-            //    {
-            //        Location_List_Temp.Add(Loc);
-            //    }
-            //}
-
+            
             PageList<WMS_Location> PList = new PageList<WMS_Location>();
             PList.PageIndex = MF.PageIndex;
             PList.PageSize = MF.PageSize;
@@ -1327,7 +1462,7 @@ namespace SMART.Api
 
             if (!string.IsNullOrEmpty(MF.Property))
             {
-                query = query.Where(x => x.Property.Contains(MF.Property)).AsQueryable();
+                query = query.Where(x => x.Property == MF.Property).AsQueryable();
             }
 
             if (!string.IsNullOrEmpty(MF.Location))
@@ -1340,9 +1475,9 @@ namespace SMART.Api
                 query = query.Where(x => x.Work_Person.Contains(MF.Work_Person)).AsQueryable();
             }
 
-            if (!string.IsNullOrEmpty(MF.Location_Type))
+            if (!string.IsNullOrEmpty(MF.Type))
             {
-                query = query.Where(x => x.Type.Contains(MF.Location_Type)).AsQueryable();
+                query = query.Where(x => x.Type == MF.Type).AsQueryable();
             }
 
             if (Enum.GetNames(typeof(WMS_Stock_Task_Enum)).ToList().Where(x => x == MF.Status).Any())
@@ -1368,7 +1503,7 @@ namespace SMART.Api
             PageList<WMS_Stock_Task> PList = new PageList<WMS_Stock_Task>();
             PList.PageIndex = MF.PageIndex;
             PList.PageSize = MF.PageSize;
-            PList.TotalRecord = List.Count();
+            PList.TotalRecord = query.Count();
             PList.Rows = List;
 
             List<string> Location_List = List.Select(x => x.Location).Distinct().ToList();
@@ -1387,7 +1522,11 @@ namespace SMART.Api
         public PageList<WMS_Stock_Task> Get_WMS_Stock_Task_PageList_Pick(WMS_Stock_Filter MF)
         {
             var query = db.WMS_Stock_Task.Where(x => x.LinkMainCID == MF.LinkMainCID && x.Property == WMS_Stock_Task_Property_Enum.配货动盘.ToString()).AsQueryable();
-            query = query.Where(x => x.Status == WMS_Stock_Task_Enum.未盘库.ToString()).AsQueryable();
+
+            if (Enum.GetNames(typeof(WMS_Stock_Task_Enum)).ToList().Where(x => x == MF.Status).Any())
+            {
+                query = query.Where(x => x.Status == MF.Status).AsQueryable();
+            }
 
             if (!string.IsNullOrEmpty(MF.Location))
             {
@@ -1399,9 +1538,9 @@ namespace SMART.Api
                 query = query.Where(x => x.Work_Person.Contains(MF.Work_Person)).AsQueryable();
             }
 
-            if (!string.IsNullOrEmpty(MF.Location_Type))
+            if (!string.IsNullOrEmpty(MF.Type))
             {
-                query = query.Where(x => x.Type.Contains(MF.Location_Type)).AsQueryable();
+                query = query.Where(x => x.Type.Contains(MF.Type)).AsQueryable();
             }
 
             if (!string.IsNullOrEmpty(MF.Time_Start) && !string.IsNullOrEmpty(MF.Time_End))
@@ -1434,6 +1573,11 @@ namespace SMART.Api
                 }
             }
 
+            List<Guid> Remove_ID_List = List.Select(x => x.Task_ID).ToList();
+            List<WMS_Stock_Task> Remove_List = List_DB.Where(x => Remove_ID_List.Contains(x.Task_ID) == false).ToList();
+            db.WMS_Stock_Task.RemoveRange(Remove_List);
+            MyDbSave.SaveChange(db);
+
             PageList<WMS_Stock_Task> PList = new PageList<WMS_Stock_Task>();
             PList.PageIndex = MF.PageIndex;
             PList.PageSize = MF.PageSize;
@@ -1442,7 +1586,6 @@ namespace SMART.Api
 
             return PList;
         }
-
 
         public WMS_Stock_Task Get_WMS_Stock_Task_Item_DB(Guid TaskID)
         {
@@ -1539,7 +1682,10 @@ namespace SMART.Api
             List<string> MatSn_List = List.Select(x => x.MatSn).Distinct().ToList();
 
             List<WMS_Stock> Stock_List = db.WMS_Stock.Where(x => x.LinkMainCID == Task.LinkMainCID && x.Location == Task.Location).ToList();
-            Stock_List = Stock_List.Where(x => MatSn_List.Contains(x.MatSn)).ToList();
+            if (Task.Type == Type_Enum.端数.ToString())
+            {
+                Stock_List = Stock_List.Where(x => MatSn_List.Contains(x.MatSn)).ToList();
+            }
 
             Task.Line_List = new List<WMS_Stock_Task_Line>();
 
@@ -1987,6 +2133,11 @@ namespace SMART.Api
             }
 
             Task.Status = WMS_Stock_Task_Enum.已盘库.ToString();
+            if (Task.Type == Type_Enum.整箱.ToString() && Scan_List.Where(x => x.Package_Type == WMS_Stock_Package_Enum.零头.ToString()).Any())
+            {
+                Task.Recommend_Status = WMS_Recommend_Status_Enum.未推荐.ToString();
+            }
+
             db.Entry(Task).State = EntityState.Modified;
 
             //更新底盘状态
@@ -2648,8 +2799,61 @@ namespace SMART.Api
                 throw new Exception("该盈亏记录已确认生成，请勿重复操作");
             }
 
+            if (db.WMS_Stock_Task.Where(x => x.LinkMainCID == PL.LinkMainCID && x.Status == WMS_Stock_Task_Enum.未盘库.ToString() && x.Location == PL.Location).Any() == false)
+            {
+                Create_WMS_Stock_Task_Item(PL);
+            }
+
             PL.Status = WMS_Profit_Loss_Status_Enum.已确定.ToString();
             db.Entry(PL).State = EntityState.Modified;
+            MyDbSave.SaveChange(db);
+        }
+
+        //创建盘库任务
+        private void Create_WMS_Stock_Task_Item(WMS_Profit_Loss_Other PL)
+        {
+            WMS_Location Loc = db.WMS_Location.Where(x => x.LinkMainCID == PL.LinkMainCID && x.Location == PL.Location).FirstOrDefault();
+            if (Loc == null) { throw new Exception("系统中不存在该库位"); }
+
+            WMS_Stock_Task Task = new WMS_Stock_Task();
+            Task.Task_ID = MyGUID.NewGUID();
+            Task.LinkMainCID = PL.LinkMainCID;
+            Task.Create_DT = DateTime.Now;
+            Task.Location = Loc.Location;
+            Task.Type = Loc.Type;
+            Task.Status = WMS_Stock_Task_Enum.未盘库.ToString();
+            Task.Property = WMS_Stock_Task_Property_Enum.日常盘库.ToString();
+            db.WMS_Stock_Task.Add(Task);
+
+            //创建底盘信息
+            List<WMS_Stocktaking> Stocktaking_List = new List<WMS_Stocktaking>();
+            WMS_Stocktaking Stocktaking = new WMS_Stocktaking();
+
+            List<WMS_Stock> Stock_List = db.WMS_Stock.Where(x => x.LinkMainCID == PL.LinkMainCID && x.Location == PL.Location).ToList();
+
+            DateTime Create_DT = DateTime.Now;
+            foreach (var x in Stock_List)
+            {
+                Stocktaking = new WMS_Stocktaking();
+                Stocktaking.Stocktaking_ID = MyGUID.NewGUID();
+                Stocktaking.MatSn = x.MatSn;
+                Stocktaking.MatBrand = x.MatBrand;
+                Stocktaking.Quantity = x.Quantity;
+                Stocktaking.Location = x.Location;
+                Stocktaking.Create_DT = Create_DT;
+                Stocktaking.Link_TaskID = Task.Task_ID;
+                Stocktaking.LinkMainCID = Task.LinkMainCID;
+                Stocktaking.Task_Bat_No = "";
+                Stocktaking.Work_Person = Task.Work_Person;
+                Stocktaking.Status = WMS_Stocktaking_Status_Enum.待底盘.ToString();
+                Stocktaking_List.Add(Stocktaking);
+            }
+
+            if (Stocktaking_List.Any())
+            {
+                db.WMS_Stocktaking.AddRange(Stocktaking_List);
+            }
+
             MyDbSave.SaveChange(db);
         }
     }
@@ -3780,8 +3984,105 @@ namespace SMART.Api
             return PList;
         }
 
+        public WMS_Track_Info Get_WMS_Track_Info_DB(Guid InfoID)
+        {
+            WMS_Track_Info Info = db.WMS_Track_Info.Find(InfoID);
+            Info = Info == null ? new WMS_Track_Info() : Info;
+            return Info;
+        }
 
+        public List<WMS_Track_Info> Get_WMS_Track_Info_List_From_Upload(HttpPostedFileBase ExcelFile,User U)
+        {
+            //创建上传文件
+            string FileName = Path.GetFileName(ExcelFile.FileName);   //获取文件名
+            MyNormalUploadFile MF = new MyNormalUploadFile();
+            string ExcelFilePath = MF.NormalUpLoadFileProcess(ExcelFile, "WMS_Track_Info/" + U.UID);
 
+            //根据路径通过已存在的excel来创建HSSFWorkbook，即整个excel文档
+            HSSFWorkbook workbook = new NPOI.HSSF.UserModel.HSSFWorkbook(new FileStream(HttpRuntime.AppDomainAppPath.ToString() + ExcelFilePath, FileMode.Open, FileAccess.Read));
+
+            //读取Excel列，装箱数据
+            List<WMS_Track_Info> Line_List = new List<WMS_Track_Info>();
+            WMS_Track_Info Line = new WMS_Track_Info();
+            ISheet sheet = workbook.GetSheetAt(0);
+
+            if (workbook.NumberOfSheets > 1)
+            {
+                throw new Exception("Excel中Sheet的数量大于1, 无法判断数据表来源！");
+            }
+
+            for (int i = sheet.FirstRowNum + 1; i <= sheet.LastRowNum; i++)
+            {
+                IRow row = sheet.GetRow(i);
+
+                Line = new WMS_Track_Info();
+
+                try { Line.Sender_Name = row.GetCell(1).ToString().Trim(); } catch { Line.Sender_Name = string.Empty; }
+                if (string.IsNullOrEmpty(Line.Sender_Name)) { break; }
+                try { Line.Sender_Phone= row.GetCell(2).ToString().Trim(); } catch { Line.Sender_Phone = string.Empty; }
+                try { Line.Sender_Tel = row.GetCell(3).ToString().Trim(); } catch { Line.Sender_Tel = string.Empty; }
+                try { Line.Sender_Address = row.GetCell(4).ToString().Trim(); } catch { Line.Sender_Address = string.Empty; }
+                try { Line.Receiver_Name = row.GetCell(5).ToString().Trim(); } catch { Line.Receiver_Name = string.Empty; }
+                try { Line.Receiver_Phone = row.GetCell(6).ToString().Trim(); } catch { Line.Receiver_Phone = string.Empty; }
+                try { Line.Receiver_Tel = row.GetCell(7).ToString().Trim(); } catch { Line.Receiver_Tel = string.Empty; }
+                try { Line.Receiver_Address = row.GetCell(8).ToString().Trim(); } catch { Line.Receiver_Address = string.Empty; }
+                try { Line.Item_Info = row.GetCell(9).ToString().Trim(); } catch { Line.Item_Info = string.Empty; }
+                try { Line.Logistics_Company = row.GetCell(10).ToString().Trim(); } catch { Line.Logistics_Company = string.Empty; }
+                try { Line.Logistics_Company_Loc = row.GetCell(11).ToString().Trim(); } catch { Line.Logistics_Company_Loc = string.Empty; }
+                try { Line.Tracking_No = row.GetCell(12).ToString().Trim(); } catch { Line.Tracking_No = string.Empty; }
+                
+                //过滤换行符
+                Line.Sender_Name = Line.Sender_Name.Replace(Environment.NewLine, "");
+                Line.Sender_Phone = Line.Sender_Phone.Replace(Environment.NewLine, "");
+                Line.Sender_Tel = Line.Sender_Tel.Replace(Environment.NewLine, "");
+                Line.Sender_Address = Line.Sender_Address.Replace(Environment.NewLine, "");
+                Line.Receiver_Name = Line.Receiver_Name.Replace(Environment.NewLine, "");
+                Line.Receiver_Phone = Line.Receiver_Phone.Replace(Environment.NewLine, "");
+                Line.Receiver_Tel = Line.Receiver_Tel.Replace(Environment.NewLine, "");
+                Line.Receiver_Address = Line.Receiver_Address.Replace(Environment.NewLine, "");
+                Line.Item_Info = Line.Item_Info.Replace(Environment.NewLine, "");
+                Line.Logistics_Company = Line.Logistics_Company.Replace(Environment.NewLine, "");
+                Line.Logistics_Company_Loc = Line.Logistics_Company_Loc.Replace(Environment.NewLine, "");
+                Line.Tracking_No = Line.Tracking_No.Replace(Environment.NewLine, "");
+
+                //判断单元格是否有公式
+                for (int j = 0; j < 13; j++)
+                {
+                    if (row.GetCell(j) != null)
+                    {
+                        if (row.GetCell(j).CellType == CellType.Formula)
+                        {
+                            throw new Exception(row.GetCell(j).RowIndex.ToString() + "行，" + row.GetCell(j).ColumnIndex + "列" + "-内含公式，无法导入！");
+                        }
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(Line.Sender_Name) && !string.IsNullOrEmpty(Line.Sender_Address)
+                    && !string.IsNullOrEmpty(Line.Receiver_Name) && !string.IsNullOrEmpty(Line.Receiver_Address)
+                    && !string.IsNullOrEmpty(Line.Item_Info) && !string.IsNullOrEmpty(Line.Logistics_Company)
+                    && !string.IsNullOrEmpty(Line.Tracking_No))
+                {
+                    Line_List.Add(Line);
+                }
+            }
+          
+            return Line_List;
+        }
+
+        public void Batch_Create_WMS_Track_Info(List<WMS_Track_Info> List, User U)
+        {
+            DateTime DT = DateTime.Now;
+            foreach (var x in List)
+            {
+                x.Info_ID = MyGUID.NewGUID();
+                x.LinkMainCID = U.LinkMainCID;
+                x.Create_Person = U.UserFullName;
+                x.Create_DT = DT;
+            }
+
+            db.WMS_Track_Info.AddRange(List);
+            MyDbSave.SaveChange(db);
+        }
     }
 }
 

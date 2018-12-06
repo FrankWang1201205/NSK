@@ -231,4 +231,37 @@ namespace SMART.EBMS.Controllers
             return View(List);
         }
     }
+
+    //端数移库推荐
+    public partial class WMS_StockController : Controller
+    {
+        public ActionResult WMS_Move_Recommend()
+        {
+            User U = this.MyUser();
+            ViewData["User"] = U;
+
+            WMS_Stock_Filter MF = new WMS_Stock_Filter();
+            try { MF.PageIndex = Convert.ToInt32(Request["PageIndex"].ToString()); } catch { }
+            MF.PageIndex = MF.PageIndex <= 0 ? 1 : MF.PageIndex;
+            MF.PageSize = 50;
+            MF.LinkMainCID = U.LinkMainCID;
+            MF.MatSn = Request["MatSn"] == null ? string.Empty : Request["MatSn"].Trim();
+            MF.Location = Request["Location"] == null ? string.Empty : Request["Location"].Trim();
+            PageList<WMS_Stock_Group_Location> List = IW.Get_WMS_Stock_By_Location_List_For_Move(MF);
+            ViewData["MF"] = MF;
+            return View(List);
+        }
+
+        public PartialViewResult WMS_Move_Recommend_Sub(string ID)
+        {
+            User U = this.MyUser();
+            ViewData["User"] = U;
+            WMS_Stock_Filter MF = new WMS_Stock_Filter();
+            MF.LinkMainCID = U.LinkMainCID;
+            MF.Location = ID;
+            List<WMS_Stock_Group> List = IW.Get_WMS_Stock_Group_List_For_Move(MF);
+            ViewData["MF"] = MF;
+            return PartialView(List);
+        }
+    }
 }

@@ -1,0 +1,43 @@
+﻿@model WMS_Track_Info
+@{
+    Layout = null;
+}
+<table class="table table-bordered text-nowrap" style="width:100%;margin-top:10px;">
+    <tr>
+        <td class="active">物流单号</td>
+        <td>@Model.Tracking_No</td>
+        <td class="active">快递公司</td>
+        <td>@Model.Logistics_Company</td>
+        <td class="active">物品信息</td>
+        <td>@Model.Item_Info</td>
+    </tr>
+    <tr>
+        <td class="active">网点</td>
+        <td colspan="5">@Model.Logistics_Company_Loc</td>
+    </tr>
+    <tr>
+        <td class="active">寄件人</td>
+        <td>@Model.Sender_Name</td>
+        <td class="active">寄件人手机</td>
+        <td>@Model.Sender_Phone</td>
+        <td class="active">寄件人座机</td>
+        <td>@Model.Sender_Tel</td>
+    </tr>
+    <tr>
+        <td class="active">寄件人地址</td>
+        <td colspan="5">@Model.Sender_Address</td>
+    </tr>
+    <tr>
+        <td class="active">收件人</td>
+        <td>@Model.Receiver_Name</td>
+        <td class="active">收件人手机</td>
+        <td>@Model.Receiver_Phone</td>
+        <td class="active">收件人座机</td>
+        <td>@Model.Receiver_Tel</td>
+    </tr>
+    <tr>
+        <td class="active">收件人地址</td>
+        <td colspan="5">@Model.Receiver_Address</td>
+    </tr>
+
+</table>

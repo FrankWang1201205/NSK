@@ -41,6 +41,60 @@ namespace SMART.EBMS.Controllers
             return View(PList);
         }
 
+        public PartialViewResult WMS_Track_Info_Search_Sub(Guid ID)
+        {
+            Guid InfoID = ID;
+            WMS_Track_Info Info = IW.Get_WMS_Track_Info_DB(InfoID);
+            return PartialView(Info);
+        }
+    }
 
+    public partial class WMS_Track_InfoController : Controller
+    {
+        public ActionResult WMS_Track_Info_Upload()
+        {
+            User U = this.MyUser();
+            ViewData["User"] = U;
+
+            return View();
+        }
+
+        [HttpPost]
+        public RedirectToRouteResult WMS_Track_Info_Upload_Post()
+        {
+            User U = this.MyUser();
+            try
+            {
+                HttpPostedFileBase ExcelFile = Request.Files["ExcelFile"];
+                List<WMS_Track_Info> Info_List = IW.Get_WMS_Track_Info_List_From_Upload(ExcelFile, U);
+                string Info_List_Str = Newtonsoft.Json.JsonConvert.SerializeObject(Info_List);
+                TempData["Success"] = Info_List_Str;
+            }
+            catch (Exception Ex)
+            {
+                TempData["Error"] = Ex.Message.ToString();
+            }
+
+            return RedirectToAction("WMS_Track_Info_Upload");
+        }
+
+        [HttpPost]
+        public RedirectToRouteResult WMS_Track_Info_Upload_Finish_Post()
+        {
+            User U = this.MyUser();
+            try
+            {
+                string List_Str = Request["List"].ToString();
+                List<WMS_Track_Info> Info_List = Newtonsoft.Json.JsonConvert.DeserializeObject<List<WMS_Track_Info>>(List_Str);
+                IW.Batch_Create_WMS_Track_Info(Info_List, U);
+                TempData["Success"] = "递交成功";
+                return RedirectToAction("WMS_Track_Info_Search");
+            }
+            catch (Exception Ex)
+            {
+                TempData["Error"] = Ex.Message.ToString();
+                return RedirectToAction("WMS_Track_Info_Upload");
+            }
+        }
     }
 }

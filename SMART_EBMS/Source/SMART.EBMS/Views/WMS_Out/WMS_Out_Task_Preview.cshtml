@@ -141,11 +141,11 @@
 
         @foreach (var x in Model.Line_List.Where(x => x.Line_State == WMS_Out_Task_Line_State_Enum.多出型号.ToString()).ToList())
         {
-            <tr>
-                <td><a href="javascript:void(0)" onclick="Show_MatSn_Detail('@x.MatSn')"><span class="MatSn_Font">@x.MatSn</span></a></td>
+            <tr class="warning">
+                <td><a href="javascript:void(0)" onclick="Show_MatSn_Detail('@x.MatSn')"><span class="MatSn_Font" style="color:red;">@x.MatSn</span></a></td>
                 <td style="text-align:right">@x.Quantity_Sum_Scan.ToString("N0")</td>
                 <td>&nbsp;</td>
-                <td style="color:silver">@x.Line_State</td>
+                <td>@x.Line_State</td>
             </tr>
         }
 

@@ -1078,7 +1078,6 @@ namespace SMART.Api.Models
             Remark_List= Enum.GetNames(typeof(WMS_Stock_Record_Remark_Enum)).ToList();
             Type = string.Empty;
             Type_Enum_List = Enum.GetNames(typeof(Type_Enum)).ToList();
-
         }
 
         public int PageIndex { get; set; }
@@ -1148,6 +1147,8 @@ namespace SMART.Api.Models
             Location = string.Empty;
             GroupID = Guid.Empty;
             Quantity_Diff = 0;
+            Pack_Qty = 0;
+            Loc_List = new List<string>();
         }
         public Guid GroupID { get; set; }
         public string MatName { get; set; }
@@ -1174,6 +1175,8 @@ namespace SMART.Api.Models
         public string In_DT { get; set; }
         public string Location { get; set; }
         public decimal Price { get; set; }
+        public int Pack_Qty { get; set; }
+        public List<string> Loc_List { get; set; }
     }
 
     public enum WMS_Stock_Package_Enum
@@ -1206,6 +1209,7 @@ namespace SMART.Api.Models
             Property = string.Empty;
             Type = string.Empty;
             Link_HeadID = Guid.Empty;
+            Recommend_Status = string.Empty;
         }
 
         [Key]
@@ -1230,6 +1234,9 @@ namespace SMART.Api.Models
         public string Type { get; set; }
         
         public Guid Link_HeadID { get; set; }
+
+        //推荐移库的状态
+        public string Recommend_Status { get; set; }
 
         [NotMapped]
         public int MatSn_Count { get; set; }
@@ -1406,6 +1413,12 @@ namespace SMART.Api.Models
     {
         未确定,
         已确定,
+    }
+
+    public enum WMS_Recommend_Status_Enum
+    {
+        未推荐,
+        已推荐,
     }
 
     public enum WMS_Stock_Task_Property_Enum
@@ -1726,6 +1739,7 @@ namespace SMART.Api.Models
             Receipt_DT = DateTime.Now;
             Payment_DT = DateTime.Now;
             Out_DT_Str = string.Empty;
+            Is_Chose = 0;
         }
 
         [Key]
@@ -1790,6 +1804,9 @@ namespace SMART.Api.Models
         //付款日
         public DateTime Payment_DT { get; set; }
 
+        //页面勾选
+        public int Is_Chose { get; set; }
+
         [Required]
         public Guid Link_Head_ID { get; set; }
        
@@ -1848,9 +1865,11 @@ namespace SMART.Api.Models
             Scan_Location = string.Empty;
             Quantity = 0;
             Is_Chose = 0;
+            Is_Chose_Sim = 0;
             Customer = string.Empty;
             Stocktaking_ID = Guid.Empty;
             Stocktaking_Loction_Type = string.Empty;
+            Pack_Qty = 0;
         }
 
         [Key]
@@ -1881,9 +1900,12 @@ namespace SMART.Api.Models
         [Required]
         public string Status { get; set; }
         
-        //勾选使用
+        //勾选使用(附加其他动作)
         public int Is_Chose { get; set; }
-        
+
+        //勾选使用
+        public int Is_Chose_Sim { get; set; }
+
         [NotMapped]
         public Guid Stocktaking_ID { get; set; }
 
@@ -1892,6 +1914,9 @@ namespace SMART.Api.Models
 
         [NotMapped]
         public string Customer { get; set; }
+
+        [NotMapped]
+        public int Pack_Qty { get; set; }
     }
 
     //验货扫描
@@ -2322,6 +2347,8 @@ namespace SMART.Api.Models
             Status = string.Empty;
             Package_Type = string.Empty;
             QRCode_Path = string.Empty;
+            Recommend_Info = string.Empty;
+            Recommend_Info_List = new List<Recommend_Move_Info>();
         }
 
         [Key]
@@ -2359,6 +2386,26 @@ namespace SMART.Api.Models
         [NotMapped]
         public string QRCode_Path { get; set; }
 
+        [NotMapped]
+        public string Recommend_Info { get; set; }
+
+        [NotMapped]
+        public List<Recommend_Move_Info> Recommend_Info_List { get; set; }
+    }
+
+    [NotMapped]
+    public class Recommend_Move_Info
+    {
+        public Recommend_Move_Info()
+        {
+            No = 0;
+            Location = string.Empty;
+            Quantity = 0;
+        }
+
+        public int No { get; set; }
+        public string Location { get; set; }
+        public int Quantity { get; set; }
     }
 
     //底盘

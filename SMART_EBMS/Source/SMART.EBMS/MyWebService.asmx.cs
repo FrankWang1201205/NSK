@@ -299,7 +299,13 @@ namespace SMART.EBMS
         {
             return IW.WMS_Out_Pick_Stocktaking_List(MainCID);
         }
-        
+
+        [WebMethod]
+        public DataTable WMS_Out_Pick_Stocktaking_List_Work_Person(string Work_Person)
+        {
+            return IW.WMS_Out_Pick_Stocktaking_List_Work_Person(MainCID, Work_Person);
+        }
+
         [WebMethod]
         public DataTable WMS_Out_Pick_Stocktaking_List_Sub(string Task_ID)
         {

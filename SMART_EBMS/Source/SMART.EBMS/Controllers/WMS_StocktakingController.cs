@@ -275,11 +275,12 @@ namespace SMART.EBMS.Controllers
             MF.PageIndex = MF.PageIndex <= 0 ? 1 : MF.PageIndex;
             MF.PageSize = 50;
             MF.LinkMainCID = U.LinkMainCID;
-            MF.Status = Request["Status"] == null ? string.Empty : Request["Status"].Trim();
+            MF.Status = WMS_Stock_Task_Enum.已盘库.ToString();
             MF.Location = Request["Location"] == null ? string.Empty : Request["Location"].Trim();
             MF.Work_Person = Request["Work_Person"] == null ? string.Empty : Request["Work_Person"].Trim();
             MF.Time_End = Request["Time_End"] == null ? string.Empty : Request["Time_End"].Trim();
             MF.Time_Start = Request["Time_Start"] == null ? string.Empty : Request["Time_Start"].Trim();
+            MF.Property = WMS_Stock_Task_Property_Enum.日常盘库.ToString();
             PageList<WMS_Stock_Task> List = IW.Get_WMS_Stock_Task_PageList(MF);
             ViewData["MF"] = MF;
             return View(List);
@@ -415,7 +416,6 @@ namespace SMART.EBMS.Controllers
         }
     }
 
-
     //临时导入
     public partial class WMS_StocktakingController : Controller
     {
@@ -454,26 +454,4 @@ namespace SMART.EBMS.Controllers
         }
 
     }
-
-    ////端数型号
-    //public partial class WMS_StocktakingController : Controller
-    //{
-    //    public ActionResult WMS_Stocktaking_Task_First_MatSn()
-    //    {
-    //        User U = this.MyUser();
-    //        ViewData["User"] = U;
-
-    //        WMS_Stock_Filter MF = new WMS_Stock_Filter();
-    //        try { MF.PageIndex = Convert.ToInt32(Request["PageIndex"].ToString()); } catch { }
-    //        MF.PageIndex = MF.PageIndex <= 0 ? 1 : MF.PageIndex;
-    //        MF.PageSize = 100;
-    //        MF.LinkMainCID = U.LinkMainCID;
-    //        MF.MatSn = Request["MatSn"] == null ? string.Empty : Request["MatSn"].Trim();
-    //        PageList<WMS_Stock_Group> List = IW.Get_WMS_Stock_Group_First_PageList(MF);
-    //        ViewData["MF"] = MF;
-    //        return View(List);
-    //    }
-
-
-    //}
 }

@@ -1,0 +1,129 @@
+﻿@model PageList<WMS_Stock_Group_Location>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    WMS_Stock_Filter MF = ViewData["MF"] as WMS_Stock_Filter;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("移库合并");</script>
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/WMS_Stock/WMS_Move_Recommend" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:100px;padding-right:10px;padding-left:10px;">
+                    <input type="text" name="Location" id="Location" placeholder="库位" value="@MF.Location" class="form-control input-sm">
+                </td>
+
+                <td style="width:250px;">
+                    <div class="input-group input-group-sm" style="width: 250px; ">
+                        <input type="text" name="MatSn" id="MatSn" placeholder="产品型号" value="@MF.MatSn" class="form-control ">
+                        <div class="input-group-btn">
+                            <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                        </div>
+                    </div>
+                </td>
+
+                <td style="width:50px;">&nbsp;</td>
+
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<div id="RightDivContext" style="overflow:auto; padding:20px;margin:auto;border-bottom:1px solid #cccaca;border-top:1px solid #cccaca">
+    @foreach (var x in Model.Rows)
+    {
+        <a href="javascript:void(0)" class="Tray_Box" onclick="Show_Location_Modal('@x.Location','@x.Link_HeadID')">
+            <table>
+                <tr>
+                    <td style="padding-top:25px; color:#175a9b;"><strong style="font-size:22px;">@x.Location</strong></td>
+                </tr>
+            </table>
+        </a>
+    }
+</div>
+
+<style>
+    .Tray_Box {
+        width: 150px;
+        height: 110px;
+        float: left;
+        border: 1px solid #808080;
+        border-bottom: 13px solid #808080;
+        margin-right: 20px;
+        margin-bottom: 20px;
+        background-color:white;
+        color: black;
+    }
+
+        .Tray_Box:hover {
+            border: 2px solid #175a9b;
+            border-bottom: 13px solid #175a9b;
+            text-decoration: none;
+        }
+
+        .Tray_Box table {
+            font-size: 16px;
+            width: 100%;
+        }
+
+            .Tray_Box table td {
+                width: 100%;
+                text-align: center;
+            }
+</style>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+  <!--库位信息-->
+<script>
+    function Show_Location_Modal(Location) {
+        Reload_Location_Context(Location);
+        $('#Location_Modal').modal({ backdrop: 'static' });
+    }
+
+    function Reload_Location_Context(Location) {
+        var escape_Location = escape(Location);
+        $("#Location_Context").text("Loading...");
+        $("#Location_Context").load("/WMS_Stock/WMS_Move_Recommend_Sub/" + escape_Location);
+    }
+</script>
+<div class="modal fade" id="Location_Modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">可合并移库型号</h5>
+            </div>
+            <div class="modal-body" id="Location_Context"></div>
+        </div>
+    </div>
+</div>
+<!--库位信息-->
+

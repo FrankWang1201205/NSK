@@ -1,0 +1,156 @@
+﻿@model PageList<WMS_Stock_Task>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    WMS_Stock_Filter MF = ViewData["MF"] as WMS_Stock_Filter;
+    User U = ViewData["User"] as User;
+
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("动盘记录");</script>
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/WMS_Out_Stocktaking/WMS_Out_Stocktaking_Pick_Record" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:100px;padding-left:5px;">
+                    <select name="Type" id="Type" class="form-control input-sm" onchange="SubmitPageIndex(1)">
+                        <option value="">库位类型</option>
+                        @foreach (var x in MF.Type_Enum_List)
+                        {
+                            if (MF.Type == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:100px;padding-left:5px;">
+                    <input type="text" class="form-control input-sm" name="Work_Person" id="Work_Person" value="@MF.Work_Person" placeholder="作业人">
+                </td>
+
+                <td style="width:10px;padding-left:5px;">
+                    <input autocomplete="off" style="width:90px;" class="form-control input-sm Time_Select" name="Time_Start" type="text" id="Time_Start" placeholder="起始时间" value="@MF.Time_Start" />
+                </td>
+
+                <td style="width:10px; text-align:center;">
+                    ~
+                </td>
+
+                <td style="width:10px;">
+                    <input autocomplete="off" style="width:90px;" class="form-control input-sm Time_Select" name="Time_End" type="text" id="Time_End" placeholder="结束时间" value="@MF.Time_End" />
+                </td>
+
+                <td style="width:200px; padding-left:5px;">
+                    <div class="input-group input-group-sm" style="width:200px;">
+                        <input type="text" name="Location" id="Location" placeholder="库位" value="@MF.Location" class="form-control ">
+                        <div class="input-group-btn">
+                            <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                        </div>
+                    </div>
+                </td>
+
+                <td>&nbsp;</td>
+
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:80px;">作业人</th>
+            <th style="width:70px;">创建日期</th>
+            <th style="width:70px;">库位</th>
+            <th style="width:70px;">类型</th>
+            <th style="width:70px;">当前状态 </th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model.Rows)
+        {
+            <tr>
+                <td>&nbsp;</td>
+                <td style="vertical-align:top;">@x.Work_Person</td>
+                <td style="vertical-align:top;">@x.Create_DT.ToString("yyyy-MM-dd")</td>
+                <td style="vertical-align:top;">
+                    @if (x.Type == Type_Enum.整箱.ToString())
+                    {
+                        <a href="~/WMS_Out_Stocktaking/WMS_Out_Stocktaking_Pick_Preview/@x.Task_ID" target="_blank">@x.Location</a>
+                    }
+                    else if (x.Type == Type_Enum.端数.ToString())
+                    {
+                        <a href="~/WMS_Out_Stocktaking/WMS_Out_Stocktaking_Pick_Preview_For_MatSn/@x.Task_ID" target="_blank">@x.Location</a>
+                    }
+                </td>
+                <td style="vertical-align:top;">@x.Type</td>
+                <td style="vertical-align:top;">@x.Status</td>
+                <td>&nbsp;</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+
+    $('.Time_Select').datetimepicker({
+        language: 'zh-CN',
+        weekStart: 1,
+        todayBtn: 1,
+        autoclose: 1,
+        format: "yyyy-mm-dd",
+        todayHighlight: 1,
+        startView: 2,
+        startDate: "2018-01-01",
+        minView: 2,
+        forceParse: 0
+    });
+
+</script>

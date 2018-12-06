@@ -45,7 +45,7 @@
 
                 <td style="width:250px; padding-left:5px;">
                     <div class="input-group input-group-sm" style="width: 250px; ">
-                        <input type="text" name="Tracking_No" id="Tracking_No" placeholder="快递单号" value="@MF.Tracking_No" class="form-control ">
+                        <input type="text" name="Tracking_No" id="Tracking_No" placeholder="物流单号" value="@MF.Tracking_No" class="form-control ">
                         <div class="input-group-btn">
                             <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
                         </div>
@@ -66,7 +66,7 @@
     <thead>
         <tr>
             <th style="width:10px;">&nbsp;</th>
-            <th style="width:100px;">快递单号</th>
+            <th style="width:100px;">物流单号</th>
             <th style="width:70px;">创建日期</th>
             <th style="width:70px;">创建人</th>
             <th style="width:70px;">快递公司</th>
@@ -85,8 +85,8 @@
                 <td style="vertical-align:top;">@x.Create_DT.ToString("yyyy-MM-dd")</td>
                 <td style="vertical-align:top;">@x.Create_Person</td>
                 <td style="vertical-align:top;">@x.Logistics_Company</td>
-                <td style="vertical-align:top;">@x.Sender_Name</td>
-                <td style="vertical-align:top;">@x.Receiver_Name</td>
+                <td style="vertical-align:top;" title="@x.Sender_Name">@x.Sender_Name</td>
+                <td style="vertical-align:top;" title="@x.Receiver_Name">@x.Receiver_Name</td>
                 <td style="vertical-align:top;text-align:center">
                     <button type="button" onclick="Show_Detail('@x.Info_ID')" class="btn btn-primary btn-xs">查看</button>
                 </td>
@@ -137,6 +137,32 @@
         forceParse: 0
     });
 </script>
+
+<!--查看详情-->
+<script>
+    function Show_Detail(Info_ID) {
+        Reload_Detail_Item(Info_ID);
+        $('#MyModel').modal({ backdrop: 'static' });
+    }
+
+    function Close_Detail_Item() { $('#MyModel').modal('hide'); }
+
+    function Reload_Detail_Item(Info_ID) {
+        $("#MyContext").load("/WMS_Track_Info/WMS_Track_Info_Search_Sub/" + Info_ID);
+    }
+</script>
+<div class="modal fade" id="MyModel">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="Close_Detail_Item()"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">查看详情</h5>
+            </div>
+            <div class="modal-body" id="MyContext"></div>
+        </div>
+    </div>
+</div>
+<!--查看详情-->
 
 
 

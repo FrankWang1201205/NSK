@@ -19,6 +19,7 @@ namespace SMART.EBMS.Controllers
         private User MyUser() { return IU.Get_User_By_Controller(HttpContext.User.Identity.Name); }
     }
     
+    //配货动盘
     public partial class WMS_Out_StocktakingController : Controller
     {
         public ActionResult WMS_Out_Stocktaking_Pick()
@@ -34,6 +35,9 @@ namespace SMART.EBMS.Controllers
             MF.Time_End = Request["Time_End"] == null ? string.Empty : Request["Time_End"].Trim();
             MF.Time_Start = Request["Time_Start"] == null ? string.Empty : Request["Time_Start"].Trim();
             MF.Location = Request["Location"] == null ? string.Empty : Request["Location"].Trim();
+            MF.Work_Person = Request["Work_Person"] == null ? string.Empty : Request["Work_Person"].Trim();
+            MF.Type = Request["Type"] == null ? string.Empty : Request["Type"].Trim();
+            MF.Status = WMS_Stock_Task_Enum.未盘库.ToString();
             PageList<WMS_Stock_Task> TaskList = IW.Get_WMS_Stock_Task_PageList_Pick(MF);
             ViewData["MF"] = MF;
             return View(TaskList);
@@ -155,7 +159,34 @@ namespace SMART.EBMS.Controllers
             return PartialView();
         }
     }
-    
+
+    //动盘记录
+    public partial class WMS_Out_StocktakingController : Controller
+    {
+        public ActionResult WMS_Out_Stocktaking_Pick_Record()
+        {
+            User U = this.MyUser();
+            ViewData["User"] = U;
+
+            WMS_Stock_Filter MF = new WMS_Stock_Filter();
+            try { MF.PageIndex = Convert.ToInt32(Request["PageIndex"].ToString()); } catch { }
+            MF.PageIndex = MF.PageIndex <= 0 ? 1 : MF.PageIndex;
+            MF.PageSize = 50;
+            MF.LinkMainCID = U.LinkMainCID;
+            MF.Time_End = Request["Time_End"] == null ? string.Empty : Request["Time_End"].Trim();
+            MF.Time_Start = Request["Time_Start"] == null ? string.Empty : Request["Time_Start"].Trim();
+            MF.Location = Request["Location"] == null ? string.Empty : Request["Location"].Trim();
+            MF.Work_Person = Request["Work_Person"] == null ? string.Empty : Request["Work_Person"].Trim();
+            MF.Type = Request["Type"] == null ? string.Empty : Request["Type"].Trim();
+            MF.Status = WMS_Stock_Task_Enum.已盘库.ToString();
+            MF.Property = WMS_Stock_Task_Property_Enum.配货动盘.ToString();
+            PageList<WMS_Stock_Task> TaskList = IW.Get_WMS_Stock_Task_PageList(MF);
+            ViewData["MF"] = MF;
+            return View(TaskList);
+        }
+
+    }
+
     //盈亏核验(动盘)
     public partial class WMS_Out_StocktakingController : Controller
     {
@@ -223,4 +254,53 @@ namespace SMART.EBMS.Controllers
             return View(PList);
         }
     }
+
+    //移库推荐
+    public partial class WMS_Out_StocktakingController : Controller
+    {
+        public ActionResult WMS_Move_Recommend()
+        {
+            User U = this.MyUser();
+            ViewData["User"] = U;
+
+            WMS_Stock_Filter MF = new WMS_Stock_Filter();
+            try { MF.PageIndex = Convert.ToInt32(Request["PageIndex"].ToString()); } catch { }
+            MF.PageIndex = MF.PageIndex <= 0 ? 1 : MF.PageIndex;
+            MF.PageSize = 50;
+            MF.LinkMainCID = U.LinkMainCID;
+            MF.Time_End = Request["Time_End"] == null ? string.Empty : Request["Time_End"].Trim();
+            MF.Time_Start = Request["Time_Start"] == null ? string.Empty : Request["Time_Start"].Trim();
+            MF.Location = Request["Location"] == null ? string.Empty : Request["Location"].Trim();
+            PageList<WMS_Stock_Task> List = IW.Get_WMS_Stock_Task_PageList_For_Move_Recommend(MF);
+            ViewData["MF"] = MF;
+            return View(List);
+        }
+
+        public PartialViewResult WMS_Move_Recommend_Sub(Guid ID)
+        {
+            Guid TaskID = ID;
+            WMS_Stock_Task Task = IW.Get_WMS_Stock_Task_Item_DB(TaskID);
+            ViewData["Task"] = Task;
+            List<WMS_Stocktaking_Scan> List = IW.Get_WMS_Stocktaking_Scan_List_For_Move(TaskID);
+            return PartialView(List);
+        }
+
+        [HttpPost]
+        public string WMS_Move_Recommend_Sub_Finish_Post(Guid ID)
+        {
+            string result = string.Empty;
+            try
+            {
+                Guid Task_ID = ID;
+                IW.Finish_WMS_Stocktaking_Scan_Recommend(Task_ID);
+            }
+            catch (Exception Ex)
+            {
+                result = Ex.Message.ToString();
+            }
+            return result;
+        }
+
+    }
+
 }

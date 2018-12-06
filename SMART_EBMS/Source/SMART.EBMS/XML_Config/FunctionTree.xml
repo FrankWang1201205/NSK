@@ -150,11 +150,12 @@
       <TopMenu URL="WMS_Out/WMS_Out_Inspection_Process" TopName="验货包装" RoleTitle="公司经理,采购主管,仓管主管,仓管专员"/>
       <TopMenu URL="WMS_Out/WMS_Out_Despatch_Process" TopName="出库发运" RoleTitle="公司经理,采购主管,仓管主管,仓管专员"/>
       <TopMenu URL="WMS_Out/WMS_Out_Record" TopName="出库记录" RoleTitle="公司经理,采购主管,仓管主管"/>
-
     </SubMenu>
 
      <SubMenu Name="配货动盘">
       <TopMenu URL="WMS_Out_Stocktaking/WMS_Out_Stocktaking_Pick" TopName="配货动盘" RoleTitle="公司经理,采购主管,仓管主管,仓管专员"/>
+       <TopMenu URL="WMS_Out_Stocktaking/WMS_Out_Stocktaking_Pick_Record" TopName="动盘记录" RoleTitle="公司经理,采购主管,仓管主管,仓管专员"/>
+       <TopMenu URL="WMS_Out_Stocktaking/WMS_Move_Recommend" TopName="移库推荐" RoleTitle="公司经理,采购主管,仓管主管"/>
       <TopMenu URL="WMS_Out_Stocktaking/WMS_Profit_Or_Loss_Other_Check" TopName="动盘盈亏核验" RoleTitle="公司经理,采购主管,仓管主管"/>
       <TopMenu URL="WMS_Out_Stocktaking/WMS_Profit_Or_Loss_Other" TopName="动盘盈亏记录" RoleTitle="公司经理,采购主管,仓管主管"/>
     </SubMenu>
@@ -178,6 +179,7 @@
       <TopMenu URL="WMS_Stock/WMS_Stock_List_By_Location" TopName="库位产品" RoleTitle=""/>
       <TopMenu URL="WMS_Stock/WMS_Stock_In_Record" TopName="入库记录" RoleTitle="公司经理,采购主管,仓管主管"/>
       <TopMenu URL="WMS_Stock/WMS_Stock_Out_Record" TopName="出库记录" RoleTitle="公司经理,采购主管,仓管主管"/>
+      <TopMenu URL="WMS_Stock/WMS_Move_Recommend" TopName="移库合并" RoleTitle="公司经理,采购主管,仓管主管"/>
     </SubMenu>
     
     <SubMenu Name="库位管理">

@@ -783,8 +783,16 @@
     <Content Include="Views\WMS_In\WMS_In_Record.cshtml" />
     <Content Include="Views\WMS_Task_Out_Return\WMS_Out_Return_Search_Create_Sub.cshtml" />
     <Content Include="Views\WMS_Task_Out_Return\WMS_Out_Return_Search_Sub.cshtml" />
-    <Content Include="Views\WMS_Track_Info\WMS_In_Return_Search.cshtml" />
+    <Content Include="Views\WMS_Track_Info\WMS_Track_Info_Search.cshtml" />
     <Content Include="Views\WMS_Track_Info\_TopMenu.cshtml" />
+    <Content Include="Views\WMS_Track_Info\WMS_Track_Info_Upload.cshtml" />
+    <Content Include="Views\WMS_Track_Info\WMS_Track_Info_Search_Sub.cshtml" />
+    <Content Include="Views\WMS_Out_Stocktaking\WMS_Move_Recommend.cshtml" />
+    <Content Include="Views\WMS_Out_Stocktaking\WMS_Move_Recommend_Sub.cshtml" />
+    <Content Include="Views\WMS_Out_Stocktaking\WMS_Out_Stocktaking_Pick_Record.cshtml" />
+    <Content Include="Views\WMS_Stock\WMS_Move_Recommend.cshtml" />
+    <Content Include="Views\WMS_Stock\WMS_Move_Recommend_Sub.cshtml" />
+    <Content Include="Views\WMS_Out\WMS_Out_Task_Preview_Pick_Scan_Other.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SMART.Api\SMART.Api.csproj">

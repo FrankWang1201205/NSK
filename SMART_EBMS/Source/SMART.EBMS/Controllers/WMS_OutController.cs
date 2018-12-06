@@ -155,7 +155,6 @@ namespace SMART.EBMS.Controllers
             return result;
         }
 
-
         public PartialViewResult WMS_Out_Task_Preview_Pick_Location_Sub(Guid ID)
         {
             Guid Scan_ID = ID;
@@ -197,37 +196,6 @@ namespace SMART.EBMS.Controllers
             return result;
         }
 
-        [HttpPost]
-        public string WMS_Out_Task_Preview_Pick_Scan_Post(Guid ID)
-        {
-            string result = string.Empty;
-            try
-            {
-                Guid Task_ID = ID;
-                IW.WMS_Out_Task_Preview_Pick_Scan_Choose(Task_ID);
-            }
-            catch (Exception Ex)
-            {
-                result = Ex.Message.ToString();
-            }
-            return result;
-        }
-
-        [HttpPost]
-        public string WMS_Out_Task_Preview_Pick_Scan_Cancel_Post(Guid ID)
-        {
-            string result = string.Empty;
-            try
-            {
-                Guid Task_ID = ID;
-                IW.WMS_Out_Task_Preview_Pick_Scan_Cancel_Choose(Task_ID);
-            }
-            catch (Exception Ex)
-            {
-                result = Ex.Message.ToString();
-            }
-            return result;
-        }
     }
 
     //配货进程
@@ -280,7 +248,64 @@ namespace SMART.EBMS.Controllers
             }
             return result;
         }
-        
+
+        [HttpPost]
+        public string WMS_Out_Task_Preview_Pick_Scan_Post(Guid ID)
+        {
+            string result = string.Empty;
+            try
+            {
+                Guid Task_ID = ID;
+                IW.WMS_Out_Task_Preview_Pick_Scan_Choose(Task_ID);
+            }
+            catch (Exception Ex)
+            {
+                result = Ex.Message.ToString();
+            }
+            return result;
+        }
+
+        [HttpPost]
+        public string WMS_Out_Task_Preview_Pick_Scan_Cancel_Post(Guid ID)
+        {
+            string result = string.Empty;
+            try
+            {
+                Guid Task_ID = ID;
+                IW.WMS_Out_Task_Preview_Pick_Scan_Cancel_Choose(Task_ID);
+            }
+            catch (Exception Ex)
+            {
+                result = Ex.Message.ToString();
+            }
+            return result;
+        }
+
+        public ActionResult WMS_Out_Task_Preview_Pick_Scan_Other(Guid ID)
+        {
+            User U = this.MyUser();
+            ViewData["User"] = U;
+            WMS_Out_Filter MF = new WMS_Out_Filter();
+            MF.LinkHeadID = ID;
+            WMS_Out_Task Task = IW.Get_WMS_Out_Task_Item_Pick_Scan(MF);
+            return View(Task);
+        }
+
+        [HttpPost]
+        public string WMS_Out_Task_Preview_Pick_Scan_Check_Post(Guid ID)
+        {
+            string result = string.Empty;
+            try
+            {
+                Guid Task_ID = ID;
+                IW.WMS_Out_Task_Preview_Pick_Scan_Check(Task_ID);
+            }
+            catch (Exception Ex)
+            {
+                result = Ex.Message.ToString();
+            }
+            return result;
+        }
     }
 
     //配货记录
@@ -419,6 +444,22 @@ namespace SMART.EBMS.Controllers
             WMS_Out_Task Task = IW.Get_WMS_Out_Task_Item(MF);
             ViewData["MF"] = MF;
             return View(Task);
+        }
+
+        [HttpPost]
+        public string WMS_Out_Task_Preview_Source_Check_Post(Guid ID)
+        {
+            string result = string.Empty;
+            try
+            {
+                Guid Line_ID = ID;
+                IW.WMS_Out_Task_Preview_Source_Check(Line_ID);
+            }
+            catch (Exception Ex)
+            {
+                result = Ex.Message.ToString();
+            }
+            return result;
         }
 
         public ActionResult WMS_Out_Task_Preview_Scan(Guid ID)

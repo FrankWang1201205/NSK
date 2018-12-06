@@ -22,6 +22,27 @@
     <form id="MyForm" action="~/WMS_Out_Stocktaking/WMS_Out_Stocktaking_Pick" method="get">
         <table style="width:100%;">
             <tr>
+                <td style="width:100px;padding-left:5px;">
+                    <select name="Type" id="Type" class="form-control input-sm" onchange="SubmitPageIndex(1)">
+                        <option value="">库位类型</option>
+                        @foreach (var x in MF.Type_Enum_List)
+                        {
+                            if (MF.Type == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:100px;padding-left:5px;">
+                    <input type="text" class="form-control input-sm" name="Work_Person" id="Work_Person" value="@MF.Work_Person" placeholder="作业人">
+                </td>
+
                 <td style="width:10px;padding-left:5px;">
                     <input autocomplete="off" style="width:90px;" class="form-control input-sm Time_Select" name="Time_Start" type="text" id="Time_Start" placeholder="起始时间" value="@MF.Time_Start" />
                 </td>
@@ -34,7 +55,7 @@
                     <input autocomplete="off" style="width:90px;" class="form-control input-sm Time_Select" name="Time_End" type="text" id="Time_End" placeholder="结束时间" value="@MF.Time_End" />
                 </td>
 
-                <td style="width:250px; padding-left:15px;">
+                <td style="width:250px; padding-left:5px;">
                     <div class="input-group input-group-sm" style="width: 250px; ">
                         <input type="text" name="Location" id="Location" placeholder="库位" value="@MF.Location" class="form-control ">
                         <div class="input-group-btn">
@@ -56,7 +77,6 @@
     <thead>
         <tr>
             <th style="width:10px;">&nbsp;</th>
-            <th style="width:40px; text-align:center; padding:0px;"><input type="checkbox" id="ALL" onclick="checkBoxCheckAll('ALL', 'Task_ID')" /></th>
             <th style="width:70px;">创建日期</th>
             <th style="width:70px;">库位</th>
             <th style="width:70px;">类型</th>
@@ -70,25 +90,25 @@
             {
             <tr>
                 <td>&nbsp;</td>
-                <td style="text-align:center;"><input type="checkbox" value="@x.Task_ID" name="Task_ID" class="Task_ID" id="Task_ID_@x.Task_ID" /></td>
                 <td style="vertical-align:top;">@x.Create_DT.ToString("yyyy-MM-dd")</td>
                 <td style="vertical-align:top;">
                     @if (!string.IsNullOrEmpty(x.Work_Person))
+                    {
+                        if (x.Type == Type_Enum.整箱.ToString())
                         {
-                            if (x.Type == Type_Enum.整箱.ToString())
-                            {
-                        <a href="~/WMS_Out_Stocktaking/WMS_Out_Stocktaking_Pick_Preview/@x.Task_ID" target="_blank">@x.Location</a>
-                            }
-                            else if (x.Type == Type_Enum.端数.ToString())
-                            {
-                        <a href="~/WMS_Out_Stocktaking/WMS_Out_Stocktaking_Pick_Preview_For_MatSn/@x.Task_ID" target="_blank">@x.Location</a>
-                            }
+                            <a href="~/WMS_Out_Stocktaking/WMS_Out_Stocktaking_Pick_Preview/@x.Task_ID" target="_blank">@x.Location</a>
                         }
-                        else
+                        else if (x.Type == Type_Enum.端数.ToString())
                         {
+                            <a href="~/WMS_Out_Stocktaking/WMS_Out_Stocktaking_Pick_Preview_For_MatSn/@x.Task_ID" target="_blank">@x.Location</a>
+                        }
+                    }
+                    else
+                    {
                         <span>@x.Location</span>
-                        }
+                    }
                 </td>
+
                 <td style="vertical-align:top;">@x.Type</td>
                 <td style="vertical-align:top;">@x.Status</td>
                 <td style="vertical-align:top;">@x.Work_Person</td>

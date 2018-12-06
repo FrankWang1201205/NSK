@@ -4,7 +4,7 @@
     WMS_Out_Filter MF = ViewData["MF"] as WMS_Out_Filter;
     ViewBag.Title = Model.Task_Bat_No_Str;
     User U = ViewData["User"] as User;
-    decimal Total_Price = 0;
+    int i = 0;
 }
 
 <!DOCTYPE html>
@@ -132,33 +132,44 @@
 
     <table class="table table-bordered text-nowrap" style="width:100%;font-size:14px;">
         <tr class="active">
-            <td style="width:10px;">&nbsp;</td>
+            <td style="width:50px;">序</td>
+            <td style="width:70px;">&nbsp;</td>
             <td style="width:190px;">产品型号</td>
-            <td style="width:70px;text-align:right">数量</td>
-            <td style="width:70px;text-align:right">单价</td>
-            <td style="width:70px;text-align:right">金额</td>
+            <td style="width:80px;">&nbsp;</td>
+            <td>&nbsp;</td>
         </tr>
 
-        @foreach (var x in Model.WMS_Out_Line_List)
+        @foreach (var x in Model.WMS_Out_Line_List.Where(x => x.Is_Chose == 0).OrderBy(x => x.MatSn))
         {
-
-            x.Total_Price = x.Quantity * x.Price;
-            Total_Price = Total_Price + x.Total_Price;
+            i++;
             <tr>
+                <td>@i</td>
                 <td style="text-align:center;">
                     <a href="javascript:void(0)" onclick="Show_Mat_Label_Modal('@x.MatSn')" style="color:black;"><i class="icon-qrcode icon-2x"></i></a>
                 </td>
                 <td><span class="MatSn_Font">@x.MatSn</span></td>
-                <td style="text-align:right">@x.Quantity.ToString("N0")</td>
-                <td style="text-align:right">@x.Price.ToString("N2")</td>
-                <td style="text-align:right">@x.Total_Price.ToString("N2")</td>
+                <td style="text-align:center;">
+                    <input type="checkbox" id="Check_Line_@x.Line_ID" style="font-size:25px" onchange="Check_Line('@x.Line_ID')" />
+                </td>
+                <td>&nbsp;</td>
             </tr>
         }
-        <tr>
-            <td colspan="3">&nbsp;</td>
-            <td style="text-align:right">合计金额：</td>
-            <td style="text-align:right">@Total_Price.ToString("N2")</td>
-        </tr>
+
+        @foreach (var x in Model.WMS_Out_Line_List.Where(x => x.Is_Chose == 1).OrderBy(x => x.MatSn))
+        {
+            i++;
+            <tr>
+                <td>@i</td>
+                <td style="text-align:center;">
+                    <a href="javascript:void(0)" onclick="Show_Mat_Label_Modal('@x.MatSn')" style="color:green;"><i class="icon-qrcode icon-2x"></i></a>
+                </td>
+                <td><span class="MatSn_Font" style="color:green">@x.MatSn</span></td>
+                <td style="text-align:center;">
+                    <input type="checkbox" id="Check_Line_@x.Line_ID" style="font-size:25px" checked onchange="Check_Line('@x.Line_ID')" />
+                </td>
+                <td>&nbsp;</td>
+            </tr>
+        }
     </table>
 
     <table class="table table-condensed" style="width:100%;font-size:14px;">
@@ -205,6 +216,22 @@
                 if (result == "") {
                     ReloadPage();
                 } else {
+                    alert(result);
+                }
+            });
+        }
+
+        function Check_Line(Line_ID) {
+            if (confirm("是否勾选此产品型号？") == false) {
+                $("#Check_Line_" + Line_ID).removeAttr("checked");
+                return false;
+            }
+
+            $.post("/WMS_Out/WMS_Out_Task_Preview_Source_Check_Post/" + Line_ID, function (result) {
+                if (result == "") {
+                    ReloadPage();
+                } else {
+                    $("#Check_Line_" + Line_ID).removeAttr("checked");
                     alert(result);
                 }
             });

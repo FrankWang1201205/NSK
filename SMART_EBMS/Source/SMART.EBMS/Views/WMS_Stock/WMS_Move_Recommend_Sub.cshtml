@@ -1,0 +1,36 @@
+﻿@model List<WMS_Stock_Group>
+@{
+    Layout = null;
+    WMS_Stock_Filter MF = ViewData["MF"] as WMS_Stock_Filter;
+}
+
+<table style="width:100%;">
+    <tr>
+        <td><h4>库位：<strong style="font-size:22px;">@MF.Location</strong></h4></td>
+    </tr>
+</table>
+
+<table class="table table-condensed table-bordered text-nowrap" style="width:100%">
+    <tr class="active">
+        <td style="width:190px;">产品型号</td>
+        <td style="text-align:right;width:80px;">数量</td>
+        <td style="text-align:right;width:80px;">装箱数</td>
+        <td>推荐移库合并库位</td>
+    </tr>
+    @foreach (var x in Model.OrderBy(c => c.MatSn).ToList())
+    {
+        <tr>
+            <td class="MatSn_Font">@x.MatSn</td>
+            <td style="text-align:right">@x.Quantity_Sum.ToString("N0")</td>
+            <td style="text-align:right">@x.Pack_Qty.ToString("N0")</td>
+            <td>
+                @foreach (var xx in x.Loc_List.Take(5))
+                {
+                    <span>@xx</span><span>，</span>
+                }
+            </td>
+
+        </tr>
+    }
+
+</table>
