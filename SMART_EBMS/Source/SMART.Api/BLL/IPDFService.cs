@@ -26,6 +26,7 @@ namespace SMART.Api
         string Create_PDF_For_WMS_In_By_TrayNo_With_CaseNo(Guid Head_ID, string Tray_No, string Case_No);
 
         string Create_PDF_For_WMS_In_Label(WMS_In_Line Line);
+
         string Create_PDF_For_Material_Label(Material M);
 
         //库位打印
@@ -845,6 +846,7 @@ namespace SMART.Api
             return PDFPath;
         }
 
+        //产品整箱标签
         public string Create_PDF_For_Material_Label(Material M)
         {
             string PDFPath = string.Empty;
@@ -852,8 +854,8 @@ namespace SMART.Api
             //PDF文件路径
             string PDFFilePath = this.AutoCreatPDFDownloadDir();
             //PDF文件名称
-            string PDFFileNameStr = PDFFilePath + "\\" + M.MatID + "_" + M.WMS_Stock_Qty + "_产品标签.pdf";
-
+            string PDFFileNameStr = PDFFilePath + "\\" + M.MatID + "_产品标签.pdf";
+            
             //第一步，创建一个 iTextSharp.text.Document对象的实例：
             Rectangle pageSize = new Rectangle(300, 200);
             Document document = new Document(pageSize, 20, 10, 15, 10);
@@ -861,7 +863,7 @@ namespace SMART.Api
 
             //第二步，为该Document创建一个Writer实例： 
             PdfWriter PdfWriter = PdfWriter.GetInstance(document, new FileStream(PDFFileNameStr, FileMode.Create));
-
+            
             //第三步，打开当前Document 
             document.Open();
 
@@ -900,7 +902,6 @@ namespace SMART.Api
             //TableTitlecell.BorderWidthTop = 3;
             //TableTitlecell.BorderWidthRight = 3;
 
-
             //右侧标题及产品型号
             PdfPTable TableHead_Sub = new PdfPTable(1);
             TableHead_Sub.WidthPercentage = 100;
@@ -913,7 +914,7 @@ namespace SMART.Api
             Table_Sub_Cell.BorderWidth = 0;
             Table_Sub_Cell.BorderWidthBottom = 0.5f;
             Table_Sub_Cell.PaddingBottom = 10;
-            Paragraph Row1 = new Paragraph("虹恩零头箱", this.GetBaseFontItem("STZHONGS", 18));
+            Paragraph Row1 = new Paragraph("虹恩产品", this.GetBaseFontItem("STZHONGS", 18));
             Row1.SetLeading(0, 1);
             Table_Sub_Cell.AddElement(Row1);
             TableHead_Sub.AddCell(Table_Sub_Cell);
@@ -923,7 +924,7 @@ namespace SMART.Api
             Table_Sub_Cell.VerticalAlignment = Element.ALIGN_MIDDLE;
             Table_Sub_Cell.BorderWidth = 0;
             Table_Sub_Cell.PaddingTop = 10;
-            Paragraph Row2 = new Paragraph(M.MatSn, this.GetBaseFontItem("arial", 14));
+            Paragraph Row2 = new Paragraph(M.MatSn, this.GetBaseFontItem("arial", 12));
             Row2.SetLeading(0, 1);
             Table_Sub_Cell.NoWrap = true;
             Table_Sub_Cell.AddElement(Row2);
@@ -968,39 +969,40 @@ namespace SMART.Api
             Table_Sub_Cell = new PdfPCell();
             Table_Sub_Cell.HorizontalAlignment = Element.ALIGN_RIGHT;
             Table_Sub_Cell.VerticalAlignment = Element.ALIGN_TOP;
-            Paragraph Row6 = new Paragraph(M.WMS_Stock_Qty.ToString(), this.GetBaseFontItem("arialbd", 16));
+            Paragraph Row6 = new Paragraph(M.Pack_Qty.ToString(), this.GetBaseFontItem("arialbd", 16));
             Row6.SetLeading(0, 1.2f);
             Table_Sub_Cell.AddElement(Row6);
             TableHead_Sub_A.AddCell(Table_Sub_Cell);
 
             TableTitlecell.AddElement(TableHead_Sub_A);
 
-            //到货日期
-            PdfPTable TableHead_Sub_B = new PdfPTable(new float[] { 5, 5 });
-            TableHead_Sub_B.WidthPercentage = 99;
-            TableHead_Sub_B.DefaultCell.BorderColor = BaseColor.BLUE;
-            TableHead_Sub_B.DefaultCell.BorderWidth = 0;
-            TableHead_Sub_B.DefaultCell.BorderWidthBottom = 0;
+            ////到货日期
+            //PdfPTable TableHead_Sub_B = new PdfPTable(new float[] { 5, 5 });
+            //TableHead_Sub_B.WidthPercentage = 99;
+            //TableHead_Sub_B.DefaultCell.BorderColor = BaseColor.BLUE;
+            //TableHead_Sub_B.DefaultCell.BorderWidth = 0;
+            //TableHead_Sub_B.DefaultCell.BorderWidthBottom = 0;
 
-            Table_Sub_Cell = new PdfPCell();
-            Table_Sub_Cell.HorizontalAlignment = Element.ALIGN_LEFT;
-            Table_Sub_Cell.VerticalAlignment = Element.ALIGN_TOP;
-            Table_Sub_Cell.PaddingLeft = 10;
-            Paragraph Row7 = new Paragraph(" ", this.GetBaseFontItem("STZHONGS", 16));
-            Row7.SetLeading(0, 1.2f);
-            Table_Sub_Cell.AddElement(Row7);
-            TableHead_Sub_B.AddCell(Table_Sub_Cell);
+            //Table_Sub_Cell = new PdfPCell();
+            //Table_Sub_Cell.HorizontalAlignment = Element.ALIGN_LEFT;
+            //Table_Sub_Cell.VerticalAlignment = Element.ALIGN_TOP;
+            //Table_Sub_Cell.PaddingLeft = 10;
+            //Paragraph Row7 = new Paragraph(" ", this.GetBaseFontItem("STZHONGS", 16));
+            //Row7.SetLeading(0, 1.2f);
+            //Table_Sub_Cell.AddElement(Row7);
+            //TableHead_Sub_B.AddCell(Table_Sub_Cell);
 
-            Table_Sub_Cell = new PdfPCell();
-            Table_Sub_Cell.HorizontalAlignment = Element.ALIGN_LEFT;
-            Table_Sub_Cell.VerticalAlignment = Element.ALIGN_TOP;
-            Table_Sub_Cell.PaddingLeft = 10;
-            Paragraph Row8 = new Paragraph(DateTime.Now.ToString("yyyy.MM.dd"), this.GetBaseFontItem("STZHONGS", 16));
-            Row8.SetLeading(0, 1.2f);
-            Table_Sub_Cell.AddElement(Row8);
-            TableHead_Sub_B.AddCell(Table_Sub_Cell);
+            //Table_Sub_Cell = new PdfPCell();
+            //Table_Sub_Cell.HorizontalAlignment = Element.ALIGN_LEFT;
+            //Table_Sub_Cell.VerticalAlignment = Element.ALIGN_TOP;
+            //Table_Sub_Cell.PaddingLeft = 10;
+            //Paragraph Row8 = new Paragraph(DateTime.Now.ToString("yyyy.MM.dd"), this.GetBaseFontItem("STZHONGS", 16));
+            //Row8.SetLeading(0, 1.2f);
+            //Table_Sub_Cell.AddElement(Row8);
+            //TableHead_Sub_B.AddCell(Table_Sub_Cell);
 
-            TableTitlecell.AddElement(TableHead_Sub_B);
+            //TableTitlecell.AddElement(TableHead_Sub_B);
+
             TableTitlecell.AddElement(new Paragraph("\n\r", this.GetBaseFontItem("arialbd", 16)));
             TableHead.AddCell(TableTitlecell);
 

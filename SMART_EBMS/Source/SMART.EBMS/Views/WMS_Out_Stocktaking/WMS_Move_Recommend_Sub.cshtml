@@ -3,8 +3,18 @@
     Layout = null;
     WMS_Stock_Task Task = ViewData["Task"] as WMS_Stock_Task;
 }
-<h4>库位：@Task.Location</h4>
-<table class="table table-bordered text-nowrap" style="width:100%;margin-top:10px;">
+
+<table style="width:100%;">
+    <tr>
+        <td><h4>库位：<strong style="font-size:22px;">@Task.Location</strong></h4></td>
+        <td>&nbsp;</td>
+        <td style="text-align:right">
+            <button type="button" onclick="Create_Move_Task('@Task.Task_ID')" class="btn btn-primary btn-sm">创建移库任务</button>
+        </td>
+    </tr>
+</table>
+
+<table class="table table-bordered text-nowrap" style="width:100%;">
     <thead>
         <tr>
             <th style="width:200px;">型号</th>
@@ -27,7 +37,7 @@
 <table class="FormTable_Sim" style="width:100%;">
     <tr>
         <td style="text-align:center">
-            <button type="button" onclick="Finish_Recommend('@Task.Task_ID')" class="btn btn-primary btn-sm">已接受推荐</button>
+            <button type="button" onclick="Finish_Recommend('@Task.Task_ID')" class="btn btn-info btn-sm">已接受推荐</button>
         </td>
     </tr>
 </table>
@@ -41,6 +51,20 @@
         $.post("/WMS_Out_Stocktaking/WMS_Move_Recommend_Sub_Finish_Post/" + Task_ID, function (result) {
             if (result == "") {
                 ReloadPage();
+            } else {
+                alert(result);
+            }
+        });
+    }
+
+    function Create_Move_Task(Task_ID) {
+        if (confirm("确认创建移库任务？") == false) {
+            return false;
+        }
+
+        $.post("/WMS_Out_Stocktaking/WMS_Move_Recommend_Sub_Create_Post/" + Task_ID, function (result) {
+            if (result == "") {
+                alert("移库任务创建成功");
             } else {
                 alert(result);
             }

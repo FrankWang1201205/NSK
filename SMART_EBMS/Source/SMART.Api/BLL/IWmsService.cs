@@ -48,6 +48,7 @@ namespace SMART.Api
         List<WMS_Stock_Group> Get_WMS_Stock_Group_List_For_WMS_Up(Guid Move_ID);
         List<WMS_Stock_Group> Get_WMS_Stock_Group_List_For_WMS_Move(Guid Move_ID);
 
+        void Create_WMS_Move_From_WMS_Move_Recommend(string Location, Guid Link_MainCID);
 
         //盘库任务
         PageList<WMS_Location> Get_WMS_Stocktaking_Task_PageList_Notice(WMS_Stock_Filter MF);
@@ -66,6 +67,7 @@ namespace SMART.Api
         WMS_Stocktaking Get_WMS_Stocktaking_Item(Guid TaskID, string MatSn);
         void Set_WMS_Stocktaking_Task_For_MatSn(Guid TaskID, string MatSn, int Quantity);
         void Reset_WMS_Stocktaking_Task_Scan(Guid TaskID);
+        string Get_WMS_Profit_Loss_List_To_Excel(List<WMS_Profit_Loss> PL_List);
 
         //动盘（端数库位）
         WMS_Stock_Task Get_WMS_Stock_Task_Item_Other(Guid TaskID);
@@ -1414,6 +1416,29 @@ namespace SMART.Api
             return Group_List;
         }
 
+        public void Create_WMS_Move_From_WMS_Move_Recommend(string Location, Guid Link_MainCID)
+        {
+            Location = Location.Trim();
+            if (db.WMS_Location.Where(x => x.LinkMainCID == Link_MainCID && x.Location == Location).Any() == false) { throw new Exception("系统中不存在该库位"); }
+            
+            WMS_Move Move = new WMS_Move();
+            Move.Move_ID = MyGUID.NewGUID();
+            Move.LinkMainCID = Link_MainCID;
+            Move.Create_DT = DateTime.Now;
+            Move.Out_Location = Location;
+
+            if (db.WMS_Stock.Where(x => x.LinkMainCID == Link_MainCID && x.Location == Move.Out_Location).Any() == false) { throw new Exception("该库位无产品"); }
+
+            if (db.WMS_Move.Where(x => x.Move_ID != Move.Move_ID && x.Out_Location == Move.Out_Location && x.Move_Status == WMS_Move_Status_Enum.待移库.ToString()).Any())
+            {
+                throw new Exception("该库位已创建待移库任务");
+            }
+
+            Move.Move_Status = WMS_Move_Status_Enum.待移库.ToString();
+            db.WMS_Move.Add(Move);
+            MyDbSave.SaveChange(db);
+        }
+
     }
 
     //盘库任务
@@ -1951,6 +1976,9 @@ namespace SMART.Api
                 }
 
                 db.WMS_Profit_Loss.AddRange(PL_List);
+
+                //ISentEmailService IS = new SentEmailService();
+                //IS.Sent_To_Accounting_Staff_With_Profit_Or_Loss(PL_List, Task);
             }
             else
             {
@@ -2023,6 +2051,56 @@ namespace SMART.Api
                 db.WMS_Stock.RemoveRange(Stock_List_DB);
             }
             MyDbSave.SaveChange(db);
+        }
+
+        public string Get_WMS_Profit_Loss_List_To_Excel(List<WMS_Profit_Loss> PL_List)
+        {
+            string Path = string.Empty;
+            //设定表头
+            DataTable DT = new DataTable("Excel");
+            //设定dataTable表头
+            DataColumn myDataColumn = new DataColumn();
+            List<string> TableHeads = new List<string>();
+
+            TableHeads.Add("调整日期");
+            TableHeads.Add("产品型号");
+            TableHeads.Add("品牌");
+            TableHeads.Add("库位");
+            TableHeads.Add("调整前");
+            TableHeads.Add("调整后");
+            TableHeads.Add("差异数");
+            TableHeads.Add("差异金额");
+            foreach (string TableHead in TableHeads)
+            {
+                //TableHead
+                myDataColumn = new DataColumn();
+                myDataColumn.DataType = Type.GetType("System.String");
+                myDataColumn.ColumnName = TableHead;
+                myDataColumn.ReadOnly = true;
+                myDataColumn.Unique = false;  //获取或设置一个值，该值指示列的每一行中的值是否必须是唯一的。
+                DT.Columns.Add(myDataColumn);
+            }
+            
+            DataRow newRow;
+            foreach (var x in PL_List.OrderBy(x => x.MatSn).ToList())
+            {
+                x.Diff_Quantity = x.New_Quantity - x.Old_Quantity;
+                x.Total_Price = x.Diff_Quantity * x.Price;
+
+                newRow = DT.NewRow();
+                newRow["调整日期"] = x.Create_DT.ToString("yyyy-MM-dd");
+                newRow["产品型号"] = x.MatSn;
+                newRow["品牌"] = x.MatBrand;
+                newRow["库位"] = x.Location;
+                newRow["调整前"] = x.Old_Quantity.ToString("N0");
+                newRow["调整后"] = x.New_Quantity.ToString("N0");
+                newRow["差异数"] = x.Diff_Quantity.ToString("N0");
+                newRow["差异金额"] = x.Total_Price.ToString("N4");
+                DT.Rows.Add(newRow);
+            }
+
+            Path = MyExcel.CreateNewExcel(DT);
+            return Path;
         }
 
         public void Finish_WMS_Stocktaking_Task_Other(Guid TaskID)
@@ -2807,6 +2885,7 @@ namespace SMART.Api
             PL.Status = WMS_Profit_Loss_Status_Enum.已确定.ToString();
             db.Entry(PL).State = EntityState.Modified;
             MyDbSave.SaveChange(db);
+
         }
 
         //创建盘库任务
@@ -3999,7 +4078,7 @@ namespace SMART.Api
             string ExcelFilePath = MF.NormalUpLoadFileProcess(ExcelFile, "WMS_Track_Info/" + U.UID);
 
             //根据路径通过已存在的excel来创建HSSFWorkbook，即整个excel文档
-            HSSFWorkbook workbook = new NPOI.HSSF.UserModel.HSSFWorkbook(new FileStream(HttpRuntime.AppDomainAppPath.ToString() + ExcelFilePath, FileMode.Open, FileAccess.Read));
+            HSSFWorkbook workbook = new HSSFWorkbook(new FileStream(HttpRuntime.AppDomainAppPath.ToString() + ExcelFilePath, FileMode.Open, FileAccess.Read));
 
             //读取Excel列，装箱数据
             List<WMS_Track_Info> Line_List = new List<WMS_Track_Info>();
@@ -4062,10 +4141,23 @@ namespace SMART.Api
                     && !string.IsNullOrEmpty(Line.Item_Info) && !string.IsNullOrEmpty(Line.Logistics_Company)
                     && !string.IsNullOrEmpty(Line.Tracking_No))
                 {
+
+                    if (Line_List.Where(c => c.Tracking_No == Line.Tracking_No).Any())
+                    {
+                        throw new Exception("单号" + Line.Tracking_No + "在Excel中存在重复");
+                    }
+
                     Line_List.Add(Line);
                 }
+                
             }
-          
+
+            List<string> Tracking_No_List = Line_List.Select(x => x.Tracking_No).Distinct().ToList();
+            if (db.WMS_Track_Info.Where(x => x.LinkMainCID == U.LinkMainCID && Tracking_No_List.Contains(x.Tracking_No)).Any())
+            {
+                throw new Exception("Excel中存在与系统重复的快递单号");
+            }
+
             return Line_List;
         }
 
@@ -4081,6 +4173,11 @@ namespace SMART.Api
             }
 
             db.WMS_Track_Info.AddRange(List);
+
+            //批量发送邮件
+            ISentEmailService IS = new SentEmailService();
+            IS.Batch_Sent_To_Sales_With_WMS_Out_Finish_With_Tracking_No(List, U);
+
             MyDbSave.SaveChange(db);
         }
     }

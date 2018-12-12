@@ -55,6 +55,7 @@ namespace SMART.Api.Models
             Subject = string.Empty;
             Body = string.Empty;
             Is_Error_Info = string.Empty;
+            E_Mail = string.Empty;
             LinkMainCID = Guid.Empty;
         }
 
@@ -103,4 +104,23 @@ namespace SMART.Api.Models
         public string Subject { get; set; }
     }
 
+    [NotMapped]
+    public class SentEmail_Info
+    {
+        public SentEmail_Info()
+        {
+            mailBody = string.Empty;
+            mailSubject = string.Empty;
+            ExcelPath = string.Empty;
+            mailToAddress_List = new List<string>();
+        }
+
+        public List<string> mailToAddress_List { get; set; }
+
+        public string mailSubject { get; set; }
+
+        public string mailBody { get; set; }
+
+        public string ExcelPath { get; set; }
+    }
 }

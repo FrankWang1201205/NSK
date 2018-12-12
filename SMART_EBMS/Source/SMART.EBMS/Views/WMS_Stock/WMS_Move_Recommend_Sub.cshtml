@@ -7,10 +7,14 @@
 <table style="width:100%;">
     <tr>
         <td><h4>库位：<strong style="font-size:22px;">@MF.Location</strong></h4></td>
+        <td>&nbsp;</td>
+        <td style="text-align:right">
+            <button type="button" onclick="Create_Move_Task('@MF.Location')" class="btn btn-primary btn-sm">创建移库任务</button>
+        </td>
     </tr>
 </table>
 
-<table class="table table-condensed table-bordered text-nowrap" style="width:100%">
+<table class="table table-bordered text-nowrap" style="width:100%">
     <tr class="active">
         <td style="width:190px;">产品型号</td>
         <td style="text-align:right;width:80px;">数量</td>
@@ -29,8 +33,23 @@
                     <span>@xx</span><span>，</span>
                 }
             </td>
-
         </tr>
     }
 
 </table>
+
+<script>
+    function Create_Move_Task(Location) {
+        if (confirm("确认创建移库任务？") == false) {
+            return false;
+        }
+
+        $.post("/WMS_Stock/WMS_Move_Recommend_Sub_Create_Post/" + Location, function (result) {
+            if (result == "") {
+                alert("移库任务创建成功");
+            } else {
+                alert(result);
+            }
+        });
+    }
+</script>

@@ -170,7 +170,7 @@
     </SubMenu>
     
     <SubMenu Name="盈亏记录">
-      <TopMenu URL="WMS_Profit_Loss/WMS_Profit_Or_Loss_Check" TopName="盈亏核验" RoleTitle="公司经理,采购主管,仓管主管,财务会计"/>
+      <TopMenu URL="WMS_Profit_Loss/WMS_Profit_Or_Loss_Check" TopName="盈亏核验" RoleTitle="财务会计"/>
       <TopMenu URL="WMS_Profit_Loss/WMS_Profit_Or_Loss" TopName="盈亏记录" RoleTitle="公司经理,采购主管,仓管主管,财务会计"/>
     </SubMenu>
     
@@ -185,6 +185,11 @@
     <SubMenu Name="库位管理">
       <TopMenu URL="WMS_Loc/Loc_Search" TopName="库位查询" RoleTitle="公司经理,采购主管,仓管主管"/>
       <TopMenu URL="WMS_Loc/Loc_Update" TopName="库位更新" RoleTitle="公司经理,采购主管,仓管主管"/>
+    </SubMenu>
+    <SubMenu Name="报废处理">
+      <TopMenu URL="WMS_Waste_Record/WMS_Waste_Check_For_Accounting" TopName="财务核验" RoleTitle="公司经理,财务会计"/>
+      <TopMenu URL="WMS_Waste_Record/WMS_Waste_Check_For_Manager" TopName="经理核验" RoleTitle="公司经理"/>
+      <TopMenu URL="WMS_Waste_Record/WMS_Waste_Record_Search" TopName="报废记录" RoleTitle="公司经理,财务会计"/>
     </SubMenu>
   </FunctionTree>
 

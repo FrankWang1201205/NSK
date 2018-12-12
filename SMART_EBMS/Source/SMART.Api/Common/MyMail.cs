@@ -370,6 +370,55 @@ namespace SMART.Api
             }
         }
 
+        //发送邮件并保持邮件信息进数据库(含Excel)(循环发邮件)
+        public static void SendNetMailSingle_Save_DB_With_Excel_Foreach(List<SentEmail_Info> Info_List, SentEmail CEB)
+        {
+            SentEmailRecord R = new SentEmailRecord();
+            List<SentEmailRecord> R_List = new List<SentEmailRecord>();
+            string Is_Error_Info = string.Empty;
+            SmartdbContext db = new SmartdbContext();
+            DateTime DT = DateTime.Now;
+            foreach (var x in Info_List)
+            {
+                Is_Error_Info = string.Empty;
+                try
+                {
+                    SendNetMailSingle_With_Excel(x.mailToAddress_List, x.mailSubject, x.mailBody, CEB, x.ExcelPath);
+                }
+                catch (Exception Ex)
+                {
+                    Is_Error_Info = Ex.Message.ToString();
+                }
+
+                R = new SentEmailRecord();
+                foreach (var mailToAddress in x.mailToAddress_List)
+                {
+                    R.E_Mail = mailToAddress + "/";
+                }
+                R.Create_DT = DT;
+                R.E_Mail = R.E_Mail.Substring(0, R.E_Mail.Length - 1);
+                R.Subject = x.mailSubject;
+                R.Body = x.mailBody;
+                R.SMTP_Json = JsonConvert.SerializeObject(CEB);
+                R.LinkMainCID = CEB.MainCID;
+                if (!string.IsNullOrEmpty(Is_Error_Info))
+                {
+                    R.Is_Error = 1;
+                    R.Is_Error_Info = Is_Error_Info;
+                }
+                else
+                {
+                    R.Is_Error = 0;
+                    R.Is_Error_Info = string.Empty;
+                }
+
+                R_List.Add(R);
+            }
+            
+            db.SentEmailRecord.AddRange(R_List);
+            db.SaveChanges();
+        }
+
     }
 
 }

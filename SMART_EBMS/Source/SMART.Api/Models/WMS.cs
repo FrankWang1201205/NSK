@@ -151,6 +151,7 @@ namespace SMART.Api.Models
             Scan_Mat_Type = string.Empty;
             Link_WMS_In_No = string.Empty;
             Sup_ID = Guid.Empty;
+            Head_Type = string.Empty;
         }
 
         public Guid Head_ID { get; set; }
@@ -201,6 +202,8 @@ namespace SMART.Api.Models
 
         //驾驶员
         public string Driver_Name { get; set; }
+
+        public string Head_Type { get; set; }
     }
 
     [NotMapped]
@@ -448,6 +451,7 @@ namespace SMART.Api.Models
             Link_Head_ID = Guid.Empty;
             Receipt_DT = DateTime.Now;
             Payment_DT = DateTime.Now;
+            Max_Quantity = 0;
         }
 
         [Key]
@@ -551,6 +555,9 @@ namespace SMART.Api.Models
 
         [Required]
         public Guid Link_Head_ID { get; set; }
+
+        [NotMapped]
+        public int Max_Quantity { get; set; }
     }
 
     //扫码任务表
@@ -1740,6 +1747,7 @@ namespace SMART.Api.Models
             Payment_DT = DateTime.Now;
             Out_DT_Str = string.Empty;
             Is_Chose = 0;
+            Max_Quantity = 0;
         }
 
         [Key]
@@ -1774,6 +1782,9 @@ namespace SMART.Api.Models
         //配货数量
         [Required]
         public int Quantity { get; set; }
+
+        [NotMapped]
+        public int Max_Quantity { get; set; }
 
         //未税单价
         [Required]
@@ -2902,5 +2913,122 @@ namespace SMART.Api.Models
         public string Time_Start { get; set; }
         public string Time_End { get; set; }
         public Guid LinkMainCID { get; set; }
+    }
+}
+
+//报废记录
+namespace SMART.Api.Models
+{
+    public class WMS_Waste_Record
+    {
+        public WMS_Waste_Record()
+        {
+            Record_ID = Guid.Empty;
+            Task_No_Str = string.Empty;
+            Create_DT = DateTime.Now;
+            Create_Person = string.Empty;
+            MatName = string.Empty;
+            MatSn = string.Empty;
+            MatBrand = string.Empty;
+            MatUnit = string.Empty;
+            Quantity = 0;
+            Price_Cost = 0;
+            LinkMainCID = Guid.Empty;
+            Customer_Name = string.Empty;
+            Supplier_Name = string.Empty;
+            Link_Head_ID = Guid.Empty;
+            Auditor_A = string.Empty;
+            Audit_DT_A = DateTime.Now;
+            Auditor_B = string.Empty;
+            Audit_DT_B = DateTime.Now;
+            Status = string.Empty;
+        }
+
+        [Key]
+        public Guid Record_ID { get; set; }
+
+        [DefaultValue("")]
+        public string Task_No_Str { get; set; }
+
+        [Required]
+        public DateTime Create_DT { get; set; }
+
+        [Required]
+        public string Create_Person { get; set; }
+
+        [DefaultValue("")]
+        public string MatName { get; set; }
+
+        [Required]
+        public string MatSn { get; set; }
+
+        [DefaultValue("")]
+        public string MatBrand { get; set; }
+
+        [DefaultValue("")]
+        public string MatUnit { get; set; }
+
+        //到货数量Or调货数量
+        [Required]
+        public int Quantity { get; set; }
+
+        //单价
+        [Required]
+        public decimal Price_Cost { get; set; }
+
+        [DefaultValue("")]
+        public string Customer_Name { get; set; }
+
+        [DefaultValue("")]
+        public string Supplier_Name { get; set; }
+
+        [Required]
+        public Guid LinkMainCID { get; set; }
+    
+        public Guid Link_Head_ID { get; set; }
+
+        public string Auditor_A { get; set; }
+
+        public DateTime Audit_DT_A { get; set; }
+
+        public string Auditor_B { get; set; }
+
+        public DateTime Audit_DT_B { get; set; }
+
+        [Required]
+        public string Status { get; set; }
+    }
+
+    [NotMapped]
+    public class WMS_Waste_Record_Filter
+    {
+        public WMS_Waste_Record_Filter()
+        {
+            PageIndex = 1;
+            PageSize = 20;
+            Keyword = string.Empty;
+            Time_Start = string.Empty;
+            Time_End = string.Empty;
+            MatSn = string.Empty;
+            Task_No_Str = string.Empty;
+            Status = string.Empty;
+        }
+
+        public int PageIndex { get; set; }
+        public int PageSize { get; set; }
+        public string Keyword { get; set; }
+        public string MatSn { get; set; }
+        public string Task_No_Str { get; set; }
+        public string Time_Start { get; set; }
+        public string Time_End { get; set; }
+        public string Status { get; set; }
+        public Guid LinkMainCID { get; set; }
+    }
+
+    public enum WMS_Waste_Record_Status_Enum
+    {
+        未审核,
+        审核中,
+        已审核,
     }
 }

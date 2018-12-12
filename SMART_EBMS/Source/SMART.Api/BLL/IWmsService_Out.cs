@@ -75,16 +75,20 @@ namespace SMART.Api
         List<WMS_Out_Scan> Get_WMS_Out_Scan_List(Guid Head_ID, string MatSn);
         void Reset_WMS_Out_Scan_By_MatSn(Guid Head_ID, string MatSn);
         void WMS_Out_Task_Preview_Source_Check(Guid LineID);
+        string Get_Out_Task_List_To_Excel_With_Tracking_No(WMS_Out_Head Head, List<WMS_Out_Scan> Scan_List, List<WMS_Track> Track_List, List<WMS_Track_Info> Track_Info_List);
 
         //退货作业
         WMS_Out_Task Get_WMS_Out_Task_Item_DB(Guid HeadID);
         void Create_WMS_Task_Out_Return(WMS_Out_Head Head, List<WMS_Out_Line> Line_List, User U);
         WMS_Out_Task Get_WMS_Out_Task_Item_DB(WMS_Out_Filter MF);
+        List<WMS_In_Line> Get_WMS_In_Line_List(WMS_Out_Head Head);
+        void Update_WMS_Task_Out_Return(WMS_Out_Head Head, List<WMS_Out_Line> Line_List);
 
         //移库推荐
         PageList<WMS_Stock_Task> Get_WMS_Stock_Task_PageList_For_Move_Recommend(WMS_Stock_Filter MF);
         List<WMS_Stocktaking_Scan> Get_WMS_Stocktaking_Scan_List_For_Move(Guid TaskID);
         void Finish_WMS_Stocktaking_Scan_Recommend(Guid TaskID);
+        void Create_WMS_Move_From_WMS_Stocktaking_Scan_Recommend(Guid TaskID);
     }
 
     //送货单创建
@@ -390,7 +394,7 @@ namespace SMART.Api
 
             //执行数据持久化
             Head.Head_ID = MyGUID.NewGUID();
-            Head.Task_Bat_No = this.Auto_Create_Task_Bat_No_Out();
+            Head.Task_Bat_No = this.Auto_Create_Task_Bat_No_Out(U);
             Head.Task_Bat_No_Str = Auto_Create_Task_Bat_No_Str_Out(Head, C);
             Head.Create_DT = DateTime.Now;
             Head.Create_Person = U.UserFullName;
@@ -528,15 +532,15 @@ namespace SMART.Api
             }
         }
 
-        private long Auto_Create_Task_Bat_No_Out()
+        private long Auto_Create_Task_Bat_No_Out(User U)
         {
             long Task_Bat_No_Min = Convert.ToInt64(DateTime.Now.ToString("yyyyMMdd") + "0001");
             long Task_Bat_No_Max = Convert.ToInt64(DateTime.Now.ToString("yyyyMMdd") + "9999");
 
             long Task_Bat_No = 0;
-            if (db.WMS_Out_Head.Where(x => x.Task_Bat_No >= Task_Bat_No_Min).Any())
+            if (db.WMS_Out_Head.Where(x => x.LinkMainCID == U.LinkMainCID && x.Task_Bat_No >= Task_Bat_No_Min).Any())
             {
-                Task_Bat_No = db.WMS_Out_Head.Max(x => x.Task_Bat_No) + 1;
+                Task_Bat_No = db.WMS_Out_Head.Where(x => x.LinkMainCID == U.LinkMainCID).Max(x => x.Task_Bat_No) + 1;
             }
             else
             {
@@ -2253,7 +2257,7 @@ namespace SMART.Api
                 Head.Status = WMS_Out_Global_State_Enum.待出库.ToString();
                 db.Entry(Head).State = EntityState.Modified;
 
-                IS.Sent_To_sales_With_WMS_Out_Inspection(Head.Head_ID);
+                IS.Sent_To_Sales_With_WMS_Out_Inspection(Head.Head_ID);
             }
             else
             {
@@ -2275,7 +2279,7 @@ namespace SMART.Api
             {
                 throw new Exception("此任务单状态异常");
             }
-
+            
             if (Head.Logistics_Mode == Logistics_Out_Mode_Enum.快递.ToString() || Head.Logistics_Mode == Logistics_Out_Mode_Enum.物流.ToString())
             {
                 if (db.WMS_Track.Where(x => x.Link_Head_ID == Head.Head_ID).Any() == false)
@@ -2291,11 +2295,11 @@ namespace SMART.Api
             db.Entry(Head).State = EntityState.Modified;
 
             ISentEmailService IS = new SentEmailService();
-            IS.Sent_To_sales_With_WMS_Out_Finish(Head.Head_ID);
+            IS.Sent_To_Sales_With_WMS_Out_Finish(Head.Head_ID);
 
             MyDbSave.SaveChange(db);
         }
-
+        
         //完成出库
         public void WMS_Out_Task_To_WMS_Stock_Check_Again(Guid Head_ID)
         {
@@ -2314,7 +2318,7 @@ namespace SMART.Api
             db.Entry(Head).State = EntityState.Modified;
 
             ISentEmailService IS = new SentEmailService();
-            IS.Sent_To_sales_With_WMS_Out_Finish(Head.Head_ID);
+            IS.Sent_To_Sales_With_WMS_Out_Finish(Head.Head_ID);
             MyDbSave.SaveChange(db);
         }
 
@@ -2411,7 +2415,7 @@ namespace SMART.Api
                         };
 
             List<WMS_Track> Track_List = new List<WMS_Track>();
-            if (Head.Logistics_Mode != Logistics_Out_Mode_Enum.自送.ToString())
+            if (Head.Logistics_Mode == Logistics_Out_Mode_Enum.快递.ToString() || Head.Logistics_Mode == Logistics_Out_Mode_Enum.物流.ToString())
             {
                 Track_List = db.WMS_Track.Where(x => x.Link_Head_ID == Head.Head_ID).ToList();
             }
@@ -2434,9 +2438,10 @@ namespace SMART.Api
             else if (Head.Scan_Mat_Type == Scan_Mat_Type_Enum.按箱.ToString())
             {
                 TableHeads.Add("箱号");
-                TableHeads.Add("快递单号");
-                TableHeads.Add("重量");
             }
+
+            TableHeads.Add("快递单号");
+            TableHeads.Add("重量");
 
             foreach (string TableHead in TableHeads)
             {
@@ -2466,16 +2471,17 @@ namespace SMART.Api
                 else if (Head.Scan_Mat_Type == Scan_Mat_Type_Enum.按箱.ToString())
                 {
                     newRow["箱号"] = x.Tray_No;
-                    if (Track_List.Where(c => c.Tray_No == x.Tray_No).Any())
-                    {
-                        newRow["快递单号"] = Track_List.Where(c => c.Tray_No == x.Tray_No).FirstOrDefault().Tracking_No;
-                        newRow["重量"] = Track_List.Where(c => c.Tray_No == x.Tray_No).FirstOrDefault().Weight;
-                    }
-                    else
-                    {
-                        newRow["快递单号"] = "";
-                        newRow["重量"] = "";
-                    }
+                }
+
+                if (Track_List.Where(c => c.Tray_No == x.Tray_No).Any())
+                {
+                    newRow["快递单号"] = Track_List.Where(c => c.Tray_No == x.Tray_No).FirstOrDefault().Tracking_No;
+                    newRow["重量"] = Track_List.Where(c => c.Tray_No == x.Tray_No).FirstOrDefault().Weight;
+                }
+                else
+                {
+                    newRow["快递单号"] = "";
+                    newRow["重量"] = "";
                 }
 
                 DT.Rows.Add(newRow);
@@ -2575,6 +2581,108 @@ namespace SMART.Api
             Path = MyExcel.CreateNewExcel(DT);
             return Path;
         }
+
+        public string Get_Out_Task_List_To_Excel_With_Tracking_No(WMS_Out_Head Head, List<WMS_Out_Scan> Scan_List, List<WMS_Track> Track_List,List<WMS_Track_Info> Track_Info_List)
+        {
+            WMS_Track Track = new WMS_Track();
+            WMS_Track_Info Info = new WMS_Track_Info();
+
+            var Group = from x in Scan_List
+                        group x by new { x.MatSn, x.Tray_No } into G
+                        select new
+                        {
+                            MatSn = G.Key.MatSn,
+                            Box_Count = G.Count(),
+                            Tray_No = G.Key.Tray_No,
+                            Scan_Quantity_Sum = G.Sum(c => c.Scan_Quantity)
+                        };
+
+            string Path = string.Empty;
+            //设定表头
+            DataTable DT = new DataTable("Excel");
+            //设定dataTable表头
+            DataColumn myDataColumn = new DataColumn();
+            List<string> TableHeads = new List<string>();
+            TableHeads.Add("序号");
+            TableHeads.Add("产品型号");
+            TableHeads.Add("数量");
+
+            if (Head.Scan_Mat_Type == Scan_Mat_Type_Enum.按托.ToString())
+            {
+                TableHeads.Add("托号");
+                TableHeads.Add("箱数");
+            }
+            else if (Head.Scan_Mat_Type == Scan_Mat_Type_Enum.按箱.ToString())
+            {
+                TableHeads.Add("箱号");
+            }
+
+            TableHeads.Add("快递单号");
+            TableHeads.Add("重量");
+            TableHeads.Add("快递公司");
+            TableHeads.Add("寄件人");
+            TableHeads.Add("寄件人手机");
+            TableHeads.Add("寄件人座机");
+            TableHeads.Add("寄件人地址");
+            TableHeads.Add("收件人");
+            TableHeads.Add("收件人手机");
+            TableHeads.Add("收件人座机");
+            TableHeads.Add("收件人地址");
+
+            foreach (string TableHead in TableHeads)
+            {
+                //TableHead
+                myDataColumn = new DataColumn();
+                myDataColumn.DataType = Type.GetType("System.String");
+                myDataColumn.ColumnName = TableHead;
+                myDataColumn.ReadOnly = true;
+                myDataColumn.Unique = false;  //获取或设置一个值，该值指示列的每一行中的值是否必须是唯一的。
+                DT.Columns.Add(myDataColumn);
+            }
+
+            int i = 0;
+            DataRow newRow;
+            foreach (var x in Group)
+            {
+                i++;
+                newRow = DT.NewRow();
+                newRow["序号"] = i.ToString();
+                newRow["产品型号"] = x.MatSn;
+                newRow["数量"] = x.Scan_Quantity_Sum;
+                if (Head.Scan_Mat_Type == Scan_Mat_Type_Enum.按托.ToString())
+                {
+                    newRow["托号"] = x.Tray_No;
+                    newRow["箱数"] = x.Box_Count;
+                }
+                else if (Head.Scan_Mat_Type == Scan_Mat_Type_Enum.按箱.ToString())
+                {
+                    newRow["箱号"] = x.Tray_No;
+                }
+
+                Track = Track_List.Where(c => c.Tray_No == x.Tray_No).FirstOrDefault();
+                Track = Track == null ? new WMS_Track() : Track;
+
+                newRow["快递单号"] = Track.Tracking_No;
+                newRow["重量"] = Track.Weight;
+
+                Info = Track_Info_List.Where(c => c.Tracking_No == Track.Tracking_No).FirstOrDefault();
+                Info = Info == null ? new WMS_Track_Info() : Info;
+
+                newRow["快递公司"] = Info.Logistics_Company;
+                newRow["寄件人"] = Info.Sender_Name;
+                newRow["寄件人手机"] = Info.Sender_Phone;
+                newRow["寄件人座机"] = Info.Sender_Tel;
+                newRow["寄件人地址"] = Info.Sender_Address;
+                newRow["收件人"] = Info.Receiver_Name;
+                newRow["收件人手机"] = Info.Receiver_Phone;
+                newRow["收件人座机"] = Info.Receiver_Tel;
+                newRow["收件人地址"] = Info.Receiver_Address;
+
+                DT.Rows.Add(newRow);
+            }
+            Path = MyExcel.CreateNewExcel(DT);
+            return Path;
+        }
     }
 
     //退货作业
@@ -2644,7 +2752,7 @@ namespace SMART.Api
 
             WMS_Out_Head Head_New = new WMS_Out_Head();
             Head_New.Head_ID = MyGUID.NewGUID();
-            Head_New.Task_Bat_No = this.Auto_Create_Task_Bat_No();
+            Head_New.Task_Bat_No = this.Auto_Create_Task_Bat_No_Out(U);
             Head_New.Task_Bat_No_Str = this.Auto_Create_Task_Bat_No_Str_Out_Return(Head, Sup);
             Head_New.Create_DT = DateTime.Now;
             Head_New.Create_Person = U.UserFullName;
@@ -2810,6 +2918,83 @@ namespace SMART.Api
             return T;
         }
 
+        public List<WMS_In_Line> Get_WMS_In_Line_List(WMS_Out_Head Head)
+        {
+            List<WMS_Out_Line> List_DB = db.WMS_Out_Line.Where(x => x.Link_Head_ID == Head.Head_ID).ToList();
+            List<WMS_In_Line> In_List_DB = db.WMS_In_Line.Where(x => x.Link_Head_ID == Head.Link_WMS_Out_ID).ToList();
+
+            List<string> MatSn_List = In_List_DB.Select(x => x.MatSn).Distinct().ToList();
+            List<WMS_In_Line> List = new List<WMS_In_Line>();
+            WMS_In_Line Line = new WMS_In_Line();
+
+            foreach (var MatSn in MatSn_List)
+            {
+                Line = new WMS_In_Line();
+                Line.MatSn = MatSn;
+
+                if (List_DB.Where(c => c.MatSn == MatSn).Any())
+                {
+                    Line.Quantity = List_DB.Where(c => c.MatSn == MatSn).Sum(x => x.Quantity);
+                }
+
+                Line.Max_Quantity = In_List_DB.Where(c => c.MatSn == MatSn).Sum(x => x.Quantity);
+                List.Add(Line);
+            }
+
+            return List;
+        }
+
+        public void Update_WMS_Task_Out_Return(WMS_Out_Head Head, List<WMS_Out_Line> Line_List)
+        {
+            if (Line_List.Any() == false) { throw new Exception("未选择退货产品"); }
+
+            if (string.IsNullOrEmpty(Head.Logistics_Mode)) { throw new Exception("未选择运输方式"); }
+            
+            WMS_Out_Head Head_New = db.WMS_Out_Head.Find(Head.Head_ID);
+            Head_New.Logistics_Company = Head.Logistics_Company;
+            Head_New.Logistics_Mode = Head.Logistics_Mode;
+            Head_New.Logistics_Cost_Type = Head.Logistics_Cost_Type;
+            Head_New.Out_DT_Str = Head.Out_DT.ToString("yyyy-MM-dd");
+            Head_New.Return_Remark = Head.Return_Remark.Trim();
+            db.Entry(Head_New).State = EntityState.Modified;
+
+            List<WMS_Out_Line> Out_Line_List_DB = db.WMS_Out_Line.Where(x => x.Link_Head_ID == Head_New.Head_ID).ToList();
+            db.WMS_Out_Line.RemoveRange(Out_Line_List_DB);
+
+            List<WMS_In_Line> Line_List_DB = db.WMS_In_Line.Where(x => x.Link_Head_ID == Head_New.Link_WMS_Out_ID).ToList();
+            WMS_In_Line Line_DB = new WMS_In_Line();
+            List<WMS_Out_Line> Line_List_New = new List<WMS_Out_Line>();
+            WMS_Out_Line Line = new WMS_Out_Line();
+            int i = 0;
+            foreach (var x in Line_List)
+            {
+                i++;
+                Line_DB = Line_List_DB.Where(c => c.MatSn == x.MatSn).FirstOrDefault();
+                if (Line_DB == null) { throw new Exception("送货单中不存在此产品型号"); }
+
+                Line = new WMS_Out_Line();
+                Line.Line_ID = MyGUID.NewGUID();
+                Line.MatSn = x.MatSn;
+                Line.Quantity = x.Quantity;
+                Line.LinkMainCID = Head_New.LinkMainCID;
+                Line.Link_Head_ID = Head_New.Head_ID;
+                Line.Task_Bat_No = Head_New.Task_Bat_No;
+                Line.Task_Bat_No_Str = Head_New.Task_Bat_No_Str;
+                Line.Create_DT = Head_New.Create_DT;
+                Line.Create_Person = Head_New.Create_Person;
+                Line.Line_No = i;
+                Line.MatUnit = "PCS";
+                Line.Price = Line_DB.Price_Cost;
+                Line.Customer_Name = Head_New.Customer_Name;
+                Line.Logistics_Company = Head_New.Logistics_Company;
+                Line.Logistics_Mode = Head_New.Logistics_Mode;
+                Line.Logistics_Cost_Type = Head_New.Logistics_Cost_Type;
+                Line_List_New.Add(Line);
+            }
+
+            db.WMS_Out_Line.AddRange(Line_List_New);
+            MyDbSave.SaveChange(db);
+        }
     }
 
     //移库推荐
@@ -2981,6 +3166,30 @@ namespace SMART.Api
             db.Entry(Task).State = EntityState.Modified;
             MyDbSave.SaveChange(db);
         }
+
+        public void Create_WMS_Move_From_WMS_Stocktaking_Scan_Recommend(Guid TaskID)
+        {
+            WMS_Stock_Task Task = db.WMS_Stock_Task.Find(TaskID);
+            if (Task == null) { throw new Exception("WMS_Stock_Task is null"); }
+
+            WMS_Move Move = new WMS_Move();
+            Move.Move_ID = MyGUID.NewGUID();
+            Move.LinkMainCID = Task.LinkMainCID;
+            Move.Create_DT = DateTime.Now;
+            Move.Out_Location = Task.Location;
+            if (db.WMS_Location.Where(x => x.LinkMainCID == Task.LinkMainCID && x.Location == Move.Out_Location).Any() == false) { throw new Exception("系统中不存在该库位"); }
+
+            if (db.WMS_Stock.Where(x => x.LinkMainCID == Task.LinkMainCID && x.Location == Move.Out_Location).Any() == false) { throw new Exception("该库位无产品"); }
+
+            if (db.WMS_Move.Where(x => x.Move_ID != Move.Move_ID && x.Out_Location == Move.Out_Location && x.Move_Status == WMS_Move_Status_Enum.待移库.ToString()).Any())
+            {
+                throw new Exception("该库位已创建待移库任务");
+            }
+
+            Move.Move_Status = WMS_Move_Status_Enum.待移库.ToString();
+            db.WMS_Move.Add(Move);
+            MyDbSave.SaveChange(db);
+        }
     }
 }
 
@@ -3059,7 +3268,7 @@ namespace SMART.Api
             dt.Columns.Add("库位");
             dt.Columns.Add("作业人");
             int i = 0;
-            foreach (var x in Task_List)
+            foreach (var x in Task_List.OrderBy(x => x.Location))
             {
                 i++;
                 DataRow dr = dt.NewRow();
@@ -3741,11 +3950,12 @@ namespace SMART.Api
 
             if (Head.Status != WMS_Out_Global_State_Enum.待包装.ToString())
             {
-                throw new Exception("验货当前状态 异常");
+                throw new Exception("验货当前状态异常");
             }
 
             List<WMS_Track> OLD_Track_List = db.WMS_Track.Where(x => x.Link_Head_ID == Head.Head_ID).ToList();
             if (OLD_Track_List.Where(x => x.Tracking_No == Scan_Source).Any()) { throw new Exception("此快递单已扫描"); }
+            if (OLD_Track_List.Where(x => x.Tracking_No != Scan_Source && x.Tray_No == Tray_No).Any() && Head.Scan_Mat_Type == Scan_Mat_Type_Enum.按箱.ToString()) { throw new Exception("此箱号上已存在快递单号"); }
 
             WMS_Track T = new WMS_Track();
             T.Tracking_ID = MyGUID.NewGUID();

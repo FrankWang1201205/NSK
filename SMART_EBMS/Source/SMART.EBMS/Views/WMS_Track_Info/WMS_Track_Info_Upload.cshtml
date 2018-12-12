@@ -22,9 +22,13 @@
     <div class="DeductionDiv TopSearchDiv">
         <table style="width:100%;">
             <tr>
-                <td style="padding-left:5px;">
-                    <button type="button" onclick="Create_WMS_Task_In_Return()" class="btn btn-primary btn-sm">确认递交</button>
-                </td>
+                @if (List.Any())
+                {
+                    <td style="padding-left:5px;">
+                        <button type="button" onclick="Create_WMS_Task_In_Return()" class="btn btn-primary btn-sm">确认递交</button>
+                    </td>
+                }
+               
                 <td>
                     <input type="hidden" name="List" value="@List_Str"/>
                 </td>
@@ -81,7 +85,6 @@
                 </tr>
             }
         </tbody>
-
     </table>
 
 </form>

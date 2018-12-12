@@ -263,5 +263,21 @@ namespace SMART.EBMS.Controllers
             ViewData["MF"] = MF;
             return PartialView(List);
         }
+
+        [HttpPost]
+        public string WMS_Move_Recommend_Sub_Create_Post(string ID)
+        {
+            string result = string.Empty;
+            try
+            {
+                string Location = ID;
+                IW.Create_WMS_Move_From_WMS_Move_Recommend(Location, this.MyUser().LinkMainCID);
+            }
+            catch (Exception Ex)
+            {
+                result = Ex.Message.ToString();
+            }
+            return result;
+        }
     }
 }

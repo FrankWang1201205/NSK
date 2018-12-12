@@ -301,6 +301,22 @@ namespace SMART.EBMS.Controllers
             return result;
         }
 
+        [HttpPost]
+        public string WMS_Move_Recommend_Sub_Create_Post(Guid ID)
+        {
+            string result = string.Empty;
+            try
+            {
+                Guid Task_ID = ID;
+                IW.Create_WMS_Move_From_WMS_Stocktaking_Scan_Recommend(Task_ID);
+            }
+            catch (Exception Ex)
+            {
+                result = Ex.Message.ToString();
+            }
+            return result;
+        }
+
     }
 
 }

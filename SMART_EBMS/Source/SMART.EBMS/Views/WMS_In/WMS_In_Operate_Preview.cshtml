@@ -70,6 +70,13 @@
         <tr>
             <td class="Return_Info">@Html.Raw(MF.Return_Info)</td>
             <td>&nbsp;</td>
+            @if (Model.Head_Type == WMS_In_Head_Type_Enum.订单退货.ToString())
+            {
+                <td style="width:10px;padding-right:30px;">
+                    <button type="button" class="btn btn-info" onclick="WMS_To_Mat_Waste('@Model.Head_ID')">报废操作</button>
+                </td>
+            }
+
             <td style="width:10px;">
                 <button type="button" class="btn btn-default" onclick="ReloadPage()"><span class="glyphicon glyphicon-repeat"></span> 刷新</button>
             </td>
@@ -291,5 +298,30 @@
         </div>
     </div>
     <!--标签信息-->
+
+    <!--报废操作-->
+    <script>
+        function WMS_To_Mat_Waste(Head_ID) {
+            Reload_Mat_Waste_Context(Head_ID);
+            $('#Mat_Waste_Modal').modal({ backdrop: 'static' });
+        }
+
+        function Reload_Mat_Waste_Context(Head_ID) {
+            $("#Mat_Waste_Context").text("Loading...");
+            $("#Mat_Waste_Context").load("/WMS_In/WMS_In_Operate_Preview_Waste/@Model.Head_ID");
+        }
+    </script>
+    <div class="modal fade" id="Mat_Waste_Modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title">报废操作</h5>
+                </div>
+                <div class="modal-body" id="Mat_Waste_Context"></div>
+            </div>
+        </div>
+    </div>
+    <!--报废操作-->
 </body>
 </html>

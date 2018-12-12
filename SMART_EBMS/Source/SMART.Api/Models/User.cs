@@ -181,8 +181,6 @@ namespace SMART.Api.Models
 
         [DefaultValue("")]
         public string Remark { get; set; }
-
-
     }
 
     [NotMapped]
@@ -241,7 +239,7 @@ namespace SMART.Api.Models
         高中,
         大专,
         本科,
-        本科以上
+        本科以上,
     }
 
     public enum User_RoleTitle_Emun
@@ -254,6 +252,7 @@ namespace SMART.Api.Models
         采购专员,
         采购主管,
         财务会计,
+        财务审计,
         仓管主管,
         仓管专员,
     }

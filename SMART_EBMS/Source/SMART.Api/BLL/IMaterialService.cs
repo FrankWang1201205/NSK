@@ -19,6 +19,7 @@ namespace SMART.Api
     {
         Material Get_Material_Item_DB(Guid MatID);
         Material Get_Material_Item_With_QRCodePath(Guid MatID, int Quantity);
+        Material Get_Material_Item_With_QRCodePath(Guid LinkMainCID, string MatSn);
         Material Get_Material_Item(Guid MatID);
         Material Get_Material_Empty(Guid BID);
         string Get_Material_QRCodePath(string MatSn);
@@ -27,7 +28,6 @@ namespace SMART.Api
         PageList<Material> Get_Material_PageList(Material_Filter MF);
         PageList<Material> Get_Material_PageList_For_MySale(Material_Filter MF);
         PageList<Material> Get_Material_PageList_For_MatImg(Material_Filter MF);
-
 
         Guid Create_Material(Material Mat, User U);
         void Set_Material_Base(Guid MatID, Material Mat, User U);
@@ -38,7 +38,6 @@ namespace SMART.Api
         void Get_Material_List_Wms_Info(List<Material> RowList);
 
         void Set_Mat_CatID_Batch(List<Guid> MatIDList, Guid CatID);
-
 
         string Get_Material_Price_List_ToExcel(Material_Filter MF);
         string Get_Mat_Excel_ToExcel(List<Mat_Excel_Line> LineList);
@@ -84,6 +83,16 @@ namespace SMART.Api
             Mat = Mat == null ? new Material() : Mat;
             return Mat;
         }
+
+        public Material Get_Material_Item_With_QRCodePath(Guid LinkMainCID, string MatSn)
+        {
+            Material Mat = db.Material.Where(x => x.LinkMainCID == LinkMainCID && x.MatSn == MatSn).FirstOrDefault();
+            Mat = Mat == null ? new Material() : Mat;
+            string Str = "HONGEN/" + Mat.MatSn + "/" + Mat.Pack_Qty + "/" + Mat.MatBrand;
+            Mat.QRCode_Path = QRCode.CreateQRCode_With_No(Str, Mat.MatID);
+            return Mat;
+        }
+
 
         public Material Get_Material_Item_With_QRCodePath(Guid MatID, int Quantity)
         {

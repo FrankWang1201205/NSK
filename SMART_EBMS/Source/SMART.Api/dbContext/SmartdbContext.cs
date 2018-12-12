@@ -126,7 +126,7 @@ namespace SMART.Api
         public DbSet<WMS_In_Line_Other> WMS_In_Line_Other { get; set; }
         public DbSet<WMS_In_Scan> WMS_In_Scan { get; set; }
         public DbSet<WMS_In_Scan_Error> WMS_In_Scan_Error { get; set; }
-        
+        public DbSet<WMS_Waste_Record> WMS_Waste_Record { get; set; }
         public DbSet<WMS_Track> WMS_Track { get; set; }
         public DbSet<WMS_Track_Info> WMS_Track_Info { get; set; }
 

@@ -138,6 +138,51 @@ namespace SMART.EBMS.Controllers
                 return RedirectToAction("WMS_Out_Return_Search_Sub", new { ID = ID });
             }
         }
+
+        public ActionResult WMS_Out_Return_Search_Update(Guid ID)
+        {
+            User U = this.MyUser();
+            ViewData["User"] = U;
+            WMS_Out_Filter MF = new WMS_Out_Filter();
+            ViewData["MF"] = MF;
+            Guid Head_ID = ID;
+            WMS_Out_Head T = IW.Get_WMS_Out_Head_DB(Head_ID);
+            List<WMS_In_Line> Line_List = IW.Get_WMS_In_Line_List(T);
+            ViewData["Line_List"] = Line_List;
+            return View(T);
+        }
+
+        [HttpPost]
+        public RedirectToRouteResult WMS_Out_Return_Search_Update_Post(Guid ID, FormCollection FC)
+        {
+            User U = this.MyUser();
+            try
+            {
+                Guid HeadID = ID;
+                WMS_Out_Head Head = new WMS_Out_Head();
+                Head.Head_ID = HeadID;
+                TryUpdateModel(Head, FC);
+                List<string> MatSnList = CommonLib.StringListStrToStringArray(Request.Form["MatSn"].ToString());
+                List<WMS_Out_Line> Line_List = new List<WMS_Out_Line>();
+                WMS_Out_Line Line = new WMS_Out_Line();
+                foreach (var MatSn in MatSnList)
+                {
+                    Line = new WMS_Out_Line();
+                    Line.MatSn = MatSn;
+                    Line.Quantity = Convert.ToInt32(Request.Form["Quantity_" + MatSn].ToString());
+                    Line_List.Add(Line);
+                }
+
+                IW.Update_WMS_Task_Out_Return(Head, Line_List);
+                TempData["Success"] = "退货单更新成功！";
+                return RedirectToAction("WMS_Out_Return_Search");
+            }
+            catch (Exception Ex)
+            {
+                TempData["Error"] = Ex.Message.ToString();
+                return RedirectToAction("WMS_Out_Return_Search_Create_Sub", new { ID = ID });
+            }
+        }
     }
 
     //出库进程

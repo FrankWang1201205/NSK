@@ -140,6 +140,54 @@ namespace SMART.EBMS.Controllers
             }
         }
 
+        public ActionResult WMS_In_Return_Search_Update(Guid ID)
+        {
+            User U = this.MyUser();
+            ViewData["User"] = U;
+            List<WMS_Logistics> Logistics_List = IW.Get_WMS_Logistics_List(U.LinkMainCID);
+            ViewData["Logistics_List"] = Logistics_List;
+            WMS_In_Filter MF = new WMS_In_Filter();
+            ViewData["MF"] = MF;
+
+            Guid Head_ID = ID;
+            WMS_In_Head T = IW.Get_WMS_In_Head_DB(Head_ID);
+
+            List<WMS_Out_Line> Line_List = IW.Get_WMS_Out_Line_List(T);
+            ViewData["Line_List"] = Line_List;
+            return View(T);
+        }
+
+        [HttpPost]
+        public RedirectToRouteResult WMS_In_Return_Search_Update_Post(Guid ID, FormCollection FC)
+        {
+            User U = this.MyUser();
+            try
+            {
+                Guid HeadID = ID;
+                WMS_In_Head Head = new WMS_In_Head();
+                Head.Head_ID = HeadID;
+                TryUpdateModel(Head, FC);
+                List<string> MatSnList = CommonLib.StringListStrToStringArray(Request.Form["MatSn"].ToString());
+                List<WMS_In_Line> Line_List = new List<WMS_In_Line>();
+                WMS_In_Line Line = new WMS_In_Line();
+                foreach (var MatSn in MatSnList)
+                {
+                    Line = new WMS_In_Line();
+                    Line.MatSn = MatSn;
+                    Line.Quantity = Convert.ToInt32(Request.Form["Quantity_" + MatSn].ToString());
+                    Line_List.Add(Line);
+                }
+
+                IW.Update_WMS_Task_In_Return(Head, Line_List);
+                TempData["Success"] = "退货单更新成功！";
+                return RedirectToAction("WMS_In_Return_Search");
+            }
+            catch (Exception Ex)
+            {
+                TempData["Error"] = Ex.Message.ToString();
+                return RedirectToAction("WMS_In_Return_Search_Update", new { ID = ID });
+            }
+        }
     }
 
     //入库进程

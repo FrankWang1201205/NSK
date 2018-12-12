@@ -386,7 +386,7 @@ namespace SMART.EBMS.Controllers
             {
                 TempData["Error"] = Ex.Message.ToString();
             }
-            return RedirectToAction("WMS_Move_Process_Operate",new { ID= ID });
+            return RedirectToAction("WMS_Move_Process_Operate", new { ID = ID });
         }
 
         [HttpPost]
@@ -403,6 +403,28 @@ namespace SMART.EBMS.Controllers
                 result = Ex.Message.ToString();
             }
             return result;
+        }
+        
+        public ActionResult WMS_Move_Task_Preview_To_PDF_By_MatSn()
+        {
+            User U = this.MyUser();
+            ViewData["User"] = U;
+            Material M = new Material();
+            try
+            {
+                string MatSn = Request["MatSn"] == null ? string.Empty : Request["MatSn"].Trim();
+                M = IM.Get_Material_Item_With_QRCodePath(U.LinkMainCID, MatSn);
+            }
+            catch
+            {
+                throw new Exception("系统基础资料中无此型号");
+            }
+
+            string text = string.Empty;
+            try { text = IP.Create_PDF_For_Material_Label(M); }
+            catch (Exception e) { throw new Exception(e.Message); }
+            Response.AddHeader("content-disposition", "filename=" + M.MatID + "[标签打印].pdf");
+            return File(text, "application/pdf");
         }
 
     }

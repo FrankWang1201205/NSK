@@ -198,6 +198,7 @@
     <Compile Include="Controllers\WMS_InController.cs" />
     <Compile Include="Controllers\WMS_LocController.cs" />
     <Compile Include="Controllers\WMS_Out_StocktakingController.cs" />
+    <Compile Include="Controllers\WMS_Waste_RecordController.cs" />
     <Compile Include="Controllers\WMS_Task_In_ReturnController.cs" />
     <Compile Include="Controllers\WMS_Task_Out_ReturnController.cs" />
     <Compile Include="Controllers\WMS_Task_OutController.cs" />
@@ -793,6 +794,13 @@
     <Content Include="Views\WMS_Stock\WMS_Move_Recommend.cshtml" />
     <Content Include="Views\WMS_Stock\WMS_Move_Recommend_Sub.cshtml" />
     <Content Include="Views\WMS_Out\WMS_Out_Task_Preview_Pick_Scan_Other.cshtml" />
+    <Content Include="Views\WMS_Task_In_Return\WMS_In_Return_Search_Update.cshtml" />
+    <Content Include="Views\WMS_Task_Out_Return\WMS_Out_Return_Search_Update.cshtml" />
+    <Content Include="Views\WMS_In\WMS_In_Operate_Preview_Waste.cshtml" />
+    <Content Include="Views\WMS_Waste_Record\_TopMenu.cshtml" />
+    <Content Include="Views\WMS_Waste_Record\WMS_Waste_Record_Search.cshtml" />
+    <Content Include="Views\WMS_Waste_Record\WMS_Waste_Check_For_Manager.cshtml" />
+    <Content Include="Views\WMS_Waste_Record\WMS_Waste_Check_For_Accounting.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SMART.Api\SMART.Api.csproj">

@@ -29,6 +29,7 @@
             <td style="text-align:right; width:100px;">箱数</td>
             <td style="text-align:right; width:100px;">产品数</td>
             <td>&nbsp;</td>
+            <td style="width:70px;">&nbsp;</td>
         </tr>
        @foreach (var x in Model.OrderBy(x => x.Quantity_Sum))
        {
@@ -49,6 +50,10 @@
                 </td>             
                    <td style="text-align:right">@x.Quantity_Sum.ToString("N0")</td>
                 <td>&nbsp;</td>
+                <td>
+                    <a href="~/WMS_Up/WMS_Move_Task_Preview_To_PDF_By_MatSn?MatSn=@x.MatSn" target="_blank">整箱标签打印</a>
+                </td>
+               
             </tr>
         }
 
@@ -62,9 +67,10 @@
                 }
             </td>
             <td style="text-align:right;">@Model.Sum(c => c.Quantity_Sum).ToString("N0")</td>
-            <td>&nbsp;</td>
+            <td colspan="2">&nbsp;</td>
         </tr>
     </table>
+
     <!--产品二维码-->
     <script>
         function Show_Mat_Label_Modal(MatSn) {
