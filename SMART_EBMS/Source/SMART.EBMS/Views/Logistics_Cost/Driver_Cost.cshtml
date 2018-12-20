@@ -22,7 +22,7 @@
     <form id="MyForm" action="~/Logistics_Cost/Driver_Cost" method="get">
         <table style="width:100%;">
             <tr>
-                <td style="width:110px;">
+                <td style="width:80px;">
                     <select name="TrackingType" id="TrackingType" class="form-control input-sm" onchange="SubmitPageIndex('1')">
                         <option value="">类型</option>
                         @foreach (var x in Enum.GetNames(typeof(Tracking_Type_Enum)))
@@ -51,8 +51,16 @@
                     <input autocomplete="off" style="width:90px;" class="form-control input-sm Time_Select" name="Time_End" type="text" id="Time_End" placeholder="结束时间" value="@MF.ED" />
                 </td>
 
-                <td style="width:250px; padding-left:5px;">
-                    <div class="input-group input-group-sm" style="width: 250px; ">
+                <td style="width:10px;padding-left:5px;">
+                    <input style="width:120px;" class="form-control input-sm" name="Com_Name" type="text" id="Com_Name" placeholder="客户" value="@MF.Com_Name" />
+                </td>
+
+                <td style="width:10px;padding-left:5px;">
+                    <input style="width:100px;" class="form-control input-sm" name="Tracking_No" type="text" id="Tracking_No" placeholder="车牌号" value="@MF.Tracking_No" />
+                </td>
+
+                <td style="width:150px; padding-left:5px;">
+                    <div class="input-group input-group-sm" style="width: 150px; ">
                         <input type="text" name="Keyword" id="Keyword" placeholder="驾驶员" value="@MF.Keyword" class="form-control ">
                         <div class="input-group-btn">
                             <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
@@ -60,9 +68,9 @@
                     </div>
                 </td>
 
-                <td style="padding-left:15px;">
+                @*<td style="padding-left:15px;">
                     <a class="btn btn-default btn-sm" href="~/Logistics_Cost/Driver_Cost_To_Excel?Time_Start=@MF.SD&Time_End=@MF.ED&Keyword=@MF.Keyword&TrackingType=@MF.TrackingType"><span class="glyphicon glyphicon-list-alt"></span> 导出清单</a>
-                </td>
+                </td>*@
 
                 <td style="float:right;width:30px;">&nbsp;</td>
               
@@ -83,6 +91,7 @@
             <th style="width:70px;text-align:right">公里数</th>
             <th style="width:70px;text-align:right">金额</th>
             <th style="width:80px;">创建时间</th>
+            <th style="width:200px;">客户</th>
             <th>&nbsp;</th>
         </tr>
     </thead>
@@ -96,6 +105,7 @@
                 <td style="vertical-align:top;text-align:right">@x.Kilometers.ToString("N2")</td>
                 <td style="vertical-align:top;text-align:right">@x.Logistics_Cost.ToString("N2")</td>
                 <td style="vertical-align:top;">@x.Create_DT.ToString("yyyy-MM-dd")</td>
+                <td style="vertical-align:top;" title="@x.Link_Head_Com_Name">@x.Link_Head_Com_Name</td>
                 <td>&nbsp;</td>
             </tr>
         }

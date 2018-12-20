@@ -24,7 +24,6 @@ namespace SMART.Api
         WMS_In_Task Get_WMS_In_Task_Item(WMS_In_Filter MF);
         List<WMS_In_Line> Get_WMS_In_Line_List(Guid Head_ID);
         List<WMS_In_Line> Get_WMS_In_Line_List_By_MatSn(Guid Head_ID, string MatSn);
-        List<WMS_In_Line> Get_WMS_In_Line_List_For_Waste(Guid Head_ID);
         List<WMS_In_Scan> Get_WMS_In_Scan_List_By_MatSn(Guid Head_ID, string MatSn);
         List<WMS_In_Scan> Get_WMS_In_Scan_List_By_Tray_No(Guid Head_ID, string Tray_No);
         WMS_In_Head Get_WMS_In_Head_DB(Guid Head_ID);
@@ -32,8 +31,6 @@ namespace SMART.Api
         WMS_In_Line Get_WMS_In_Line_Item(Guid LineID);
         WMS_In_Line Get_WMS_In_Line_Item(Guid Head_ID, string MatSn);
         WMS_In_Line Get_WMS_In_Line_Item(Guid Head_ID, int Quantity);
-        void Set_WMS_Waste_Record(Guid Head_ID, List<WMS_In_Line> Line_List);
-        string Get_WMS_Waste_Record_To_Excel_From_WMS_In_Head(List<WMS_Waste_Record> Waste_Record_List);
         void Set_WMS_In_Line_Other_Item(Guid LineID, string MatSn);
         string Get_Task_List_To_Excel_Temp(Guid Head_ID);
         string Get_Task_List_To_Excel_Temp_By_TrayNo(Guid Head_ID, string Tray_No);
@@ -94,10 +91,6 @@ namespace SMART.Api
         void Create_WMS_Task_In_Return(WMS_In_Head Head, List<WMS_In_Line> Line_List, User U);
         List<WMS_Out_Line> Get_WMS_Out_Line_List(WMS_In_Head Head);
         void Update_WMS_Task_In_Return(WMS_In_Head Head, List<WMS_In_Line> Line_List);
-
-        //报废处理
-        PageList<WMS_Waste_Record> Get_WMS_Waste_Record_PageList(WMS_Waste_Record_Filter MF);
-        void Confirm_WMS_Waste_Record_Item(Guid Line_ID, User U);
     }
 
     //收货作业
@@ -345,46 +338,19 @@ namespace SMART.Api
 
             List<WMS_In_Scan> List_Scan = db.WMS_In_Scan.Where(x => x.Link_Head_ID == Head.Head_ID).ToList();
 
-            //报废处理
-            List<WMS_Waste_Record> Record_List = db.WMS_Waste_Record.Where(x => x.Link_Head_ID == Head.Head_ID).ToList();
-            WMS_Waste_Record Record = new WMS_Waste_Record();
-
             int i = 0;
             WMS_In_Task_Line T_Line = new WMS_In_Task_Line();
             List<WMS_In_Scan> List_Scan_Sub = new List<WMS_In_Scan>();
             foreach (var x in Line_Group.OrderBy(x => x.Line_No).ToList())
             {
-                Record = Record_List.Where(c => c.MatSn == x.MatSn).FirstOrDefault();
-                if (Record != null)
-                {
-                    if (Record.Quantity < x.Quantity_Sum)
-                    {
-                        i++;
-                        T_Line = new WMS_In_Task_Line();
-                        T_Line.Line_No = i;
-                        T_Line.MatSn = x.MatSn;
-                        T_Line.Line_Count = x.Line_Count;
-                        T_Line.Quantity_Sum = x.Quantity_Sum - Record.Quantity;
-                        T.Line_List.Add(T_Line);
-                    }
-                }
-                else
-                {
-                    i++;
-                    T_Line = new WMS_In_Task_Line();
-                    T_Line.Line_No = i;
-                    T_Line.MatSn = x.MatSn;
-                    T_Line.Line_Count = x.Line_Count;
-                    T_Line.Quantity_Sum = x.Quantity_Sum;
-                    T.Line_List.Add(T_Line);
-                }
-            }
-
-            foreach (var x in T.Line_List)
-            {
+                i++;
+                T_Line = new WMS_In_Task_Line();
+                T_Line.Line_No = i;
+                T_Line.MatSn = x.MatSn;
+                T_Line.Line_Count = x.Line_Count;
+                T_Line.Quantity_Sum = x.Quantity_Sum;
                 List_Scan_Sub = List_Scan.Where(c => c.MatSn == x.MatSn).ToList();
                 T_Line.Quantity_Sum_Scan = List_Scan_Sub.Sum(c => c.Scan_Quantity);
-
                 if (Head.Scan_Mat_Type == Scan_Mat_Type_Enum.按托.ToString())
                 {
                     if (List_Scan_Sub.Where(c => c.Package_Type == WMS_Stock_Package_Enum.整箱.ToString()).Any())
@@ -426,7 +392,7 @@ namespace SMART.Api
                     T_Line.Tray_No_List_Str += Tray + ",";
                 }
                 T_Line.Tray_No_List_Str = CommonLib.Trim_End_Char(T_Line.Tray_No_List_Str);
-                
+                T.Line_List.Add(T_Line);
             }
 
             //获取未匹配扫码信息
@@ -595,32 +561,6 @@ namespace SMART.Api
             return List;
         }
 
-        public List<WMS_In_Line> Get_WMS_In_Line_List_For_Waste(Guid Head_ID)
-        {
-            List<WMS_In_Line> List_DB = db.WMS_In_Line.Where(x => x.Link_Head_ID == Head_ID).ToList();
-            List<WMS_Waste_Record> Waste_Record_List_DB = db.WMS_Waste_Record.Where(x => x.Link_Head_ID == Head_ID).ToList();
-
-            List<string> MatSn_List = List_DB.Select(x => x.MatSn).Distinct().ToList();
-            List<WMS_In_Line> List = new List<WMS_In_Line>();
-            WMS_In_Line Line = new WMS_In_Line();
-
-            foreach (var MatSn in MatSn_List)
-            {
-                Line = new WMS_In_Line();
-                Line.MatSn = MatSn;
-
-                if (Waste_Record_List_DB.Where(c => c.MatSn == MatSn).Any())
-                {
-                    Line.Quantity = Waste_Record_List_DB.Where(c => c.MatSn == MatSn).Sum(x => x.Quantity);
-                }
-
-                Line.Max_Quantity = List_DB.Where(c => c.MatSn == MatSn).Sum(x => x.Quantity);
-                List.Add(Line);
-            }
-
-            return List;
-        }
-
         public List<WMS_In_Scan> Get_WMS_In_Scan_List_By_MatSn(Guid Head_ID, string MatSn)
         {
             List<WMS_In_Scan> List_Scan = db.WMS_In_Scan.Where(x => x.Link_Head_ID == Head_ID && x.MatSn == MatSn).OrderBy(x => x.Create_DT).ToList();
@@ -679,108 +619,108 @@ namespace SMART.Api
             return Line;
         }
 
-        public void Set_WMS_Waste_Record(Guid Head_ID, List<WMS_In_Line> Line_List)
-        {
-            if (Line_List.Any() == false) { throw new Exception("未选择产品型号"); }
+        //public void Set_WMS_Waste_Operate(Guid Head_ID, List<WMS_In_Line> Line_List)
+        //{
+        //    if (Line_List.Any() == false) { throw new Exception("未选择产品型号"); }
 
-            WMS_In_Head Head = db.WMS_In_Head.Find(Head_ID);
-            if (Head == null) { throw new Exception("WMS_In_Head is null"); }
+        //    WMS_In_Head Head = db.WMS_In_Head.Find(Head_ID);
+        //    if (Head == null) { throw new Exception("WMS_In_Head is null"); }
 
-            if (db.WMS_Stock.Where(x => x.Wms_In_Head_ID == Head.Head_ID).Any())
-            {
-                throw new Exception("此任务单已完成入库，请勿操作");
-            }
+        //    if (db.WMS_Stock.Where(x => x.Wms_In_Head_ID == Head.Head_ID).Any())
+        //    {
+        //        throw new Exception("此任务单已完成入库，请勿操作");
+        //    }
 
-            List<WMS_Waste_Record> Waste_Record_List_DB = db.WMS_Waste_Record.Where(x => x.Link_Head_ID == Head.Head_ID).ToList();
-            if (Waste_Record_List_DB.Any())
-            {
-                db.WMS_Waste_Record.RemoveRange(Waste_Record_List_DB);
-            }
+        //    List<WMS_Waste_Operate> Waste_Record_List_DB = db.WMS_Waste_Operate.Where(x => x.Link_Head_ID == Head.Head_ID).ToList();
+        //    if (Waste_Record_List_DB.Any())
+        //    {
+        //        db.WMS_Waste_Operate.RemoveRange(Waste_Record_List_DB);
+        //    }
 
-            List<WMS_In_Line> Line_List_DB= db.WMS_In_Line.Where(x => x.Link_Head_ID == Head.Head_ID).ToList();
-            WMS_In_Line Line_DB = new WMS_In_Line();
+        //    List<WMS_In_Line> Line_List_DB= db.WMS_In_Line.Where(x => x.Link_Head_ID == Head.Head_ID).ToList();
+        //    WMS_In_Line Line_DB = new WMS_In_Line();
 
-            DateTime Create_DT = DateTime.Now;
-            WMS_Waste_Record Line = new WMS_Waste_Record();
-            List<WMS_Waste_Record> List = new List<WMS_Waste_Record>();
-            foreach (var x in Line_List)
-            {
-                Line = new WMS_Waste_Record();
-                Line.Record_ID = MyGUID.NewGUID();
-                Line.MatSn = x.MatSn;
-                Line.Quantity = x.Quantity;
-                Line.LinkMainCID = Head.LinkMainCID;
-                Line.Link_Head_ID = Head.Head_ID;
-                Line.Create_DT = Create_DT;
-                Line.Create_Person = Head.Work_Person;
-                Line.Customer_Name = Head.Supplier_Name;
-                Line.Task_No_Str = Head.Task_Bat_No_Str;
-                Line_DB = Line_List_DB.Where(c => c.MatSn == x.MatSn).FirstOrDefault();
-                if (Line_DB == null) { throw new Exception("Line_DB is null"); }
+        //    DateTime Create_DT = DateTime.Now;
+        //    WMS_Waste_Operate Line = new WMS_Waste_Operate();
+        //    List<WMS_Waste_Operate> List = new List<WMS_Waste_Operate>();
+        //    foreach (var x in Line_List)
+        //    {
+        //        Line = new WMS_Waste_Operate();
+        //        Line.Record_ID = MyGUID.NewGUID();
+        //        Line.MatSn = x.MatSn;
+        //        Line.Quantity = x.Quantity;
+        //        Line.LinkMainCID = Head.LinkMainCID;
+        //        Line.Link_Head_ID = Head.Head_ID;
+        //        Line.Create_DT = Create_DT;
+        //        Line.Create_Person = Head.Work_Person;
+        //        Line.Customer_Name = Head.Supplier_Name;
+        //        Line.Task_No_Str = Head.Task_Bat_No_Str;
+        //        Line_DB = Line_List_DB.Where(c => c.MatSn == x.MatSn).FirstOrDefault();
+        //        if (Line_DB == null) { throw new Exception("Line_DB is null"); }
 
-                Line.Price_Cost = Line_DB.Price_Cost;
-                Line.MatBrand = Line_DB.MatBrand;
-                Line.MatName = Line_DB.MatName;
-                Line.MatUnit = Line_DB.MatUnit;
-                Line.Status = WMS_Waste_Record_Status_Enum.未审核.ToString();
-                List.Add(Line);
-            }
+        //        Line.Price_Cost = Line_DB.Price_Cost;
+        //        Line.MatBrand = Line_DB.MatBrand;
+        //        Line.MatName = Line_DB.MatName;
+        //        Line.MatUnit = Line_DB.MatUnit;
+        //        Line.Status = WMS_Waste_Head_Status_Enum.未审核.ToString();
+        //        List.Add(Line);
+        //    }
 
-            db.WMS_Waste_Record.AddRange(List);
+        //    db.WMS_Waste_Operate.AddRange(List);
 
-            ISentEmailService IS = new SentEmailService();
-            IS.Sent_To_Accounting_Staff_With_WMS_Waste_Record(Head, List);
-            MyDbSave.SaveChange(db);
-        }
+        //    ISentEmailService IS = new SentEmailService();
+        //    IS.Sent_To_Accounting_Staff_With_WMS_Waste_Operate(Head, List);
+        //    MyDbSave.SaveChange(db);
+        //}
 
-        public string Get_WMS_Waste_Record_To_Excel_From_WMS_In_Head(List<WMS_Waste_Record> Waste_Record_List)
-        {
-            string Path = string.Empty;
-            //设定表头
-            DataTable DT = new DataTable("Excel");
-            //设定dataTable表头
-            DataColumn myDataColumn = new DataColumn();
-            List<string> TableHeads = new List<string>();
-            TableHeads.Add("产品名称");
-            TableHeads.Add("品牌");
-            TableHeads.Add("产品型号");
-            TableHeads.Add("数量");
-            TableHeads.Add("单价");
-            TableHeads.Add("创建时间");
-            TableHeads.Add("创建人");
-            TableHeads.Add("任务编号");
+        //public string Get_WMS_Waste_Operate_To_Excel_From_WMS_In_Head(List<WMS_Waste_Operate> Waste_Record_List)
+        //{
+        //    string Path = string.Empty;
+        //    //设定表头
+        //    DataTable DT = new DataTable("Excel");
+        //    //设定dataTable表头
+        //    DataColumn myDataColumn = new DataColumn();
+        //    List<string> TableHeads = new List<string>();
+        //    TableHeads.Add("产品名称");
+        //    TableHeads.Add("品牌");
+        //    TableHeads.Add("产品型号");
+        //    TableHeads.Add("数量");
+        //    TableHeads.Add("单价");
+        //    TableHeads.Add("创建时间");
+        //    TableHeads.Add("创建人");
+        //    TableHeads.Add("任务编号");
 
-            foreach (string TableHead in TableHeads)
-            {
-                //TableHead
-                myDataColumn = new DataColumn();
-                myDataColumn.DataType = Type.GetType("System.String");
-                myDataColumn.ColumnName = TableHead;
-                myDataColumn.ReadOnly = true;
-                myDataColumn.Unique = false;  //获取或设置一个值，该值指示列的每一行中的值是否必须是唯一的。
-                DT.Columns.Add(myDataColumn);
-            }
+        //    foreach (string TableHead in TableHeads)
+        //    {
+        //        //TableHead
+        //        myDataColumn = new DataColumn();
+        //        myDataColumn.DataType = Type.GetType("System.String");
+        //        myDataColumn.ColumnName = TableHead;
+        //        myDataColumn.ReadOnly = true;
+        //        myDataColumn.Unique = false;  //获取或设置一个值，该值指示列的每一行中的值是否必须是唯一的。
+        //        DT.Columns.Add(myDataColumn);
+        //    }
 
-            int i = 0;
-            DataRow newRow;
-            foreach (var x in Waste_Record_List)
-            {
-                i++;
-                newRow = DT.NewRow();
-                newRow["产品名称"] = x.MatName;
-                newRow["品牌"] = x.MatBrand;
-                newRow["产品型号"] = x.MatSn;
-                newRow["数量"] = x.Quantity;
-                newRow["单价"] = x.Price_Cost;
-                newRow["创建时间"] = x.Create_DT.ToString("yyyy/MM/dd");
-                newRow["创建人"] = x.Create_Person;
-                newRow["任务编号"] = x.Task_No_Str;
-                DT.Rows.Add(newRow);
-            }
+        //    int i = 0;
+        //    DataRow newRow;
+        //    foreach (var x in Waste_Record_List)
+        //    {
+        //        i++;
+        //        newRow = DT.NewRow();
+        //        newRow["产品名称"] = x.MatName;
+        //        newRow["品牌"] = x.MatBrand;
+        //        newRow["产品型号"] = x.MatSn;
+        //        newRow["数量"] = x.Quantity;
+        //        newRow["单价"] = x.Price_Cost;
+        //        newRow["创建时间"] = x.Create_DT.ToString("yyyy/MM/dd");
+        //        newRow["创建人"] = x.Create_Person;
+        //        newRow["任务编号"] = x.Task_No_Str;
+        //        DT.Rows.Add(newRow);
+        //    }
 
-            Path = MyExcel.CreateNewExcel(DT);
-            return Path;
-        }
+        //    Path = MyExcel.CreateNewExcel(DT);
+        //    return Path;
+        //}
 
         public void Set_WMS_In_Line_Other_Item(Guid LineID, string MatSn)
         {
@@ -1789,12 +1729,6 @@ namespace SMART.Api
                && db.WMS_Track.Where(x => x.Link_Head_ID == Head.Head_ID).Any() == false)
             {
                 throw new Exception("Error - 未扫描快递单，无法发送");
-            }
-
-            //报废处理
-            if (db.WMS_Waste_Record.Where(x => x.Link_Head_ID == Head.Head_ID && x.Auditor_B == "").Any())
-            {
-                throw new Exception("存在报废产品未核验完成");
             }
 
             List<string> Error_Status_List = new List<string>();
@@ -3190,6 +3124,7 @@ namespace SMART.Api
                                  MatSn = G.Key,
                                  Quantity_Sum = G.Sum(c => c.Quantity),
                                  Line_No = G.FirstOrDefault().Line_No,
+                                 Price_Cost = G.FirstOrDefault().Price_Cost,
                              };
 
 
@@ -3202,6 +3137,7 @@ namespace SMART.Api
                 T_Line.Line_No = i;
                 T_Line.MatSn = x.MatSn;
                 T_Line.Quantity_Sum = x.Quantity_Sum;
+                T_Line.Unit_Price = x.Price_Cost;
                 T.Line_List.Add(T_Line);
             }
 
@@ -3342,6 +3278,7 @@ namespace SMART.Api
                 }
 
                 Out_Line.Max_Quantity = Out_List_DB.Where(c => c.MatSn == MatSn).Sum(x => x.Quantity);
+                Out_Line.Price = Out_List_DB.Where(c => c.MatSn == MatSn).FirstOrDefault().Price;
                 Out_List.Add(Out_Line);
             }
 
@@ -3411,80 +3348,6 @@ namespace SMART.Api
             }
 
             db.WMS_In_Line.AddRange(Line_List_New);
-            MyDbSave.SaveChange(db);
-        }
-    }
-
-    //报废处理
-    public partial class WmsService : IWmsService
-    {
-        public PageList<WMS_Waste_Record> Get_WMS_Waste_Record_PageList(WMS_Waste_Record_Filter MF)
-        {
-            var query = db.WMS_Waste_Record.Where(x => x.LinkMainCID == MF.LinkMainCID).AsQueryable();
-
-            if (!string.IsNullOrEmpty(MF.Task_No_Str))
-            {
-                query = query.Where(x => x.Task_No_Str.Contains(MF.Task_No_Str)).AsQueryable();
-            }
-
-            if (!string.IsNullOrEmpty(MF.MatSn))
-            {
-                query = query.Where(x => x.MatSn.Contains(MF.MatSn)).AsQueryable();
-            }
-
-            if (!string.IsNullOrEmpty(MF.Status))
-            {
-                query = query.Where(x => x.Status == MF.Status).AsQueryable();
-            }
-
-            if (!string.IsNullOrEmpty(MF.Time_Start) && !string.IsNullOrEmpty(MF.Time_End))
-            {
-                DateTime Start_DT = Convert.ToDateTime((MF.Time_Start));
-                DateTime End_DT = Convert.ToDateTime((MF.Time_End));
-                End_DT = End_DT.AddDays(1);
-                if (DateTime.Compare(Start_DT, End_DT) > 0)
-                {
-                    throw new Exception("起始时间不可大于结束时间！");
-                }
-
-                query = query.Where(x => x.Create_DT >= Start_DT && x.Create_DT <= End_DT).AsQueryable();
-            }
-
-            PageList<WMS_Waste_Record> PList = new PageList<WMS_Waste_Record>();
-            PList.PageIndex = MF.PageIndex;
-            PList.PageSize = MF.PageSize;
-            PList.TotalRecord = query.Count();
-            PList.Rows = query.OrderByDescending(x => x.Create_DT).Skip((MF.PageIndex - 1) * MF.PageSize).Take(MF.PageSize).ToList();
-
-            return PList;
-        }
-
-        public void Confirm_WMS_Waste_Record_Item(Guid Line_ID, User U)
-        {
-            WMS_Waste_Record Record = db.WMS_Waste_Record.Find(Line_ID);
-            if (Record == null) { throw new Exception("WMS_Waste_Record is null"); }
-
-            if (Record.Status == WMS_Waste_Record_Status_Enum.已审核.ToString())
-            {
-                throw new Exception("该报废记录已审核，请勿重复操作");
-            }
-
-            if (Record.Status== WMS_Waste_Record_Status_Enum.未审核.ToString())
-            {
-                Record.Auditor_A = U.UserFullName;
-                Record.Audit_DT_A = DateTime.Now;
-                Record.Status = WMS_Waste_Record_Status_Enum.审核中.ToString();
-                ISentEmailService IS = new SentEmailService();
-                IS.Sent_To_Manager_With_WMS_Waste_Record(Record);
-            }
-            else if(Record.Status == WMS_Waste_Record_Status_Enum.审核中.ToString())
-            {
-                Record.Auditor_B = U.UserFullName;
-                Record.Audit_DT_B = DateTime.Now;
-                Record.Status = WMS_Waste_Record_Status_Enum.已审核.ToString();
-            }
-
-            db.Entry(Record).State = EntityState.Modified;
             MyDbSave.SaveChange(db);
         }
     }

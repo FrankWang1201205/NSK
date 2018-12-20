@@ -67,6 +67,7 @@ namespace SMART.Api
             CellStyle.RightBorderColor = HSSFColor.Black.Index;
             CellStyle.TopBorderColor = HSSFColor.Black.Index;
             CellStyle.SetFont(font);
+
             // handling header.
             foreach (DataColumn column in table.Columns)
             {
@@ -84,6 +85,7 @@ namespace SMART.Api
 
                     foreach (DataColumn col in table.Columns)
                     {
+                        
                         try
                         {
                             if (row[col].ToString().StartsWith("0."))
@@ -112,7 +114,7 @@ namespace SMART.Api
                 //获取当前列的宽度，然后对比本列的长度，取最大值
                 for (int columnNum = 0; columnNum < table.Columns.Count; columnNum++)
                 {
-                    int columnWidth = sheet.GetColumnWidth(columnNum) / 320;
+                    int columnWidth = sheet.GetColumnWidth(columnNum) / 256;
                     for (int rowNum = 0; rowNum <= sheet.LastRowNum; rowNum++)
                     {
                         IRow currentRow;
@@ -130,15 +132,23 @@ namespace SMART.Api
                         {
                             ICell currentCell = currentRow.GetCell(columnNum);
                             int length = Encoding.UTF8.GetBytes(currentCell.ToString()).Length;
+                          
                             if (columnWidth < length)
                             {
                                 columnWidth = length;
                             }
                         }
                     }
-                    sheet.SetColumnWidth(columnNum, columnWidth * 320);
-                }
 
+                    if (columnWidth * 256 < 255 * 256)
+                    {
+                        sheet.SetColumnWidth(columnNum, columnWidth * 256);
+                    }
+                    else
+                    {
+                        sheet.SetColumnWidth(columnNum, 255 * 256);
+                    }
+                }
             }
 
             workbook.Write(ms);

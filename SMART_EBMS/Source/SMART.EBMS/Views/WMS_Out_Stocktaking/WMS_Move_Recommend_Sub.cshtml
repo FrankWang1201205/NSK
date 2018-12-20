@@ -19,6 +19,7 @@
         <tr>
             <th style="width:200px;">型号</th>
             <th style="width:70px;text-align:right">数量</th>
+            <th style="width:70px;text-align:right">装箱数</th>
             <th>推荐移库目标信息</th>
         </tr>
     </thead>
@@ -28,16 +29,51 @@
             <tr>
                 <td style="vertical-align:top;" class="MatSn_Font">@x.MatSn</td>
                 <td style="vertical-align:top;text-align:right">@x.Scan_Quantity.ToString("N0")</td>
-                <td style="vertical-align:top;">@x.Recommend_Info</td>
+                <td style="vertical-align:top;text-align:right">@x.Pack_Qty.ToString("N0")</td>
+                <td style="vertical-align:top;">
+                    @foreach (var xx in x.Recommend_Info_List)
+                    {
+                       <span>@xx.Location (@xx.Quantity)，</span>
+                    }
+                </td>
             </tr>
         }
     </tbody>
 </table>
 
+@*<table class="table table-bordered text-nowrap" style="width:100%;">
+
+        @foreach (var x in Model)
+        {
+            <tr>
+                <th style="width:200px;">型号</th>
+                <th style="width:70px;text-align:right">数量</th>
+                <th style="width:70px;text-align:right">装箱数</th>
+            </tr>
+            <tr>
+                <td style="vertical-align:top;" class="MatSn_Font">@x.MatSn</td>
+                <td style="vertical-align:top;text-align:right">@x.Scan_Quantity.ToString("N0")</td>
+                <td style="vertical-align:top;text-align:right">@x.Pack_Qty.ToString("N0")</td>
+            </tr>
+            <tr>
+                <td style="vertical-align:top;height:35px;" colspan="3">
+                    @foreach (var xx in x.Recommend_Info_List)
+                    {
+                        <a onclick="Create_Move_Task('@Task.Task_ID','@xx.Location')">
+                            <input type="checkbox" id="Location_@xx.Location" name="Location_@xx.Location" style="cursor:pointer" />
+                            <label for="Location_@xx.Location" style="padding-right:20px;cursor:pointer">@xx.Location (@xx.Quantity)</label>
+                        </a>
+                    }
+                </td>
+
+            </tr>
+        }
+</table>*@
+
 <table class="FormTable_Sim" style="width:100%;">
     <tr>
         <td style="text-align:center">
-            <button type="button" onclick="Finish_Recommend('@Task.Task_ID')" class="btn btn-info btn-sm">已接受推荐</button>
+            <button type="button" onclick="Finish_Recommend('@Task.Task_ID')" class="btn btn-info btn-sm">不接受推荐</button>
         </td>
     </tr>
 </table>

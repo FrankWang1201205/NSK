@@ -207,7 +207,9 @@
 
     <script>
         function Sent_To_WMS_Stock() {
+            DisAndEnabledBtn(1);
             if (confirm("确认保存并发送?") == false) {
+                 DisAndEnabledBtn(0);
                 return false;
             }
 
@@ -218,18 +220,22 @@
                     }
                 } else {
                     alert(result);
+                     DisAndEnabledBtn(0);
                 }
             });
         }
 
         function Reset_WMS_Stocktaking_Scan() {
+            DisAndEnabledBtn(1);
             if (confirm("确认重置此库位扫描？") == false) {
+                DisAndEnabledBtn(0);
                 return false;
             }
 
             $.post("/WMS_Stocktaking/WMS_Stocktaking_Scan_Reset_Post/@Model.Task_ID", function (result) {
                 if (result != "") {
                     alert(result);
+                    DisAndEnabledBtn(0);
                 } else {
                     ReloadPage();
                 }
@@ -249,6 +255,7 @@
                     window.close();
                 } else {
                     alert(result);
+                    DisAndEnabledBtn(0);
                 }
             });
         }

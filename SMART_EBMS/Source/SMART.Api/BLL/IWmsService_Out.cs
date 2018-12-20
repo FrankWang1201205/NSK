@@ -401,10 +401,6 @@ namespace SMART.Api
             Head.Status = WMS_Out_Global_State_Enum.待配货.ToString();
             Head.LinkMainCID = U.LinkMainCID;
 
-            if (Head.Logistics_Mode == Logistics_Out_Mode_Enum.自提.ToString())
-            {
-                Head.Work_Down_Person = Head.Create_Person;
-            }
             Head.Head_Type = WMS_Out_Head_Type_Enum.订单出货.ToString();
 
             db.WMS_Out_Head.Add(Head);
@@ -2718,6 +2714,7 @@ namespace SMART.Api
                                  MatSn = G.Key,
                                  Quantity_Sum = G.Sum(c => c.Quantity),
                                  Line_No = G.FirstOrDefault().Line_No,
+                                 Price = G.FirstOrDefault().Price,
                              };
 
             int i = 0;
@@ -2729,6 +2726,7 @@ namespace SMART.Api
                 T_Line.Line_No = i;
                 T_Line.MatSn = x.MatSn;
                 T_Line.Quantity_Sum = x.Quantity_Sum;
+                T_Line.Unit_Price = x.Price;
                 T.Line_List.Add(T_Line);
             }
 
@@ -2938,6 +2936,7 @@ namespace SMART.Api
                 }
 
                 Line.Max_Quantity = In_List_DB.Where(c => c.MatSn == MatSn).Sum(x => x.Quantity);
+                Line.Price_Cost = In_List_DB.Where(c => c.MatSn == MatSn).FirstOrDefault().Price_Cost;
                 List.Add(Line);
             }
 
@@ -3030,7 +3029,19 @@ namespace SMART.Api
             List<WMS_Stock_Task> List_DB = query.ToList();
             List<WMS_Stock_Task> List = new List<WMS_Stock_Task>();
 
-            List<Guid> ID_List = List_DB.Select(x => x.Task_ID).ToList();
+            List<Guid> ID_List_DB = List_DB.Select(x => x.Task_ID).ToList();
+            List<Guid> ID_List = new List<Guid>();
+
+            List<WMS_Profit_Loss_Other> Profit_Loss_List = db.WMS_Profit_Loss_Other.Where(x => x.Status == WMS_Profit_Loss_Status_Enum.未确定.ToString()).ToList();
+
+            foreach (var ID in ID_List_DB)
+            {
+                if (Profit_Loss_List.Where(c => c.Link_TaskID == ID).Any() == false)
+                {
+                    ID_List.Add(ID);
+                }
+            }
+
             List<WMS_Stocktaking_Scan> Scan_List = db.WMS_Stocktaking_Scan.Where(x => ID_List.Contains(x.Link_TaskID)).ToList();
 
             foreach (var x in List_DB)
@@ -3056,6 +3067,9 @@ namespace SMART.Api
 
             List<WMS_Stocktaking_Scan> Scan_List_DB = db.WMS_Stocktaking_Scan.Where(x => x.Link_TaskID == Task.Task_ID && x.Package_Type == WMS_Stock_Package_Enum.零头.ToString()).OrderByDescending(x => x.Create_DT).ToList();
             List<string> MatSn_List = Scan_List_DB.Select(x => x.MatSn).Distinct().ToList();
+
+            List<Material> Mat_List = db.Material.Where(x => x.LinkMainCID == Task.LinkMainCID && MatSn_List.Contains(x.MatSn)).ToList();
+            Material Mat = new Material();
 
             //推荐信息
             List<WMS_Location> Location_List_DB = db.WMS_Location.Where(x => x.LinkMainCID == Task.LinkMainCID && x.Type == Type_Enum.端数.ToString()).ToList();
@@ -3106,7 +3120,10 @@ namespace SMART.Api
                         Info.No = i;
                         Info.Location = Loc;
                         Info.Quantity = 0;
-                        x.Recommend_Info_List.Add(Info);
+                        if (x.Recommend_Info_List.Where(c => c.Location == Loc).Any() == false)
+                        {
+                            x.Recommend_Info_List.Add(Info);
+                        }
                     }
 
                     if (x.Recommend_Info_List.Count() < 5)
@@ -3121,7 +3138,10 @@ namespace SMART.Api
                             Info.No = i;
                             Info.Location = Loc;
                             Info.Quantity = Stock_List_B.Where(c => c.Location == Loc).Sum(c => c.Quantity);
-                            x.Recommend_Info_List.Add(Info);
+                            if (x.Recommend_Info_List.Where(c => c.Location == Loc).Any() == false)
+                            {
+                                x.Recommend_Info_List.Add(Info);
+                            }
                         }
 
                         if (x.Recommend_Info_List.Count() < 5)
@@ -3136,18 +3156,27 @@ namespace SMART.Api
                                 Info.No = i;
                                 Info.Location = Loc;
                                 Info.Quantity = 0;
-                                x.Recommend_Info_List.Add(Info);
+                                if (x.Recommend_Info_List.Where(c => c.Location == Loc).Any() == false)
+                                {
+                                    x.Recommend_Info_List.Add(Info);
+                                }
                             }
                         }
                     }
                 }
 
-                foreach (var xx in x.Recommend_Info_List.OrderBy(xx => xx.No).Take(5).ToList())
+                x.Recommend_Info_List = x.Recommend_Info_List.Take(5).ToList();
+
+                Mat = Mat_List.Where(c => c.MatSn == x.MatSn).FirstOrDefault();
+                if (Mat != null)
                 {
-                    x.Recommend_Info += xx.Location + "(" + xx.Quantity + ")，";
+                    x.Pack_Qty = Mat.Pack_Qty;
+                }
+                else
+                {
+                    x.Pack_Qty = 0;
                 }
 
-                x.Recommend_Info = CommonLib.Trim_End_Char(x.Recommend_Info);
             }
 
             return Scan_List_DB;

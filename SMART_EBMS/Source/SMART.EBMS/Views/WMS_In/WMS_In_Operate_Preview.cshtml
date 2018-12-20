@@ -70,12 +70,12 @@
         <tr>
             <td class="Return_Info">@Html.Raw(MF.Return_Info)</td>
             <td>&nbsp;</td>
-            @if (Model.Head_Type == WMS_In_Head_Type_Enum.订单退货.ToString())
+            @*@if (Model.Head_Type == WMS_In_Head_Type_Enum.订单退货.ToString())
             {
                 <td style="width:10px;padding-right:30px;">
                     <button type="button" class="btn btn-info" onclick="WMS_To_Mat_Waste('@Model.Head_ID')">报废操作</button>
                 </td>
-            }
+            }*@
 
             <td style="width:10px;">
                 <button type="button" class="btn btn-default" onclick="ReloadPage()"><span class="glyphicon glyphicon-repeat"></span> 刷新</button>

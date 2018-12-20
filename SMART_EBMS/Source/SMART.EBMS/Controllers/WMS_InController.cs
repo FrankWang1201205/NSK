@@ -489,44 +489,6 @@ namespace SMART.EBMS.Controllers
             }
             return RedirectToAction("WMS_In_Operate_Preview_Track", new { ID = ID });
         }
-
-
-        public PartialViewResult WMS_In_Operate_Preview_Waste(Guid ID)
-        {
-            Guid Head_ID = ID;
-            List<WMS_In_Line> List = IW.Get_WMS_In_Line_List_For_Waste(Head_ID);
-            ViewData["Head_ID"] = Head_ID;
-            return PartialView(List);
-        }
-
-        [HttpPost]
-        public RedirectToRouteResult WMS_In_Operate_Preview_Waste_Post(Guid ID, FormCollection FC)
-        {
-            User U = this.MyUser();
-            try
-            {
-                Guid HeadID = ID;
-                List<string> MatSnList = CommonLib.StringListStrToStringArray(Request.Form["MatSn"].ToString());
-                List<WMS_In_Line> Line_List = new List<WMS_In_Line>();
-                WMS_In_Line Line = new WMS_In_Line();
-                foreach (var MatSn in MatSnList)
-                {
-                    Line = new WMS_In_Line();
-                    Line.MatSn = MatSn;
-                    Line.Quantity = Convert.ToInt32(Request.Form["Quantity_" + MatSn].ToString());
-                    Line_List.Add(Line);
-                }
-
-                IW.Set_WMS_Waste_Record(HeadID, Line_List);
-                TempData["Success"] = "报废信息生成成功！";
-            }
-            catch (Exception Ex)
-            {
-                TempData["Error"] = Ex.Message.ToString();
-                
-            }
-            return RedirectToAction("WMS_In_Operate_Preview", new { ID = ID });
-        }
     }
 
     //收货记录

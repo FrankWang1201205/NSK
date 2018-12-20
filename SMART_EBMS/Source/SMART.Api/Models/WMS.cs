@@ -223,6 +223,7 @@ namespace SMART.Api.Models
             Track_No_List = new List<string>();
             Track_No_List_Str = string.Empty;
             Line_State = string.Empty;
+            Unit_Price = 0;
         }
         
         public int Line_No { get; set; }
@@ -237,6 +238,7 @@ namespace SMART.Api.Models
         public List<string> Track_No_List { get; set; }
         public string Track_No_List_Str { get; set; }
         public string Line_State { get; set; }
+        public decimal Unit_Price { get; set; }
     }
 
     [NotMapped]
@@ -1549,6 +1551,7 @@ namespace SMART.Api.Models
             Link_HeadID = Guid.Empty;
             Is_Scan = false;
             Scan_Location = string.Empty;
+            Unit_Price = 0;
         }
 
         public int Line_No { get; set; }
@@ -1565,6 +1568,7 @@ namespace SMART.Api.Models
         public string Scan_Location { get; set; }
         public bool Is_Scan { get; set; }
         public Guid Link_HeadID { get; set; }
+        public decimal Unit_Price { get; set; }
     }
 
     [NotMapped]
@@ -2360,6 +2364,7 @@ namespace SMART.Api.Models
             QRCode_Path = string.Empty;
             Recommend_Info = string.Empty;
             Recommend_Info_List = new List<Recommend_Move_Info>();
+            Pack_Qty = 0;
         }
 
         [Key]
@@ -2402,6 +2407,9 @@ namespace SMART.Api.Models
 
         [NotMapped]
         public List<Recommend_Move_Info> Recommend_Info_List { get; set; }
+
+        [NotMapped]
+        public int Pack_Qty { get; set; }
     }
 
     [NotMapped]
@@ -2609,6 +2617,7 @@ namespace SMART.Api.Models
         订单入库,
         订单出库,
         首次盘库,
+        报废出库,
     }
     
     [NotMapped]
@@ -2627,6 +2636,7 @@ namespace SMART.Api.Models
             Profit_Loss_Quantity = 0;
             In_Quantity = 0;
             First_Quantity = 0;
+            Waste_Out_Quantity = 0;
         }
 
         public string MatSn { get; set; }
@@ -2642,6 +2652,9 @@ namespace SMART.Api.Models
 
         //出库数量
         public int Out_Quantity { get; set; }
+
+        //报废出库数量
+        public int Waste_Out_Quantity { get; set; }
 
         //入库数量
         public int In_Quantity { get; set; }
@@ -2807,7 +2820,7 @@ namespace SMART.Api.Models
             TrackingType = string.Empty;
             SD = string.Empty;
             ED = string.Empty;
-
+            Tracking_No = string.Empty;
         }
 
         public int PageIndex { get; set; }
@@ -2819,6 +2832,7 @@ namespace SMART.Api.Models
         public string TrackingType { get; set; }
         public string SD { get; set; }
         public string ED { get; set; }
+        public string Tracking_No { get; set; }
         public Guid LinkMainCID { get; set; }
     }
 
@@ -2919,12 +2933,87 @@ namespace SMART.Api.Models
 //报废记录
 namespace SMART.Api.Models
 {
-    public class WMS_Waste_Record
+    //报废单
+    public class WMS_Waste_Head
     {
-        public WMS_Waste_Record()
+        public WMS_Waste_Head()
         {
-            Record_ID = Guid.Empty;
-            Task_No_Str = string.Empty;
+            Head_ID = Guid.Empty;
+            Task_Bat_No = 0;
+            Task_Bat_No_Str = string.Empty;
+            Create_DT = DateTime.Now;
+            Create_Person = string.Empty;
+            MatSn_Count = 0;
+            Quantity_Sum = 0;
+            Status = string.Empty;
+            LinkMainCID = Guid.Empty;
+            Line_List = new List<WMS_Waste_Line>();
+            Refuse_Remark = string.Empty;
+            Auditor = string.Empty;
+            Audit_DT = DateTime.Now;
+            Approver = string.Empty;
+            Approve_DT = DateTime.Now;
+            Finish_DT = DateTime.Now;
+            Link_HeadID = Guid.Empty;
+        }
+
+        [Key]
+        public Guid Head_ID { get; set; }
+
+        [Required]
+        public long Task_Bat_No { get; set; }
+
+        [Required]
+        public string Task_Bat_No_Str { get; set; }
+
+        [Required]
+        public DateTime Create_DT { get; set; }
+
+        [Required]
+        public string Create_Person { get; set; }
+        
+        [NotMapped]
+        public int MatSn_Count { get; set; }
+
+        [NotMapped]
+        public int Quantity_Sum { get; set; }
+
+        [Required]
+        public string Status { get; set; }
+
+        [Required]
+        public Guid LinkMainCID { get; set; }
+
+        [NotMapped]
+        public List<WMS_Waste_Line> Line_List { get; set; }
+
+        [DefaultValue("")]
+        public string Auditor { get; set; }
+
+        public DateTime Audit_DT { get; set; }
+
+        //拒绝理由
+        [DefaultValue("")]
+        public string Refuse_Remark { get; set; }
+
+        [DefaultValue("")]
+        public string Approver { get; set; }
+
+        public DateTime Approve_DT { get; set; }
+
+        public DateTime Finish_DT { get; set; }
+
+        public Guid Link_HeadID { get; set; }
+    }
+
+    //报废单清单
+    public class WMS_Waste_Line
+    {
+        public WMS_Waste_Line()
+        {
+            Line_ID = Guid.Empty;
+            Task_Bat_No = 0;
+            Task_Bat_No_Str = string.Empty;
             Create_DT = DateTime.Now;
             Create_Person = string.Empty;
             MatName = string.Empty;
@@ -2932,30 +3021,30 @@ namespace SMART.Api.Models
             MatBrand = string.Empty;
             MatUnit = string.Empty;
             Quantity = 0;
-            Price_Cost = 0;
+            Unit_Price = 0;
+            Total_Price = 0;
             LinkMainCID = Guid.Empty;
-            Customer_Name = string.Empty;
-            Supplier_Name = string.Empty;
             Link_Head_ID = Guid.Empty;
-            Auditor_A = string.Empty;
-            Audit_DT_A = DateTime.Now;
-            Auditor_B = string.Empty;
-            Audit_DT_B = DateTime.Now;
-            Status = string.Empty;
+            Location = string.Empty;
+            Max_Quantity = 0;
         }
 
         [Key]
-        public Guid Record_ID { get; set; }
+        public Guid Line_ID { get; set; }
 
-        [DefaultValue("")]
-        public string Task_No_Str { get; set; }
+        //任务编号：格式：(YYYYMMdd)+(0001)
+        [Required]
+        public long Task_Bat_No { get; set; }
 
+        [Required]
+        public string Task_Bat_No_Str { get; set; }
+        
         [Required]
         public DateTime Create_DT { get; set; }
 
         [Required]
         public string Create_Person { get; set; }
-
+        
         [DefaultValue("")]
         public string MatName { get; set; }
 
@@ -2968,41 +3057,34 @@ namespace SMART.Api.Models
         [DefaultValue("")]
         public string MatUnit { get; set; }
 
-        //到货数量Or调货数量
+        //报废数量
         [Required]
         public int Quantity { get; set; }
 
+        //最大报废数量
+        public int Max_Quantity { get; set; }
+
         //单价
         [Required]
-        public decimal Price_Cost { get; set; }
+        public decimal Unit_Price { get; set; }
 
-        [DefaultValue("")]
-        public string Customer_Name { get; set; }
-
-        [DefaultValue("")]
-        public string Supplier_Name { get; set; }
+        [NotMapped]
+        public decimal Total_Price { get; set; }
 
         [Required]
         public Guid LinkMainCID { get; set; }
-    
-        public Guid Link_Head_ID { get; set; }
-
-        public string Auditor_A { get; set; }
-
-        public DateTime Audit_DT_A { get; set; }
-
-        public string Auditor_B { get; set; }
-
-        public DateTime Audit_DT_B { get; set; }
 
         [Required]
-        public string Status { get; set; }
-    }
+        public Guid Link_Head_ID { get; set; }
 
+        [Required]
+        public string Location { get; set; }
+    }
+    
     [NotMapped]
-    public class WMS_Waste_Record_Filter
+    public class WMS_Waste_Filter
     {
-        public WMS_Waste_Record_Filter()
+        public WMS_Waste_Filter()
         {
             PageIndex = 1;
             PageSize = 20;
@@ -3012,6 +3094,10 @@ namespace SMART.Api.Models
             MatSn = string.Empty;
             Task_No_Str = string.Empty;
             Status = string.Empty;
+            Status_List = Enum.GetNames(typeof(WMS_Waste_Head_Status_Enum)).ToList();
+            LinkMainCID = Guid.Empty;
+            Create_Person = string.Empty;
+            Auditor = string.Empty;
         }
 
         public int PageIndex { get; set; }
@@ -3021,14 +3107,20 @@ namespace SMART.Api.Models
         public string Task_No_Str { get; set; }
         public string Time_Start { get; set; }
         public string Time_End { get; set; }
+        public string Create_Person { get; set; }
+        public string Auditor { get; set; }
         public string Status { get; set; }
+        public List<string> Status_List { get; set; }
         public Guid LinkMainCID { get; set; }
     }
 
-    public enum WMS_Waste_Record_Status_Enum
+    public enum WMS_Waste_Head_Status_Enum
     {
-        未审核,
-        审核中,
+        待编辑,
+        待审核,
+        已退回,
         已审核,
+        待执行,
+        已消库,
     }
 }

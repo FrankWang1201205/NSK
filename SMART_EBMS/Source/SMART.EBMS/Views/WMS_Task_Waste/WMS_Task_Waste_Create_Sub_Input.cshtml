@@ -1,0 +1,45 @@
+﻿@model List<WMS_Stock_Group>
+@{
+    Layout = null;
+    Guid HeadID = new Guid(ViewData["HeadID"].ToString());
+}
+
+<table class="table" style="width:100%">
+
+    @if (Model.Count() == 0)
+    {
+        <tr><td>未搜索到记录</td></tr>
+    }
+
+    @foreach (var x in Model)
+    {
+        <tr>
+            <td class="MatSn_Font">@x.MatSn</td>
+            <td style="width:70px;">@x.MatBrand</td>
+            <td style="width:80px;text-align:right">@x.Quantity_Sum.ToString("N0")</td>
+            <td style="width:70px;">@x.Location</td>
+            <td style="width:50px;">
+                <button type="button" class="btn btn-default btn-xs" onclick="Add_WMS_Waste_Line('@x.MatSn','@x.Location','@x.Quantity_Sum')">
+                    添加
+                    <span class="glyphicon glyphicon-menu-right"></span>
+                </button>
+            </td>
+        </tr>
+    }
+
+</table>
+
+<script>
+    function Add_WMS_Waste_Line(MatSn, Location, Quantity_Sum) {
+        var HeadID = '@HeadID';
+        var Quantity = parseInt(Quantity_Sum);
+        $.post("/WMS_Task_Waste/WMS_Task_Waste_Create_Sub_Input_Post/" + HeadID, { MatSn: MatSn, Location: Location, Quantity: Quantity },
+            function (result) {
+                if (result != "") {
+                    alert(result);
+                } else {
+                    Show_WMS_Waste_Line();
+                }
+            });
+    }
+</script>

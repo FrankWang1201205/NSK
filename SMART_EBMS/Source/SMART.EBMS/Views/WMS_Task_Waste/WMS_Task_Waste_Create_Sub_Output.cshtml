@@ -1,0 +1,71 @@
+﻿@model List<WMS_Waste_Line>
+ @{ 
+     Layout = null;
+     int i = 0;
+ }
+
+<table class="table" style="width:100%;">
+        @foreach (var x in Model)
+        {
+            i++;
+            <tr>
+                <td style="width:20px;">@i</td>
+                <td style="width:190px;" class="MatSn_Font">@x.MatSn</td>
+                <td style="width:80px;">
+                    <input type="number" style="width:70px;text-align:center" id="Quantity_@x.Line_ID" max="@x.Max_Quantity" value="@x.Quantity" onchange="Set_WMS_Waste_Line(this,'@x.Line_ID')" />
+                </td>
+                <td style="width:70px;text-align:right">@x.Max_Quantity.ToString("N0")</td>
+                <td style="width:70px;">@x.Location</td>
+                <td style="width:70px;text-align:right">@x.Unit_Price.ToString("N2")</td>
+                <td style="width:70px;text-align:center">
+                    <button type="button" class="btn btn-danger btn-xs" onclick="Delete_WMS_Waste_Line('@x.Line_ID')">删除</button>
+                </td>
+                <td>&nbsp;</td>
+            </tr>
+        }
+</table>
+
+<script>
+    function Delete_WMS_Waste_Line(Line_ID) {
+        $.post("/WMS_Task_Waste/WMS_Task_Waste_Create_Sub_Output_Delete_Post/" + Line_ID,
+            function (result) {
+                if (result != "") {
+                    alert(result);
+                } else {
+                    Show_WMS_Waste_Line();
+                }
+            });
+    }
+
+    function Change_Qty_Num(Obj, Qty) {
+        var Qty_Line = $(Obj).val();
+        if (Qty_Line > Qty) {
+            $(Obj).val(Qty);
+        } else if (Qty_Line < 1) {
+            $(Obj).val(1);
+        }
+    }
+
+    function Set_WMS_Waste_Line(Obj, Line_ID) {
+        var Qty = parseInt($(Obj).val());
+        var Max_Qty = parseInt($(Obj).attr("max"));
+        if (Qty > Max_Qty) {
+            alert("报废数量不得大于库存数量");
+            $(Obj).val(0);
+            return false;
+        } else if (Qty < 0) {
+            alert("报废数量小于零");
+            $(Obj).val(0);
+            return false;
+        }
+
+        $.post("/WMS_Task_Waste/WMS_Task_Waste_Create_Sub_Output_Post/" + Line_ID, { Qty: Qty },
+            function (result) {
+                if (result != "") {
+                    alert(result);
+                } else {
+                    //Do nothing
+                }
+            });
+    }
+</script>

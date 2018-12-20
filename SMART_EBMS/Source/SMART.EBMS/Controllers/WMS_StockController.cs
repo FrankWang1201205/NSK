@@ -243,7 +243,7 @@ namespace SMART.EBMS.Controllers
             WMS_Stock_Filter MF = new WMS_Stock_Filter();
             try { MF.PageIndex = Convert.ToInt32(Request["PageIndex"].ToString()); } catch { }
             MF.PageIndex = MF.PageIndex <= 0 ? 1 : MF.PageIndex;
-            MF.PageSize = 50;
+            MF.PageSize = 100;
             MF.LinkMainCID = U.LinkMainCID;
             MF.MatSn = Request["MatSn"] == null ? string.Empty : Request["MatSn"].Trim();
             MF.Location = Request["Location"] == null ? string.Empty : Request["Location"].Trim();

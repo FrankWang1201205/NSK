@@ -47,19 +47,18 @@
             <tr>
                 <th style="width:10px;">&nbsp;</th>
                 <th style="width:30px;">序</th>
-                <th style="width:50px;">寄件人</th>
-                <th style="width:70px;">寄件人手机</th>
-                <th style="width:70px;">寄件人座机</th>
-                <th style="width:70px;">寄件地址</th>
-                <th style="width:50px;">收件人</th>
-                <th style="width:70px;">收件人手机</th>
-                <th style="width:70px;">收件人座机</th>
-                <th style="width:70px;">收件地址</th>
+                <th style="width:70px;">寄件人</th>
+                <th style="width:90px;">寄件人手机</th>
+                <th style="width:90px;">寄件人座机</th>
+                <th style="width:150px;">寄件地址</th>
+                <th style="width:70px;">收件人</th>
+                <th style="width:90px;">收件人手机</th>
+                <th style="width:90px;">收件人座机</th>
+                <th style="width:150px;">收件地址</th>
                 <th style="width:60px;">物品信息</th>
                 <th style="width:60px;">快递公司</th>
                 <th style="width:70px;">网点</th>
-                <th style="width:70px;">物流单号</th>
-                <th>&nbsp;</th>
+                <th style="width:100px;">物流单号</th>
             </tr>
         </thead>
         <tbody>
@@ -81,7 +80,6 @@
                     <td style="vertical-align:top">@x.Logistics_Company</td>
                     <td style="vertical-align:top" title="@x.Logistics_Company_Loc">@x.Logistics_Company_Loc</td>
                     <td style="vertical-align:top">@x.Tracking_No</td>
-                    <td>&nbsp;</td>
                 </tr>
             }
         </tbody>
@@ -96,7 +94,7 @@
             paging: false,
             info: false,
             scrollY: FixHeightValue_DataTable(),
-            scrollX: true,
+            scrollX: false,
             language: {
                 url: "/Scripts/dataTables/Localisation/Chinese.json"
             }

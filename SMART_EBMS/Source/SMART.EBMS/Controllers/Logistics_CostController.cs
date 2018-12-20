@@ -127,6 +127,8 @@ namespace SMART.EBMS.Controllers
             MF.ED = Request["Time_End"] == null ? string.Empty : Request["Time_End"].Trim();
             MF.Keyword = Request["Keyword"] == null ? string.Empty : Request["Keyword"].Trim();
             MF.TrackingType = Request["TrackingType"] == null ? string.Empty : Request["TrackingType"].Trim();
+            MF.Tracking_No= Request["Tracking_No"] == null ? string.Empty : Request["Tracking_No"].Trim();
+            MF.Com_Name = Request["Com_Name"] == null ? string.Empty : Request["Com_Name"].Trim();
 
             PageList<WMS_Track> PList = IW.Get_WMS_In_Track_With_Driver(MF);
             ViewData["MF"] = MF;

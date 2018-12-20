@@ -77,6 +77,8 @@ namespace SMART.Api
             modelBuilder.Entity<Purchase_Temp>().Property(c => c.Contract_Price).HasPrecision(18, 8);
             modelBuilder.Entity<Purchase_Temp_Search>().Property(c => c.Price_Cost).HasPrecision(18, 8);
 
+            modelBuilder.Entity<WMS_Waste_Line>().Property(c => c.Unit_Price).HasPrecision(18, 8);
+
         }
 
         //Enable-Migrations
@@ -126,9 +128,11 @@ namespace SMART.Api
         public DbSet<WMS_In_Line_Other> WMS_In_Line_Other { get; set; }
         public DbSet<WMS_In_Scan> WMS_In_Scan { get; set; }
         public DbSet<WMS_In_Scan_Error> WMS_In_Scan_Error { get; set; }
-        public DbSet<WMS_Waste_Record> WMS_Waste_Record { get; set; }
         public DbSet<WMS_Track> WMS_Track { get; set; }
         public DbSet<WMS_Track_Info> WMS_Track_Info { get; set; }
+        
+        public DbSet<WMS_Waste_Head> WMS_Waste_Head { get; set; }
+        public DbSet<WMS_Waste_Line> WMS_Waste_Line { get; set; }
 
         public DbSet<WMS_Stock> WMS_Stock { get; set; }
         public DbSet<WMS_Stock_Temp> WMS_Stock_Temp { get; set; }

@@ -1,0 +1,52 @@
+﻿@model List<WMS_In_Task>
+@{
+    Layout = null;
+    int i = 0;
+    Guid HeadID = new Guid(ViewData["HeadID"].ToString());
+}
+
+<table class="ListTable table table-nowrap" style="width:100%;margin-bottom:20px;">
+    <thead>
+        <tr>
+            <th style="width:30px;">序</th>
+            <th style="width:150px;">任务编号</th>
+            <th style="width:60px;text-align:right">品项</th>
+            <th style="width:60px;text-align:right">数量</th>
+            <th style="width:60px;">&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model)
+        {
+            i++;
+            <tr>
+                <td>@i</td>
+                <td>@x.Task_Bat_No_Str</td>
+                <td style="text-align:right">@x.MatSn_Count.ToString("N0")</td>
+                <td style="text-align:right">@x.Line_Quantity_Sum.ToString("N0")</td>
+                <td style="text-align:center">
+                    <button class="btn btn-info btn-xs" onclick="Link_To_WMS_Waste_Head('@x.Head_ID')">关联</button>
+                </td>
+            </tr>
+        }
+
+    </tbody>
+</table>
+
+<script>
+    function Link_To_WMS_Waste_Head(Head_ID) {
+        if (confirm("确认关联此单据？") == false) {
+            return false;
+        }
+
+        var Link_HeadID = '@HeadID';
+        $.post("/WMS_Task_Waste/WMS_Task_Waste_Create_Sub_Modal_Post/" + Link_HeadID, { Head_ID: Head_ID },
+            function (result) {
+                if (result != "") {
+                    alert(result);
+                } else {
+                    ReloadPage();
+                }
+            });
+    }
+</script>

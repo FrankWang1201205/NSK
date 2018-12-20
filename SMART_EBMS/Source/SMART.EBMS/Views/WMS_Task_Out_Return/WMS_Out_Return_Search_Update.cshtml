@@ -81,6 +81,7 @@
                 <th style="width:40px;">序</th>
                 <th style="width:250px;">产品型号</th>
                 <th style="width:100px; text-align:center;">数量</th>
+                <th style="width:80px; text-align:right;">单价</th>
                 <th style="width:100px;">备注</th>
                 <th>&nbsp;</th>
             </tr>
@@ -115,6 +116,7 @@
                             <input type="number" class="form-control input-xs" min="1" value="@x.Max_Quantity" max="@x.Max_Quantity" id="Quantity_@x.MatSn" name="Quantity_@x.MatSn" style="width:100px;text-align:center;" onchange="Change_Qty_Num(this,'@x.Max_Quantity')" />
                         }
                     </td>
+                    <td style="text-align:right">@x.Price_Cost.ToString("N2")</td>
                     <td>
                         @if (x.Quantity != 0)
                         {

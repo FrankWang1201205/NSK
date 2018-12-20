@@ -1,0 +1,149 @@
+﻿@model PageList<WMS_Waste_Head>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    WMS_Waste_Filter MF = ViewData["MF"] as WMS_Waste_Filter;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("任务创建");</script>
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+<div class="DeductionDiv TopSearchDiv">
+    <form id="MyForm" action="~/WMS_Task_Waste/WMS_Task_Waste_Create" method="get">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:100px">
+                    <select name="Status" id="Status" class="form-control input-sm" onchange="SubmitPageIndex(1)">
+                        <option value="">任务状态</option>
+                        @foreach (var x in MF.Status_List.Where(x => x != WMS_Waste_Head_Status_Enum.已消库.ToString()))
+                        {
+                            if (MF.Status == x)
+                            {
+                                <option selected="selected" value="@x">@x</option>
+                            }
+                            else
+                            {
+                                <option value="@x">@x</option>
+                            }
+                        }
+                    </select>
+                </td>
+
+                <td style="width:100px; padding-left:5px;">
+                    <input type="text" name="Create_Person" id="Create_Person" placeholder="创建人" value="@MF.Create_Person" class="form-control input-sm">
+                </td>
+
+                <td style="width:250px; padding-left:5px;">
+                    <div class="input-group input-group-sm" style="width: 250px; ">
+                        <input type="text" name="Task_No_Str" id="Task_No_Str" placeholder="任务编号" value="@MF.Task_No_Str" class="form-control ">
+                        <div class="input-group-btn">
+                            <button class="btn btn-danger btn-search" type="submit"><span class="glyphicon glyphicon-search"></span> 查询</button>
+                        </div>
+                    </div>
+                </td>
+
+                <td style="float:right;width:30px;">&nbsp;</td>
+
+                <td style="width:10px;padding-right:5px;">
+                    <button type="button" class="btn btn-default btn-sm" onclick="Create_WMS_Waste_Head()"><i style="padding-right:5px;" class="icon-plus"></i>创建报废申请</button>
+                </td>
+
+                <td style="text-align:right;">
+                    <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
+                </td>
+
+            </tr>
+        </table>
+    </form>
+</div>
+
+<table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
+    <thead>
+        <tr>
+            <th style="width:10px;">&nbsp;</th>
+            <th style="width:220px;">任务编号</th>
+            <th style="width:70px;">创建日期</th>
+            <th style="width:70px;">创建人</th>
+            <th style="width:60px;text-align:right">品项</th>
+            <th style="width:60px;text-align:right">数量</th>
+            <th style="width:70px;">状态</th>
+            <th style="width:70px;">&nbsp;</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var x in Model.Rows)
+        {
+            <tr>
+                <td>&nbsp;</td>
+                <td style="vertical-align:top;">@x.Task_Bat_No_Str</td>
+                <td style="vertical-align:top;">@x.Create_DT.ToString("yyyy-MM-dd")</td>
+                <td style="vertical-align:top;">@x.Create_Person</td>
+                <td style="vertical-align:top;text-align:right">@x.MatSn_Count.ToString("N0")</td>
+                <td style="vertical-align:top;text-align:right">@x.Quantity_Sum.ToString("N0")</td>
+                <td style="vertical-align:top;">@x.Status</td>
+                <td style="vertical-align:top;text-align:center">
+                    @if (x.Status == WMS_Waste_Head_Status_Enum.待编辑.ToString() || x.Status == WMS_Waste_Head_Status_Enum.已退回.ToString())
+                    {
+                        <a href="~/WMS_Task_Waste/WMS_Task_Waste_Create_Sub/@x.Head_ID" class="btn btn-primary btn-xs">编辑</a>
+                    }
+                    else
+                    {
+                        <a href="~/WMS_Task_Waste/WMS_Task_Waste_Create_Sub_Preview/@x.Head_ID" class="btn btn-primary btn-xs">查看</a>
+                    }
+                </td>
+                <td>&nbsp;</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="MyPageFoot">
+    @Html.Raw(PageComponent.MyPageNumberList(new PagePar() { PageIndex = Model.PageIndex, PageSize = Model.PageSize, TotalRecord = Model.TotalRecord, TotalPage = Model.TotalPage, PageSizeList = Model.PageSize.ToString() }))
+    <script>
+        function SubmitSelectIndex() {
+            $("#PageIndex").val($("#FootPageIndexNo").val());
+            $("#MyForm").submit();
+        }
+        function SubmitPageIndex(PageIndex) {
+            $("#PageIndex").val(PageIndex);
+            $("#MyForm").submit();
+        }
+    </script>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#DataTable').dataTable({
+            searching: false,
+            paging: false,
+            info: false,
+            scrollY: FixHeightValue_DataTable(),
+            scrollX: true,
+            language: {
+                url: "/Scripts/dataTables/Localisation/Chinese.json"
+            }
+        });
+    });
+</script>
+
+<form id="Create_Head_Form" action="~/WMS_Task_Waste/WMS_Task_Waste_Create_Post" method="post" enctype="multipart/form-data">
+    <script>
+        function Create_WMS_Waste_Head() {
+            if (confirm("确认创建报废申请单？") == false) {
+                return false;
+            }
+
+            $("#Create_Head_Form").submit();
+        }
+    </script>
+</form>

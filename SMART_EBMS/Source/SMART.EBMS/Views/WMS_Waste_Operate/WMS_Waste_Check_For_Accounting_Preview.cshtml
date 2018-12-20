@@ -1,0 +1,141 @@
+﻿@model WMS_Waste_Head
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    User U = ViewData["User"] as User;
+    WMS_In_Head In_Head = ViewData["In_Head"] as WMS_In_Head;
+    WMS_Out_Head Out_Head = ViewData["Out_Head"] as WMS_Out_Head;
+}
+
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("财务核验");</script>
+
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+<div id="RightDivContext" style="margin:15px 15px 0px 15px">
+    <div style="max-width:900px;max-width:600px">
+
+        <table style="width:100%;margin-bottom:10px;">
+            <tr>
+                <td style="text-align:left;width:10px;">
+                    <a href="~/WMS_Waste_Operate/WMS_Waste_Check_For_Accounting" class="btn btn-info btn-sm">返回</a>
+                </td>
+                <td>&nbsp;</td>
+                <td style="text-align:right;">
+                    @if (Model.Status == WMS_Waste_Head_Status_Enum.已审核.ToString())
+                    {
+                        <button type="button" class="btn btn-primary btn-sm" onclick="Confirm_Was_Waste_Task()">确认</button>
+                    }
+                </td>
+            </tr>
+        </table>
+
+        <div style="background-color:white;padding:15px;">
+            <table style="text-align:center; width:100%;" class="text-nowrap">
+                <tr>
+                    <td style="width:10px;">&nbsp;</td>
+                    <td><span style="text-align:center; padding-left:150px; font-size:20px;">报  废 申 请 单</span></td>
+                    <td style="text-align:right; width:10px; text-align:right;"><span style="font-size:14px;">NO.</span><strong style="font-size:18px;">@Model.Task_Bat_No_Str</strong></td>
+                </tr>
+            </table>
+
+            <table class="table table-bordered text-nowrap" style="width:100%;font-size:14px;margin-top:15px;">
+                <tr>
+                    <td class="active" style="width:10px;">申请人</td>
+                    <td>@Model.Create_Person</td>
+                    <td class="active" style="width:10px;">申请时间</td>
+                    <td colspan="3">@Model.Create_DT.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                </tr>
+                <tr>
+                    <td class="active" style="width:10px;">品项</td>
+                    <td><strong>@Model.MatSn_Count.ToString("N0")</strong> <span>项</span></td>
+                    <td class="active" style="width:10px;">数量</td>
+                    <td><strong>@Model.Quantity_Sum.ToString("N0")</strong></td>
+                    <td class="active" style="width:10px;">当前状态 </td>
+                    <td>@Model.Status</td>
+                </tr>
+            </table>
+
+            <table class="table table-bordered text-nowrap" style="width:100%;font-size:14px;">
+                <tr class="active">
+                    <td style="width:220px;">产品型号</td>
+                    <td style="width:70px;text-align:right">报废数量</td>
+                    <td style="width:70px;text-align:right">单价</td>
+                    <td style="width:70px;">库位</td>
+                </tr>
+                @foreach (var x in Model.Line_List)
+               {
+                    <tr>
+                        <td><span class="MatSn_Font">@x.MatSn</span></td>
+                        <td style="text-align:right">@x.Quantity.ToString("N0")</td>
+                        <td style="text-align:right">@x.Unit_Price.ToString("N2")</td>
+                        <td>@x.Location</td>
+                    </tr>
+                }
+            </table>
+
+            @if (!string.IsNullOrEmpty(In_Head.Task_Bat_No_Str))
+            {
+                <table style="width:100%;" class="text-nowrap">
+                    <tr>
+                        <td style="width:10px; text-align:left;">
+                            <span>关联单据：</span>
+                            <a href="~/WMS_In/WMS_In_Operate_Preview/@In_Head.Head_ID" target="_blank" style="font-size:14px;">@In_Head.Task_Bat_No_Str</a><span>（退货单）</span>
+                            <a href="~/WMS_Out/WMS_Out_Task_Preview/@Out_Head.Head_ID" target="_blank" style="font-size:14px;">@Out_Head.Task_Bat_No_Str</a><span>（送货单）</span>
+                        </td>
+                    </tr>
+                </table>
+            }
+
+            <table style="width:100%;margin-top:20px;" class="text-nowrap">
+                <tr>
+                    <td style="padding-bottom:10px;">
+                        <strong style="font-size:16px;">进展情况</strong>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="33" aria-valuemin="0" aria-valuemax="100" style="width: 33%;">@Model.Create_Person</div>
+
+                            @if (!string.IsNullOrEmpty(Model.Auditor))
+                            {
+                                <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="33" aria-valuemin="0" aria-valuemax="100" style="width: 33%;">@Model.Auditor</div>
+                            }
+
+                            @if (!string.IsNullOrEmpty(Model.Approver))
+                            {
+                                <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="34" aria-valuemin="0" aria-valuemax="100" style="width: 34%;">@Model.Approver</div>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function Confirm_Was_Waste_Task() {
+        if (confirm("确认保存并发送?") == false) {
+            return false;
+        }
+
+        $.post("/WMS_Waste_Operate/WMS_Waste_Check_For_Accounting_Preview_Confirm_Post/@Model.Head_ID", function (result) {
+            if (result == "") {
+                alert("确认成功");
+                ReloadPage();
+            } else {
+                alert(result);
+            }
+        });
+    }
+</script>

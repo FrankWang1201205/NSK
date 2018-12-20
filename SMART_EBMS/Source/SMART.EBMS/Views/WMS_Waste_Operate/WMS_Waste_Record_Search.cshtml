@@ -1,29 +1,19 @@
-﻿@model PageList<WMS_Waste_Record>
+﻿@model PageList<WMS_Stock_Record>
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    WMS_Waste_Record_Filter MF = ViewData["MF"] as WMS_Waste_Record_Filter;
-    User U = ViewData["User"] as User;
+    WMS_Stock_Filter MF = ViewData["MF"] as WMS_Stock_Filter;
+    int i = 0;
 }
 
 @{Html.RenderPartial("_TopMenu");}
-<script>TopMenuToAction("财务核验");</script>
-
-@if (TempData["Error"] != null)
-{
-    <div class="Textarea_Error">@TempData["Error"]</div>
-}
-
-@if (TempData["Success"] != null)
-{
-    <div class="Textarea_Success">@TempData["Success"]</div>
-}
+<script>TopMenuToAction("报废记录");</script>
 
 <div class="DeductionDiv TopSearchDiv">
-    <form id="MyForm" action="~/WMS_Waste_Record/WMS_Waste_Check_For_Accounting" method="get">
+    <form id="MyForm" action="~/WMS_Waste_Operate/WMS_Waste_Record_Search" method="get">
         <table style="width:100%;">
             <tr>
                 <td style="width:100px; text-align:left;">
-                    <input type="text" class="form-control input-sm" name="Task_No_Str" id="Task_No_Str" value="@MF.Task_No_Str" placeholder="任务编号">
+                    <input type="text" class="form-control input-sm" name="Work_Person" id="Work_Person" value="@MF.Work_Person" placeholder="作业人">
                 </td>
 
                 <td style="width:10px;padding-left:15px;">
@@ -36,7 +26,11 @@
                     <input autocomplete="off" style="width:90px;" class="form-control input-sm Time_Select" name="Time_End" type="text" id="Time_End" placeholder="结束时间" value="@MF.Time_End" />
                 </td>
 
-                <td style="width:250px; padding-left:15px;">
+                <td style="width:100px;padding-left:10px;">
+                    <input type="text" name="Location" id="Location" placeholder="出库库位" value="@MF.Location" class="form-control input-sm" style="width:150px;">
+                </td>
+
+                <td style="width:250px;padding-left:10px;">
                     <div class="input-group input-group-sm" style="width: 250px; ">
                         <input type="text" name="MatSn" id="MatSn" placeholder="产品型号" value="@MF.MatSn" class="form-control ">
                         <div class="input-group-btn">
@@ -44,8 +38,7 @@
                         </div>
                     </div>
                 </td>
-
-                <td style="float:right;width:30px;">&nbsp;</td>
+                <td style="width:50px;">&nbsp;</td>
 
                 <td style="text-align:right;">
                     <input type="hidden" value="1" id="PageIndex" name="PageIndex" />
@@ -54,52 +47,37 @@
         </table>
     </form>
 </div>
+
 <table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
     <thead>
         <tr>
             <th style="width:10px;">&nbsp;</th>
-            <th style="width:70px;">产品名称</th>
-            <th style="width:70px;">品牌</th>
+            <th style="width:40px;">序</th>
+            <th style="width:80px;">作业人</th>
+            <th style="width:80px;">产品名称</th>
             <th style="width:250px;">产品型号</th>
-            <th style="width:80px;text-align: right;">数量</th>
-            <th style="width:70px;text-align: right;">单价</th>
-            <th style="width:70px;">创建时间</th>
-            <th style="width:70px;">创建人</th>
-            <th style="width:100px;">任务编号</th>
-            @if (U.RoleTitle == User_RoleTitle_Emun.公司经理.ToString() || U.RoleTitle == User_RoleTitle_Emun.财务会计.ToString() || U.RoleTitle == User_RoleTitle_Emun.系统管理员.ToString())
-            {
-                <th style="width:70px;">&nbsp;</th>
-            }
+            <th style="width:70px;text-align:right">数量</th>
+            <th style="width:100px;text-align:right">出库库位</th>
+            <th style="width:70px;text-align:right">出库时间</th>
+            <th style="width:80px;">类型</th>
             <th>&nbsp;</th>
         </tr>
     </thead>
-
     <tbody>
         @foreach (var x in Model.Rows)
         {
+            i++;
             <tr>
                 <td>&nbsp;</td>
-                <td>@x.MatName</td>
-                <td>@x.MatBrand</td>
-                <td><span class="MatSn_Font">@x.MatSn</span></td>
-                <td style="text-align:right;">@x.Quantity.ToString("N0")</td>
-                <td style="text-align:right;">@x.Price_Cost.ToString("N4")</td>
-                <td>@x.Create_DT.ToString("yyyy-MM-dd")</td>
-                <td>@x.Create_Person</td>
-                <td>@x.Task_No_Str</td>
-                @if (U.RoleTitle == User_RoleTitle_Emun.公司经理.ToString() || U.RoleTitle == User_RoleTitle_Emun.财务会计.ToString() || U.RoleTitle == User_RoleTitle_Emun.系统管理员.ToString())
-                {
-                    <td style="text-align:center">
-                        @if (string.IsNullOrEmpty(x.Auditor_A))
-                        {
-                            <button type="button" onclick="Confirm_Record('@x.Record_ID')" class="btn btn-primary btn-xs">核验</button>
-                        }
-                        else
-                        {
-                            <button type="button" disabled class="btn btn-primary btn-xs">核验</button>
-                        }
-                    </td>
-                }
+                <td style="vertical-align:top;">@i</td>
+                <td style="vertical-align:top;">@x.Work_Person</td>
+                <td style="vertical-align:top;">@x.MatName</td>
+                <td style="vertical-align:top;"><span class="MatSn_Font">@x.MatSn</span></td>
+                <td style="vertical-align:top;text-align:right">@x.Quantity.ToString("N0")</td>
+                <td style="vertical-align:top;text-align:right">@x.Location</td>
+                <td style="vertical-align:top;text-align:right">@x.Create_DT.ToString("yyyy-MM-dd")</td>
+                <td style="vertical-align:top;">@x.Remark</td>
+
                 <td>&nbsp;</td>
             </tr>
         }
@@ -146,22 +124,4 @@
         minView: 2,
         forceParse: 0
     });
-
-    function Confirm_Record(Line_ID) {
-        DisAndEnabledBtn(1);
-        if (confirm("确认审核通过？") == false) {
-            DisAndEnabledBtn(0);
-            return false;
-        }
-
-        $.post("/WMS_Waste_Record/WMS_Waste_Record_Confirm_Post/" + Line_ID, function (result) {
-            if (result == "") {
-                ReloadPage();
-            } else {
-                alert(result);
-            }
-        });
-    }
-
 </script>
-

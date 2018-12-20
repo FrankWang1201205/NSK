@@ -7,7 +7,7 @@
 
 <form id="MyCreateForm" action="~/WMS_In/WMS_In_Operate_Preview_Waste_Post/@Head_ID" method="post" enctype="multipart/form-data">
     <div>
-        <button type="button" class="btn btn-primary btn-sm" onclick="Create_WMS_Waste_Record()">报废递交</button>
+        <button type="button" class="btn btn-primary btn-sm" onclick="Create_WMS_Waste_Operate()">报废递交</button>
 
         <table class="FormTable_Sim FormTable_Sim_Border" style="width:100%;margin-top:15px;margin-bottom:20px;">
             <thead>
@@ -71,7 +71,7 @@
         }
     }
 
-    function Create_WMS_Waste_Record() {
+    function Create_WMS_Waste_Operate() {
         if (checkBoxCheckLength("MatSn") <= 0) {
             alert("请选择产品项！");
             return false;
