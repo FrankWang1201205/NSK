@@ -158,8 +158,8 @@ namespace SMART.EBMS.Controllers
             string result = string.Empty;
             try
             {
-                Guid Move_ID = ID;
-                IW.Finish_WMS_Stocktaking_Task(Move_ID);
+                Guid TaskID = ID;
+                IW.Finish_WMS_Stocktaking_Task(TaskID, MyUser());
             }
             catch (Exception Ex)
             {

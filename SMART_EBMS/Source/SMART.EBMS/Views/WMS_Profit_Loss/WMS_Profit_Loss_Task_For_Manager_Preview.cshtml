@@ -1,13 +1,12 @@
-﻿@model WMS_Waste_Head
+﻿@model WMS_Profit_Loss_Head
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     User U = ViewData["User"] as User;
-    WMS_In_Head In_Head = ViewData["In_Head"] as WMS_In_Head;
-    WMS_Out_Head Out_Head = ViewData["Out_Head"] as WMS_Out_Head;
+    WMS_Stock_Task Task = ViewData["Task"] as WMS_Stock_Task;
 }
 
 @{Html.RenderPartial("_TopMenu");}
-<script>TopMenuToAction("任务创建");</script>
+<script>TopMenuToAction("经理核验");</script>
 
 @if (TempData["Error"] != null)
 {
@@ -25,13 +24,14 @@
         <table style="width:100%;margin-bottom:10px;">
             <tr>
                 <td style="text-align:left;width:10px;">
-                    <a href="~/WMS_Task_Waste/WMS_Task_Waste_Create" class="btn btn-info btn-sm">返回</a>
+                    <a href="~/WMS_Profit_Loss/WMS_Profit_Loss_Task_For_Manager" class="btn btn-info btn-sm">返回</a>
                 </td>
                 <td>&nbsp;</td>
                 <td style="text-align:right;">
-                    @if (Model.Status == WMS_Waste_Head_Status_Enum.待执行.ToString())
+                    @if (Model.Status == WMS_Waste_Head_Status_Enum.待审核.ToString())
                     {
-                        <button type="button" class="btn btn-primary btn-sm" onclick="Finish_Was_Waste_Task()">确认消库</button>
+                        <button style="margin-right:25px;" type="button" class="btn btn-primary btn-sm" onclick="Confirm_WMS_Profit_Loss_Head()">确认</button>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="Refuse_WMS_Profit_Loss_Head()">驳回</button>
                     }
                 </td>
             </tr>
@@ -41,7 +41,7 @@
             <table style="text-align:center; width:100%;" class="text-nowrap">
                 <tr>
                     <td style="width:10px;">&nbsp;</td>
-                    <td><span style="text-align:center; padding-left:150px; font-size:20px;">报  废 申 请 单</span></td>
+                    <td><span style="text-align:center; padding-left:150px; font-size:20px;">盈 亏 审 核 单</span></td>
                     <td style="text-align:right; width:10px; text-align:right;"><span style="font-size:14px;">NO.</span><strong style="font-size:18px;">@Model.Task_Bat_No_Str</strong></td>
                 </tr>
             </table>
@@ -56,8 +56,8 @@
                 <tr>
                     <td class="active" style="width:10px;">品项</td>
                     <td><strong>@Model.MatSn_Count.ToString("N0")</strong> <span>项</span></td>
-                    <td class="active" style="width:10px;">数量</td>
-                    <td><strong>@Model.Quantity_Sum.ToString("N0")</strong></td>
+                    <td class="active" style="width:10px;">库位</td>
+                    <td><strong>@Model.Location</strong></td>
                     <td class="active" style="width:10px;">当前状态 </td>
                     <td>@Model.Status</td>
                 </tr>
@@ -66,33 +66,42 @@
             <table class="table table-bordered text-nowrap" style="width:100%;font-size:14px;">
                 <tr class="active">
                     <td style="width:220px;">产品型号</td>
-                    <td style="width:70px;text-align:right">报废数量</td>
+                    <td style="width:70px;text-align:right">调整前</td>
+                    <td style="width:70px;text-align:right">调整后</td>
+                    <td style="width:70px;text-align:right">差异数</td>
                     <td style="width:70px;text-align:right">单价</td>
-                    <td style="width:70px;">库位</td>
+                    <td style="width:70px; text-align: right;">差异金额</td>
                 </tr>
                 @foreach (var x in Model.Line_List)
-               {
+                {
+                    x.Diff_Quantity = x.New_Quantity - x.Old_Quantity;
+                    x.Total_Price = x.Diff_Quantity * x.Unit_Price;
                     <tr>
                         <td><span class="MatSn_Font">@x.MatSn</span></td>
-                        <td style="text-align:right">@x.Quantity.ToString("N0")</td>
+                        <td style="text-align:right">@x.Old_Quantity.ToString("N0")</td>
+                        <td style="text-align:right">@x.New_Quantity.ToString("N0")</td>
+                        <td style="text-align:right">@x.Diff_Quantity.ToString("N0")</td>
                         <td style="text-align:right">@x.Unit_Price.ToString("N2")</td>
-                        <td>@x.Location</td>
+                        <td style="text-align:right">@x.Total_Price.ToString("N2")</td>
                     </tr>
                 }
             </table>
-
-            @if (!string.IsNullOrEmpty(In_Head.Task_Bat_No_Str))
-            {
+         
                 <table style="width:100%;" class="text-nowrap">
                     <tr>
                         <td style="width:10px; text-align:left;">
-                            <span>关联单据：</span>
-                            <a href="~/WMS_In/WMS_In_Operate_Preview/@In_Head.Head_ID" target="_blank" style="font-size:14px;">@In_Head.Task_Bat_No_Str</a><span>（退货单）</span>
-                            <a href="~/WMS_Out/WMS_Out_Task_Preview/@Out_Head.Head_ID" target="_blank" style="font-size:14px;">@Out_Head.Task_Bat_No_Str</a><span>（送货单）</span>
+                            <span>关联盘库单：</span>
+                            @if (Task.Type == Type_Enum.整箱.ToString())
+                            {
+                                <a href="~/WMS_Stocktaking/WMS_Stocktaking_Task_Preview/@Task.Task_ID" target="_blank" style="font-size:14px;">@Task.Location</a>
+                            }
+                            else if (Task.Type == Type_Enum.端数.ToString())
+                            {
+                                <a href="~/WMS_Stocktaking/WMS_Stocktaking_Task_Preview_For_MatSn/@Task.Task_ID" target="_blank" style="font-size:14px;">@Task.Location</a>
+                            }
                         </td>
                     </tr>
                 </table>
-            }
 
             <table style="width:100%;margin-top:20px;" class="text-nowrap">
                 <tr>
@@ -122,23 +131,68 @@
 
     </div>
 </div>
-
 <script>
-    function Finish_Was_Waste_Task() {
-        DisAndEnabledBtn(1);
+    function Confirm_WMS_Profit_Loss_Head() {
         if (confirm("确认保存并发送?") == false) {
-            DisAndEnabledBtn(0);
             return false;
         }
 
-        $.post("/WMS_Task_Waste/WMS_Task_Waste_Create_Sub_Preview_Finish_Post/@Model.Head_ID", function (result) {
+        $.post("/WMS_Profit_Loss/WMS_Profit_Loss_Task_For_Manager_Preview_Confirm_Post/@Model.Head_ID", function (result) {
             if (result == "") {
                 alert("确认成功");
                 ReloadPage();
             } else {
                 alert(result);
-                DisAndEnabledBtn(0);
             }
         });
     }
 </script>
+
+<!--驳回理由-->
+<script>
+    function Refuse_WMS_Profit_Loss_Head() {
+        $('#Refuse_Modal').modal({ backdrop: 'static' });
+    }
+
+    function Refuse_WMS_Profit_Loss_Head_With_Remark() {
+        if (validateFormByClass("Not_Empty") == false) {
+            return false;
+        }
+
+        var Refuse_Remark = $("#Refuse_Remark").val();
+        $.post("/WMS_Profit_Loss/WMS_Profit_Loss_Task_For_Manager_Preview_Refuse_Post/@Model.Head_ID", { Refuse_Remark: Refuse_Remark }, function (result) {
+            if (result == "") {
+                alert("驳回成功");
+                ReloadPage();
+            } else {
+                alert(result);
+            }
+        });
+    }
+
+</script>
+<div class="modal fade" id="Refuse_Modal">
+    <div class="modal-dialog" style="width:400px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">驳回理由</h5>
+            </div>
+            <div class="modal-body" id="Refuse_Context">
+                <table style="width:100%;">
+                    <tr>
+                        <td>
+                            <input id="Refuse_Remark" name="Refuse_Remark" type="text" class="form-control input-sm Not_Empty" placeholder="驳回理由" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:center;padding-top:10px;">
+                            <button type="button" onclick="Refuse_WMS_Profit_Loss_Head_With_Remark()" style="width:80px;" class="btn btn-primary btn-sm">递交</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<!--驳回理由-->

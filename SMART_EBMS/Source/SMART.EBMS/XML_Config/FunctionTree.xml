@@ -166,16 +166,20 @@
     
     <SubMenu Name="盘库作业">
       <TopMenu_OFF URL="WMS_Stocktaking/WMS_Stocktaking_Task_Temp" TopName="底盘任务" RoleTitle="公司经理,采购主管,仓管主管"/>
-      <TopMenu URL="WMS_Stocktaking/WMS_Stocktaking_Task" TopName="盘库任务" RoleTitle="公司经理,采购主管,仓管主管,仓管专员"/>
-      <TopMenu URL="WMS_Stocktaking/WMS_Stocktaking_Task_Record" TopName="盘库记录" RoleTitle="公司经理,采购主管,仓管主管"/>
       <TopMenu_OFF URL="WMS_Stocktaking/WMS_Stock_Record_Temp" TopName="临时导入" RoleTitle="公司经理,采购主管"/>
       <TopMenu_OFF URL="WMS_Stocktaking/WMS_Stocktaking_Task_First" TopName="首次盘库" RoleTitle=""/>
       <TopMenu_OFF URL="WMS_Stocktaking/WMS_Stocktaking_Task_First_MatSn" TopName="端数型号" RoleTitle=""/>
+      
+      <TopMenu URL="WMS_Stocktaking/WMS_Stocktaking_Task" TopName="盘库任务" RoleTitle="公司经理,采购主管,仓管主管,仓管专员"/>
+      <TopMenu URL="WMS_Stocktaking/WMS_Stocktaking_Task_Record" TopName="盘库记录" RoleTitle="公司经理,采购主管,仓管主管"/>
     </SubMenu>
     
     <SubMenu Name="盈亏记录">
-      <TopMenu URL="WMS_Profit_Loss/WMS_Profit_Or_Loss_Check" TopName="盈亏核验" RoleTitle="财务会计"/>
-      <TopMenu URL="WMS_Profit_Loss/WMS_Profit_Or_Loss" TopName="盈亏记录" RoleTitle="公司经理,采购主管,仓管主管,财务会计"/>
+      <TopMenu URL="WMS_Profit_Loss/WMS_Profit_Loss_Task_Search" TopName="审核查看" RoleTitle="公司经理,采购主管,仓管主管,仓管专员"/>
+      <TopMenu URL="WMS_Profit_Loss/WMS_Profit_Loss_Task_Record" TopName="审核记录" RoleTitle="公司经理,采购主管,仓管主管,仓管专员"/>
+      <TopMenu URL="WMS_Profit_Loss/WMS_Profit_Loss_Task_For_Manager" TopName="经理核验" RoleTitle="公司经理"/>
+      <TopMenu URL="WMS_Profit_Loss/WMS_Profit_Loss_Task_For_Accounting" TopName="财务核验" RoleTitle="公司经理,财务会计"/>
+      <TopMenu URL="WMS_Profit_Loss/WMS_Profit_Loss_Record_Search" TopName="盈亏记录" RoleTitle="公司经理,采购主管,仓管主管,财务会计"/>
     </SubMenu>
     
     <SubMenu Name="库存查询">
@@ -194,7 +198,6 @@
       <TopMenu URL="WMS_Waste_Operate/WMS_Waste_Check_For_Manager" TopName="经理核验" RoleTitle="公司经理"/>
       <TopMenu URL="WMS_Waste_Operate/WMS_Waste_Check_For_Accounting" TopName="财务核验" RoleTitle="公司经理,财务会计"/>
       <TopMenu URL="WMS_Waste_Operate/WMS_Waste_Record_Search" TopName="报废记录" RoleTitle="公司经理,财务会计"/>
-
     </SubMenu>
   </FunctionTree>
 

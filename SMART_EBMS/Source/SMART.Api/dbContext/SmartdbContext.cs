@@ -78,6 +78,7 @@ namespace SMART.Api
             modelBuilder.Entity<Purchase_Temp_Search>().Property(c => c.Price_Cost).HasPrecision(18, 8);
 
             modelBuilder.Entity<WMS_Waste_Line>().Property(c => c.Unit_Price).HasPrecision(18, 8);
+            modelBuilder.Entity<WMS_Profit_Loss_Line>().Property(c => c.Unit_Price).HasPrecision(18, 8);
 
         }
 
@@ -138,6 +139,9 @@ namespace SMART.Api
         public DbSet<WMS_Stock_Temp> WMS_Stock_Temp { get; set; }
         public DbSet<WMS_Stock_Record> WMS_Stock_Record { get; set; }
         public DbSet<WMS_Stock_Task> WMS_Stock_Task { get; set; }
+
+        public DbSet<WMS_Profit_Loss_Head> WMS_Profit_Loss_Head { get; set; }
+        public DbSet<WMS_Profit_Loss_Line> WMS_Profit_Loss_Line { get; set; }
 
         public DbSet<WMS_Out_Head> WMS_Out_Head { get; set; }
         public DbSet<WMS_Out_Line> WMS_Out_Line { get; set; }

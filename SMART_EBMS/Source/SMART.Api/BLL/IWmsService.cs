@@ -58,13 +58,12 @@ namespace SMART.Api
         void Set_WMS_Stock_Task_Work_Person(WMS_Stock_Task Task);
         void Batch_Create_WMS_Stocktaking_With_Work_Person(List<Guid> Task_IDList, List<string> Work_Person_List);
         void Reset_WMS_Stocktaking_Task_Scan_By_MatSn(Guid TaskID, string MatSn);
-        void Finish_WMS_Stocktaking_Task(Guid TaskID);
+        void Finish_WMS_Stocktaking_Task(Guid TaskID, User U);
         void Delete_WMS_Stocktaking_Task(Guid TaskID);
         string Get_WMS_Stocktaking_To_Excel(Guid LinkMainCID, string Location);
         WMS_Stocktaking Get_WMS_Stocktaking_Item(Guid TaskID, string MatSn);
         void Set_WMS_Stocktaking_Task_For_MatSn(Guid TaskID, string MatSn, int Quantity);
         void Reset_WMS_Stocktaking_Task_Scan(Guid TaskID);
-        string Get_WMS_Profit_Loss_List_To_Excel(List<WMS_Profit_Loss> PL_List);
 
         //动盘（端数库位）
         WMS_Stock_Task Get_WMS_Stock_Task_Item_Other(Guid TaskID);
@@ -77,8 +76,6 @@ namespace SMART.Api
 
         //盈亏记录
         PageList<WMS_Profit_Loss> Get_WMS_Profit_Loss_PageList(WMS_Stock_Filter MF);
-        void Delete_WMS_Profit_Loss_Item(Guid Line_ID);
-        void Confirm_WMS_Profit_Loss_Item(Guid Line_ID, User U);
         PageList<WMS_Profit_Loss_Other> Get_WMS_Profit_Loss_Other_PageList(WMS_Stock_Filter MF);
         void Confirm_WMS_Profit_Loss_Other_Item(Guid Line_ID, User U);
 
@@ -143,6 +140,18 @@ namespace SMART.Api
         void Finish_WMS_Task_Waste(Guid HeadID);
         void Link_WMS_Task_Waste(Guid HeadID, Guid Link_HeadID);
         void Cancel_Link_WMS_Task_Waste(Guid Link_HeadID);
+
+        //盈亏审核
+        PageList<WMS_Profit_Loss_Head> Get_WMS_Profit_Loss_Head_PageList(WMS_Profit_Loss_Filter MF);
+        PageList<WMS_Profit_Loss_Head> Get_WMS_Profit_Loss_Head_PageList_Sub(WMS_Profit_Loss_Filter MF);
+        PageList<WMS_Profit_Loss_Head> Get_WMS_Profit_Loss_Head_PageList_Record(WMS_Profit_Loss_Filter MF);
+        WMS_Profit_Loss_Head Get_WMS_Profit_Loss_Head_DB(Guid Head_ID);
+        WMS_Profit_Loss_Head Get_WMS_Profit_Loss_Head_Item(Guid Head_ID);
+        string Get_WMS_Profit_Loss_Line_By_Head_To_Excel(List<WMS_Profit_Loss_Line> PL_List);
+        void Confirm_WMS_Profit_Loss_Head(Guid HeadID, User U);
+        void Refuse_WMS_Profit_Loss_Head(Guid HeadID, string Remark, User U);
+        void Confirm_WMS_Profit_Loss_Head_By_Accounting(Guid HeadID, User U);
+        void Finish_WMS_Profit_Loss_Head(Guid HeadID);
     }
 
     public partial class WmsService : IWmsService
@@ -530,7 +539,7 @@ namespace SMART.Api
             {
                 query_Temp = query_Temp.Where(x => x.MatBrand.Contains(MF.MatBrand)).AsQueryable();
             }
-            
+
             List<WMS_Stock_Temp> Stock_Temp_List_DB = query_Temp.ToList();
 
             List<WMS_Stock_Temp> Stock_Temp_List_Search = Stock_Temp_List_DB.Where(x => MatSn_List_Temp.Contains(x.MatSn) == false).ToList();
@@ -1034,18 +1043,6 @@ namespace SMART.Api
 
             List<WMS_Stock> Stock_List = query.ToList();
 
-            List<WMS_Stock_Group_Location> List = Get_WMS_Stock_Group_Location_List(Stock_List);
-          
-            PageList<WMS_Stock_Group_Location> PList = new PageList<WMS_Stock_Group_Location>();
-            PList.PageIndex = MF.PageIndex;
-            PList.PageSize = MF.PageSize;
-            PList.TotalRecord = List.Count();
-            PList.Rows = List.Skip((MF.PageIndex - 1) * MF.PageSize).Take(MF.PageSize).ToList();
-            return PList;
-        }
-
-        private List<WMS_Stock_Group_Location> Get_WMS_Stock_Group_Location_List(List<WMS_Stock> Stock_List)
-        {
             var Group = from x in Stock_List
                         group x by x.Location into g
                         select new
@@ -1064,7 +1061,13 @@ namespace SMART.Api
             }
 
             List = List.OrderBy(x => x.Location).ToList();
-            return List;
+
+            PageList<WMS_Stock_Group_Location> PList = new PageList<WMS_Stock_Group_Location>();
+            PList.PageIndex = MF.PageIndex;
+            PList.PageSize = MF.PageSize;
+            PList.TotalRecord = List.Count();
+            PList.Rows = List.Skip((MF.PageIndex - 1) * MF.PageSize).Take(MF.PageSize).ToList();
+            return PList;
         }
 
         public List<WMS_Stock_Group> Get_WMS_Stock_Group_List_For_WMS_Up(Guid Move_ID)
@@ -1356,7 +1359,7 @@ namespace SMART.Api
                 T.Location = Location;
                 List.Add(T);
             }
-            
+
             PageList<WMS_Stock_Group_Location> PList = new PageList<WMS_Stock_Group_Location>();
             PList.PageIndex = MF.PageIndex;
             PList.PageSize = MF.PageSize;
@@ -1396,7 +1399,7 @@ namespace SMART.Api
             Stock_List_Recommend = Stock_List_Recommend.Where(x => Loc_Str_List_DB.Contains(x.Location)).ToList();
 
             var Group = from x in Stock_List_DB.Where(x => Mat_List_Str.Contains(x.MatSn))
-                        group x by new { x.MatSn} into g
+                        group x by new { x.MatSn } into g
                         select new
                         {
                             MatSn = g.Key.MatSn,
@@ -1412,7 +1415,7 @@ namespace SMART.Api
                 Stock_Group.Quantity_Sum = x.Quantity_Sum;
                 Group_List.Add(Stock_Group);
             }
-            
+
             foreach (var x in Group_List)
             {
                 Mat = Mat_List.Where(c => c.MatSn == x.MatSn).FirstOrDefault();
@@ -1430,7 +1433,7 @@ namespace SMART.Api
         {
             Location = Location.Trim();
             if (db.WMS_Location.Where(x => x.LinkMainCID == Link_MainCID && x.Location == Location).Any() == false) { throw new Exception("系统中不存在该库位"); }
-            
+
             WMS_Move Move = new WMS_Move();
             Move.Move_ID = MyGUID.NewGUID();
             Move.LinkMainCID = Link_MainCID;
@@ -1448,7 +1451,7 @@ namespace SMART.Api
             db.WMS_Move.Add(Move);
             MyDbSave.SaveChange(db);
         }
-        
+
     }
 
     //盘库任务
@@ -1482,7 +1485,7 @@ namespace SMART.Api
             {
                 Location_List = Location_List.Where(x => x.Type == MF.Type).ToList();
             }
-            
+
             PageList<WMS_Location> PList = new PageList<WMS_Location>();
             PList.PageIndex = MF.PageIndex;
             PList.PageSize = MF.PageSize;
@@ -1818,6 +1821,11 @@ namespace SMART.Api
                 throw new Exception("产品已完成盘库，不支持重置扫描");
             }
 
+            if (db.WMS_Profit_Loss_Head.Where(x => x.Link_HeadID == Task.Task_ID && x.Status != WMS_Profit_Loss_Head_Status_Enum.已退回.ToString()).Any())
+            {
+                throw new Exception("此盘库任务存在盈亏审核单正在审核，不支持重置扫描！");
+            }
+
             if (Scan_List.Where(x => x.Status == WMS_Stocktaking_Status_Enum.已底盘.ToString()).Any())
             {
                 throw new Exception("产品已完成盘库，不支持重置扫描");
@@ -1843,6 +1851,11 @@ namespace SMART.Api
                 throw new Exception("产品已完成盘库，不支持重置扫描");
             }
 
+            if (db.WMS_Profit_Loss_Head.Where(x => x.Link_HeadID == Task.Task_ID && x.Status != WMS_Profit_Loss_Head_Status_Enum.已退回.ToString()).Any())
+            {
+                throw new Exception("此盘库任务存在盈亏审核单正在审核，不支持重置扫描！");
+            }
+
             if (Scan_List.Where(x => x.Status == WMS_Stocktaking_Status_Enum.已底盘.ToString()).Any())
             {
                 throw new Exception("产品已完成盘库，不支持重置扫描");
@@ -1857,7 +1870,7 @@ namespace SMART.Api
             MyDbSave.SaveChange(db);
         }
 
-        public void Finish_WMS_Stocktaking_Task(Guid TaskID)
+        public void Finish_WMS_Stocktaking_Task(Guid TaskID, User U)
         {
             WMS_Stock_Task Task = Get_WMS_Stock_Task_Item(TaskID);
 
@@ -1877,30 +1890,26 @@ namespace SMART.Api
             //盘库扫描
             List<WMS_Stocktaking_Scan> Scan_List = db.WMS_Stocktaking_Scan.Where(x => x.Link_TaskID == Task.Task_ID && x.Status == WMS_Stocktaking_Status_Enum.待底盘.ToString()).ToList();
 
-            //库存盈亏创建
-            WMS_Profit_Loss PL = new WMS_Profit_Loss();
-            List<WMS_Profit_Loss> PL_List = new List<WMS_Profit_Loss>();
-            DateTime Create_DT = DateTime.Now;
-
+            //库存盈亏审核单创建
+            WMS_Profit_Loss_Line Line = new WMS_Profit_Loss_Line();
+            List<WMS_Profit_Loss_Line> Line_List = new List<WMS_Profit_Loss_Line>();
+            
             //低于系统数量
             foreach (var x in Task.Line_List.Where(x => x.Status == WMS_Stock_Task_Line_State_Enum.低于系统.ToString()).ToList())
             {
                 Stock_DB = Stock_List_DB.Where(c => c.MatSn == x.MatSn).FirstOrDefault();
                 Stock_DB = Stock_DB == null ? new WMS_Stock() : Stock_DB;
 
-                PL = new WMS_Profit_Loss();
-                PL.Line_ID = MyGUID.NewGUID();
-                PL.Old_Quantity = x.Quantity_Sum;
-                PL.MatSn = x.MatSn;
-                PL.New_Quantity = x.Quantity_Scan_Sum;
-                PL.Location = Task.Location;
-                PL.Create_DT = Create_DT;
-                PL.MatBrand = Stock_DB.MatBrand;
-                PL.LinkMainCID = Task.LinkMainCID;
-                PL.Link_TaskID = Task.Task_ID;
-                PL.Price = Stock_DB.Price;
-                PL.Status = WMS_Profit_Loss_Status_Enum.未确定.ToString();
-                PL_List.Add(PL);
+                Line = new WMS_Profit_Loss_Line();
+                Line.Line_ID = MyGUID.NewGUID();
+                Line.Old_Quantity = x.Quantity_Sum;
+                Line.MatSn = x.MatSn;
+                Line.New_Quantity = x.Quantity_Scan_Sum;
+                Line.MatBrand = Stock_DB.MatBrand;
+                Line.MatName = Stock_DB.MatName;
+                Line.MatUnit = Stock_DB.MatUnit;
+                Line.Unit_Price = Stock_DB.Price;
+                Line_List.Add(Line);
             }
 
             //还未扫码
@@ -1909,20 +1918,16 @@ namespace SMART.Api
                 Stock_DB = Stock_List_DB.Where(c => c.MatSn == x.MatSn).FirstOrDefault();
                 Stock_DB = Stock_DB == null ? new WMS_Stock() : Stock_DB;
 
-                PL = new WMS_Profit_Loss();
-                PL.Line_ID = MyGUID.NewGUID();
-                PL.Old_Quantity = x.Quantity_Sum;
-                PL.MatSn = x.MatSn;
-                PL.New_Quantity = 0;
-                PL.Location = Task.Location;
-                PL.Create_DT = Create_DT;
-                PL.MatBrand = Stock_DB.MatBrand;
-                PL.LinkMainCID = Task.LinkMainCID;
-                PL.Link_TaskID = Task.Task_ID;
-                PL.Price = Stock_DB.Price;
-                PL.Status = WMS_Profit_Loss_Status_Enum.未确定.ToString();
-
-                PL_List.Add(PL);
+                Line = new WMS_Profit_Loss_Line();
+                Line.Line_ID = MyGUID.NewGUID();
+                Line.Old_Quantity = x.Quantity_Sum;
+                Line.MatSn = x.MatSn;
+                Line.New_Quantity = 0;
+                Line.MatBrand = Stock_DB.MatBrand;
+                Line.MatName = Stock_DB.MatName;
+                Line.MatUnit = Stock_DB.MatUnit;
+                Line.Unit_Price = Stock_DB.Price;
+                Line_List.Add(Line);
             }
 
             //多出型号
@@ -1938,20 +1943,16 @@ namespace SMART.Api
                 Stock_DB = Stock_List_DB.Where(c => c.MatSn == x.MatSn).FirstOrDefault();
                 Stock_DB = Stock_DB == null ? new WMS_Stock() : Stock_DB;
 
-                PL = new WMS_Profit_Loss();
-                PL.Line_ID = MyGUID.NewGUID();
-                PL.Old_Quantity = 0;
-                PL.New_Quantity = x.Quantity_Scan_Sum;
-                PL.MatSn = x.MatSn;
-                PL.MatBrand = Stock_DB.MatBrand;
-                PL.Location = Task.Location;
-                PL.Create_DT = Create_DT;
-                PL.LinkMainCID = Task.LinkMainCID;
-                PL.Link_TaskID = Task.Task_ID;
-                PL.Price = Stock_DB_Price.Price;//不是很准确
-                PL.Status = WMS_Profit_Loss_Status_Enum.未确定.ToString();
-
-                PL_List.Add(PL);
+                Line = new WMS_Profit_Loss_Line();
+                Line.Line_ID = MyGUID.NewGUID();
+                Line.Old_Quantity = 0;
+                Line.New_Quantity = x.Quantity_Scan_Sum;
+                Line.MatSn = x.MatSn;
+                Line.MatBrand = Stock_DB.MatBrand;
+                Line.MatName = Stock_DB.MatName;
+                Line.MatUnit = Stock_DB.MatUnit;
+                Line.Unit_Price = Stock_DB_Price.Price;//不是很准确
+                Line_List.Add(Line);
             }
 
             //超出系统数量
@@ -1960,35 +1961,53 @@ namespace SMART.Api
                 Stock_DB = Stock_List_DB.Where(c => c.MatSn == x.MatSn).FirstOrDefault();
                 Stock_DB = Stock_DB == null ? new WMS_Stock() : Stock_DB;
 
-                PL = new WMS_Profit_Loss();
-                PL.Line_ID = MyGUID.NewGUID();
-                PL.Old_Quantity = x.Quantity_Sum;
-                PL.MatSn = x.MatSn;
-                PL.MatBrand = Stock_DB.MatBrand;
-                PL.Location = Task.Location;
-                PL.Create_DT = Create_DT;
-                PL.LinkMainCID = Task.LinkMainCID;
-                PL.Link_TaskID = Task.Task_ID;
-                PL.New_Quantity = x.Quantity_Scan_Sum;
-                PL.Price = Stock_DB.Price;
-                PL.Status = WMS_Profit_Loss_Status_Enum.未确定.ToString();
-                PL_List.Add(PL);
+                Line = new WMS_Profit_Loss_Line();
+                Line.Line_ID = MyGUID.NewGUID();
+                Line.Old_Quantity = x.Quantity_Sum;
+                Line.MatSn = x.MatSn;
+                Line.New_Quantity = x.Quantity_Scan_Sum;
+                Line.MatBrand = Stock_DB.MatBrand;
+                Line.MatName = Stock_DB.MatName;
+                Line.MatUnit = Stock_DB.MatUnit;
+                Line.Unit_Price = Stock_DB.Price;
+                Line_List.Add(Line);
             }
 
-            //是否产生盈亏记录
-            if (PL_List.Any())
+            //是否产生盈亏审核单
+            if (Line_List.Any())
             {
-                List<string> MatSn_List_Temp = PL_List.Select(x => x.MatSn).Distinct().ToList();
+                WMS_Profit_Loss_Head Head = new WMS_Profit_Loss_Head();
+                Head.Head_ID = MyGUID.NewGUID();
+                Head.Task_Bat_No = this.Auto_Create_Task_Bat_WMS_Profit_Loss_Head(U);
+                Head.Task_Bat_No_Str = "PL" + Head.Task_Bat_No;
+                Head.Create_DT = DateTime.Now;
+                Head.Create_Person = U.UserFullName;
+                Head.Status = WMS_Profit_Loss_Head_Status_Enum.待审核.ToString();
+                Head.LinkMainCID = U.LinkMainCID;
+                Head.Link_HeadID = Task.Task_ID;
+                Head.Location = Task.Location;
 
-                if (db.WMS_Profit_Loss.Where(x => x.Link_TaskID == Task.Task_ID && x.Status == WMS_Profit_Loss_Status_Enum.未确定.ToString() && MatSn_List_Temp.Contains(x.MatSn)).Any())
+                if (db.WMS_Profit_Loss_Head.Where(x => x.Link_HeadID == Task.Task_ID && x.Status != WMS_Profit_Loss_Head_Status_Enum.已退回.ToString()).Any())
                 {
-                    throw new Exception("该盘库任务存在盈亏记录，不支持生成新的盈亏记录");
+                    throw new Exception("该盘库任务存在盈亏审核单待审核，不支持操作");
                 }
 
-                db.WMS_Profit_Loss.AddRange(PL_List);
+                foreach (var x in Line_List)
+                {
+                    x.Task_Bat_No = Head.Task_Bat_No;
+                    x.Task_Bat_No_Str = Head.Task_Bat_No_Str;
+                    x.Create_DT = Head.Create_DT;
+                    x.Create_Person = Head.Create_Person;
+                    x.LinkMainCID = Head.LinkMainCID;
+                    x.Link_Head_ID = Head.Head_ID;
+                    x.Location = Head.Location;
+                }
+
+                db.WMS_Profit_Loss_Head.Add(Head);
+                db.WMS_Profit_Loss_Line.AddRange(Line_List);
 
                 ISentEmailService IS = new SentEmailService();
-                IS.Sent_To_Accounting_Staff_With_Profit_Or_Loss(PL_List, Task);
+                IS.Sent_To_Manager_With_WMS_Profit_Loss_Head(Head, Line_List);
             }
             else
             {
@@ -2060,57 +2079,8 @@ namespace SMART.Api
                 db.WMS_Stock.AddRange(Stock_List);
                 db.WMS_Stock.RemoveRange(Stock_List_DB);
             }
+
             MyDbSave.SaveChange(db);
-        }
-
-        public string Get_WMS_Profit_Loss_List_To_Excel(List<WMS_Profit_Loss> PL_List)
-        {
-            string Path = string.Empty;
-            //设定表头
-            DataTable DT = new DataTable("Excel");
-            //设定dataTable表头
-            DataColumn myDataColumn = new DataColumn();
-            List<string> TableHeads = new List<string>();
-
-            TableHeads.Add("调整日期");
-            TableHeads.Add("产品型号");
-            TableHeads.Add("品牌");
-            TableHeads.Add("库位");
-            TableHeads.Add("调整前");
-            TableHeads.Add("调整后");
-            TableHeads.Add("差异数");
-            TableHeads.Add("差异金额");
-            foreach (string TableHead in TableHeads)
-            {
-                //TableHead
-                myDataColumn = new DataColumn();
-                myDataColumn.DataType = Type.GetType("System.String");
-                myDataColumn.ColumnName = TableHead;
-                myDataColumn.ReadOnly = true;
-                myDataColumn.Unique = false;  //获取或设置一个值，该值指示列的每一行中的值是否必须是唯一的。
-                DT.Columns.Add(myDataColumn);
-            }
-            
-            DataRow newRow;
-            foreach (var x in PL_List.OrderBy(x => x.MatSn).ToList())
-            {
-                x.Diff_Quantity = x.New_Quantity - x.Old_Quantity;
-                x.Total_Price = x.Diff_Quantity * x.Price;
-
-                newRow = DT.NewRow();
-                newRow["调整日期"] = x.Create_DT.ToString("yyyy-MM-dd");
-                newRow["产品型号"] = x.MatSn;
-                newRow["品牌"] = x.MatBrand;
-                newRow["库位"] = x.Location;
-                newRow["调整前"] = x.Old_Quantity.ToString("N0");
-                newRow["调整后"] = x.New_Quantity.ToString("N0");
-                newRow["差异数"] = x.Diff_Quantity.ToString("N0");
-                newRow["差异金额"] = x.Total_Price.ToString("N4");
-                DT.Rows.Add(newRow);
-            }
-
-            Path = MyExcel.CreateNewExcel(DT);
-            return Path;
         }
 
         public void Finish_WMS_Stocktaking_Task_Other(Guid TaskID)
@@ -2264,6 +2234,11 @@ namespace SMART.Api
             if (Task.Status == WMS_Stock_Task_Enum.已盘库.ToString())
             {
                 throw new Exception("产品已完成盘库，不支持重置扫描");
+            }
+
+            if (db.WMS_Profit_Loss_Head.Where(x => x.Link_HeadID == Task.Task_ID).Any())
+            {
+                throw new Exception("此盘库任务存在盈亏审核单，不支持删除！");
             }
 
             if (db.WMS_Stocktaking_Scan.Where(x => x.Link_TaskID == Task.Task_ID).Any())
@@ -2687,150 +2662,7 @@ namespace SMART.Api
 
             return PList;
         }
-
-        public void Delete_WMS_Profit_Loss_Item(Guid Line_ID)
-        {
-            WMS_Profit_Loss PL = db.WMS_Profit_Loss.Find(Line_ID);
-            if (PL == null) { throw new Exception("WMS_Profit_Loss is null"); }
-
-            if (PL.Status == WMS_Profit_Loss_Status_Enum.已确定.ToString())
-            {
-                throw new Exception("该盈亏记录已确认生成，不支持删除");
-            }
-
-            WMS_Stock_Task Task = db.WMS_Stock_Task.Find(PL.Link_TaskID);
-            if (Task == null) { throw new Exception("WMS_Stock_Task is null"); }
-
-            WMS_Location Loc = db.WMS_Location.Where(x => x.LinkMainCID == Task.LinkMainCID && x.Location == Task.Location).FirstOrDefault();
-            if (Loc == null) { throw new Exception("WMS_Location is null"); }
-
-            //if (Loc.Type == Type_Enum.端数.ToString() && Task.Status == WMS_Stock_Task_Enum.已盘库.ToString() && Task.Link_HeadID != Guid.Empty)
-            //{
-            //    throw new Exception("该盈亏记录由配货动盘产生，不支持删除");
-            //}
-
-            db.WMS_Profit_Loss.Remove(PL);
-            MyDbSave.SaveChange(db);
-        }
-
-        public void Confirm_WMS_Profit_Loss_Item(Guid Line_ID, User U)
-        {
-            WMS_Profit_Loss PL = db.WMS_Profit_Loss.Find(Line_ID);
-            if (PL == null) { throw new Exception("WMS_Profit_Loss is null"); }
-
-            if (PL.Status == WMS_Profit_Loss_Status_Enum.已确定.ToString())
-            {
-                throw new Exception("该盈亏记录已确认生成，请勿重复操作");
-            }
-
-            WMS_Move Move = db.WMS_Move.Find(PL.Link_TaskID);
-
-            WMS_Out_Pick_Scan Pick_Scan = db.WMS_Out_Pick_Scan.Find(PL.Link_TaskID);
-            WMS_Out_Head Head = new WMS_Out_Head();
-            if (Pick_Scan != null)
-            {
-                Head = db.WMS_Out_Head.Find(Pick_Scan.Link_TaskID);
-            }
-
-            WMS_Stock_Task Task = db.WMS_Stock_Task.Find(PL.Link_TaskID);
-            if (Pick_Scan == null && Move == null && Task == null)
-            {
-                throw new Exception("底盘任务不存在");
-            }
-
-            List<WMS_Stocktaking> Stocktaking_List_DB = db.WMS_Stocktaking.Where(x => x.Link_TaskID == PL.Link_TaskID && x.Location == PL.Location && x.Status == WMS_Stocktaking_Status_Enum.待底盘.ToString() && x.MatSn == PL.MatSn).ToList();
-
-            List<WMS_Stock> Stock_List_DB = db.WMS_Stock.Where(x => x.LinkMainCID == PL.LinkMainCID && x.Location == PL.Location && x.MatSn == PL.MatSn).ToList();
-
-            List<WMS_Stocktaking_Scan> Stocktaking_Scan_List = db.WMS_Stocktaking_Scan.Where(x => x.Link_TaskID == PL.Link_TaskID && x.Location == PL.Location && x.Status == WMS_Stocktaking_Status_Enum.待底盘.ToString() && x.MatSn == PL.MatSn).ToList();
-
-            List<WMS_Stocktaking> Stocktaking_List = new List<WMS_Stocktaking>();
-            WMS_Stocktaking Stocktaking = new WMS_Stocktaking();
-
-            WMS_Stock Stock_DB = new WMS_Stock();
-            if (Stock_List_DB.Any() == false)
-            {
-                Stock_DB.WMS_In_DT = DateTime.Now.ToString("yyyy-MM-dd");
-                Stock_DB.MatName = string.Empty;
-                Stock_DB.MatUnit = "PCS";
-                Stock_DB.Price = 0;
-                Stock_DB.Wms_In_Head_ID = Guid.Empty;
-                Stock_DB.LinkMainCID = PL.LinkMainCID;
-            }
-            else
-            {
-                Stock_DB = Stock_List_DB.FirstOrDefault();
-            }
-
-            List<WMS_Stock> Stock_List = new List<WMS_Stock>();
-            WMS_Stock Stock = new WMS_Stock();
-
-            DateTime Create_DT = DateTime.Now;
-
-            foreach (var x in Stocktaking_Scan_List.OrderBy(x => x.Create_DT).ToList())
-            {
-                Stock = new WMS_Stock();
-                Stock.Stock_ID = MyGUID.NewGUID();
-                Stock.Quantity = x.Scan_Quantity;
-                Stock.Package = x.Package_Type;
-                Stock.Location_Type = WMS_Stock_Location_Type_Enum.标准库位.ToString();
-                Stock.Location = PL.Location;
-                Stock.WMS_In_DT = Stock_DB.WMS_In_DT;
-                Stock.MatSn = x.MatSn;
-                Stock.MatName = Stock_DB.MatName;
-                Stock.MatUnit = Stock_DB.MatUnit;
-                Stock.MatBrand = PL.MatBrand;
-                Stock.Price = Stock_DB.Price;
-                Stock.Wms_In_Head_ID = Stock_DB.Wms_In_Head_ID;
-                Stock.LinkMainCID = Stock_DB.LinkMainCID;
-                Stock_List.Add(Stock);
-
-                //生成新的底盘内容用于比对扫描
-                Stocktaking = new WMS_Stocktaking();
-                Stocktaking.Stocktaking_ID = MyGUID.NewGUID();
-                Stocktaking.MatSn = x.MatSn;
-                Stocktaking.MatBrand = PL.MatBrand;
-                Stocktaking.Quantity = x.Scan_Quantity;
-                Stocktaking.Location = x.Location;
-                Stocktaking.Create_DT = Create_DT;
-                if (Move != null)
-                {
-                    Stocktaking.Link_TaskID = Move.Move_ID;
-                    Stocktaking.LinkMainCID = Move.LinkMainCID;
-                    Stocktaking.Task_Bat_No = Move.Task_Bat_No;
-                    Stocktaking.Work_Person = Move.Work_Person;
-                }
-                else if (Pick_Scan != null)
-                {
-                    Stocktaking.Link_TaskID = Pick_Scan.Scan_ID;
-                    Stocktaking.LinkMainCID = Pick_Scan.LinkMainCID;
-                    Stocktaking.Task_Bat_No = Head.Task_Bat_No_Str;
-                    Stocktaking.Work_Person = Pick_Scan.Scan_Person;
-                }
-                else if (Task != null)
-                {
-                    Stocktaking.Link_TaskID = Task.Task_ID;
-                    Stocktaking.LinkMainCID = Task.LinkMainCID;
-                    Stocktaking.Task_Bat_No = "";
-                    Stocktaking.Work_Person = Task.Work_Person;
-                }
-
-                Stocktaking.Status = WMS_Stocktaking_Status_Enum.待底盘.ToString();
-                Stocktaking_List.Add(Stocktaking);
-            }
-
-            db.WMS_Stock.AddRange(Stock_List);
-            db.WMS_Stocktaking.AddRange(Stocktaking_List);
-
-            db.WMS_Stock.RemoveRange(Stock_List_DB);
-            db.WMS_Stocktaking.RemoveRange(Stocktaking_List_DB);
-
-            PL.Work_Person = U.UserFullName;
-            PL.Status = WMS_Profit_Loss_Status_Enum.已确定.ToString();
-            db.Entry(PL).State = EntityState.Modified;
-            MyDbSave.SaveChange(db);
-        }
-
+        
         public PageList<WMS_Profit_Loss_Other> Get_WMS_Profit_Loss_Other_PageList(WMS_Stock_Filter MF)
         {
             var query = db.WMS_Profit_Loss_Other.Where(x => x.LinkMainCID == MF.LinkMainCID).AsQueryable();
@@ -4041,7 +3873,7 @@ namespace SMART.Api
         public PageList<WMS_Track_Info> Get_WMS_Track_Info_PageList(Track_Info_Filter MF)
         {
             var query = db.WMS_Track_Info.Where(x => x.LinkMainCID == MF.LinkMainCID).AsQueryable();
-            
+
             if (!string.IsNullOrEmpty(MF.Logistics_Company))
             {
                 query = query.Where(x => x.Logistics_Company.Contains(MF.Logistics_Company)).AsQueryable();
@@ -4090,7 +3922,7 @@ namespace SMART.Api
             return Info;
         }
 
-        public List<WMS_Track_Info> Get_WMS_Track_Info_List_From_Upload(HttpPostedFileBase ExcelFile,User U)
+        public List<WMS_Track_Info> Get_WMS_Track_Info_List_From_Upload(HttpPostedFileBase ExcelFile, User U)
         {
             //创建上传文件
             string FileName = Path.GetFileName(ExcelFile.FileName);   //获取文件名
@@ -4118,7 +3950,7 @@ namespace SMART.Api
 
                 try { Line.Sender_Name = row.GetCell(1).ToString().Trim(); } catch { Line.Sender_Name = string.Empty; }
                 if (string.IsNullOrEmpty(Line.Sender_Name)) { break; }
-                try { Line.Sender_Phone= row.GetCell(2).ToString().Trim(); } catch { Line.Sender_Phone = string.Empty; }
+                try { Line.Sender_Phone = row.GetCell(2).ToString().Trim(); } catch { Line.Sender_Phone = string.Empty; }
                 try { Line.Sender_Tel = row.GetCell(3).ToString().Trim(); } catch { Line.Sender_Tel = string.Empty; }
                 try { Line.Sender_Address = row.GetCell(4).ToString().Trim(); } catch { Line.Sender_Address = string.Empty; }
                 try { Line.Receiver_Name = row.GetCell(5).ToString().Trim(); } catch { Line.Receiver_Name = string.Empty; }
@@ -4129,7 +3961,7 @@ namespace SMART.Api
                 try { Line.Logistics_Company = row.GetCell(10).ToString().Trim(); } catch { Line.Logistics_Company = string.Empty; }
                 try { Line.Logistics_Company_Loc = row.GetCell(11).ToString().Trim(); } catch { Line.Logistics_Company_Loc = string.Empty; }
                 try { Line.Tracking_No = row.GetCell(12).ToString().Trim(); } catch { Line.Tracking_No = string.Empty; }
-                
+
                 //过滤换行符
                 Line.Sender_Name = Line.Sender_Name.Replace(Environment.NewLine, "");
                 Line.Sender_Phone = Line.Sender_Phone.Replace(Environment.NewLine, "");
@@ -4257,7 +4089,7 @@ namespace SMART.Api
                 if (Line_List_Sub.Any())
                 {
                     x.MatSn_Count = Line_List_Sub.Select(c => c.MatSn).Distinct().Count();
-                    x.Quantity_Sum = Line_List_Sub.Sum(c=>c.Quantity);
+                    x.Quantity_Sum = Line_List_Sub.Sum(c => c.Quantity);
                 }
             }
 
@@ -4352,7 +4184,7 @@ namespace SMART.Api
             Head = Head == null ? new WMS_Waste_Head() : Head;
             Head.Line_List = db.WMS_Waste_Line.Where(x => x.Link_Head_ID == Head.Head_ID).ToList();
             Head.MatSn_Count = Head.Line_List.Select(x => x.MatSn).Distinct().Count();
-            Head.Quantity_Sum = Head.Line_List.Sum(x=>x.Quantity);
+            Head.Quantity_Sum = Head.Line_List.Sum(x => x.Quantity);
             return Head;
         }
 
@@ -4365,7 +4197,7 @@ namespace SMART.Api
             {
                 throw new Exception("报废申请单当前状态不支持删除");
             }
-            
+
             List<WMS_Waste_Line> Line_List = db.WMS_Waste_Line.Where(x => x.Link_Head_ID == Head.Head_ID).ToList();
 
             db.WMS_Waste_Line.RemoveRange(Line_List);
@@ -4428,7 +4260,7 @@ namespace SMART.Api
             Group_List = Group_List.Skip((MF.PageIndex - 1) * MF.PageSize).Take(MF.PageSize).ToList();
             return Group_List;
         }
-        
+
         private long Auto_Create_Task_Bat_Waste(User U)
         {
             long Task_Bat_No_Min = Convert.ToInt64(DateTime.Now.ToString("yyyyMMdd") + "0001");
@@ -4529,6 +4361,11 @@ namespace SMART.Api
                 throw new Exception("报废单已递交，不支持重复操作");
             }
 
+            if (Head.Status != WMS_Waste_Head_Status_Enum.待编辑.ToString())
+            {
+                throw new Exception("报废单状态异常");
+            }
+
             Head.Status = WMS_Waste_Head_Status_Enum.待审核.ToString();
 
             List<WMS_Waste_Line> Line_List = db.WMS_Waste_Line.Where(x => x.Link_Head_ID == HeadID).ToList();
@@ -4594,7 +4431,7 @@ namespace SMART.Api
             DataColumn myDataColumn = new DataColumn();
             List<string> TableHeads = new List<string>();
             TableHeads.Add("序");
-            TableHeads.Add("产品型号");               
+            TableHeads.Add("产品型号");
             TableHeads.Add("报废数量");
             TableHeads.Add("库位");
             foreach (string TableHead in TableHeads)
@@ -4652,6 +4489,11 @@ namespace SMART.Api
                 throw new Exception("报废单已审核，不支持重复操作");
             }
 
+            if (Head.Status != WMS_Waste_Head_Status_Enum.待审核.ToString())
+            {
+                throw new Exception("报废单状态异常");
+            }
+
             Head.Status = WMS_Waste_Head_Status_Enum.已审核.ToString();
             Head.Audit_DT = DateTime.Now;
             Head.Auditor = U.UserFullName;
@@ -4680,6 +4522,11 @@ namespace SMART.Api
                 throw new Exception("报废单等待仓库执行，不支持重复操作");
             }
 
+            if (Head.Status != WMS_Waste_Head_Status_Enum.已审核.ToString())
+            {
+                throw new Exception("报废单状态异常");
+            }
+
             Head.Status = WMS_Waste_Head_Status_Enum.待执行.ToString();
             Head.Approve_DT = DateTime.Now;
             Head.Approver = U.UserFullName;
@@ -4689,7 +4536,7 @@ namespace SMART.Api
             {
                 throw new Exception("存在产品报废数量小于等于零");
             }
-         
+
             //需要发邮件
             ISentEmailService IS = new SentEmailService();
             IS.Sent_To_WMS_Staff_With_Comfirmed_WMS_Waste_Task(Head, Line_List);
@@ -4709,6 +4556,11 @@ namespace SMART.Api
             if (Head.Status == WMS_Waste_Head_Status_Enum.已退回.ToString())
             {
                 throw new Exception("报废单已退回，不支持重复操作");
+            }
+
+            if (Head.Status != WMS_Waste_Head_Status_Enum.待审核.ToString())
+            {
+                throw new Exception("报废单状态异常");
             }
 
             Head.Status = WMS_Waste_Head_Status_Enum.已退回.ToString();
@@ -4738,6 +4590,11 @@ namespace SMART.Api
             if (Head.Status == WMS_Waste_Head_Status_Enum.已消库.ToString())
             {
                 throw new Exception("报废单已消库，不支持重复操作");
+            }
+
+            if (Head.Status != WMS_Waste_Head_Status_Enum.待执行.ToString())
+            {
+                throw new Exception("报废单状态异常");
             }
 
             Head.Status = WMS_Waste_Head_Status_Enum.已消库.ToString();
@@ -4816,12 +4673,465 @@ namespace SMART.Api
             {
                 db.WMS_Stock.RemoveRange(Stock_List);
             }
-           
+
             db.WMS_Stock_Record.AddRange(Record_List);
             db.Entry(Head).State = EntityState.Modified;
             MyDbSave.SaveChange(db);
         }
 
+    }
+
+    //盈亏审核
+    public partial class WmsService : IWmsService
+    {
+        public PageList<WMS_Profit_Loss_Head> Get_WMS_Profit_Loss_Head_PageList(WMS_Profit_Loss_Filter MF)
+        {
+            var query = db.WMS_Profit_Loss_Head.Where(x => x.LinkMainCID == MF.LinkMainCID).AsQueryable();
+
+            if (!string.IsNullOrEmpty(MF.Task_No_Str))
+            {
+                query = query.Where(x => x.Task_Bat_No_Str.Contains(MF.Task_No_Str)).AsQueryable();
+            }
+
+            if (!string.IsNullOrEmpty(MF.Create_Person))
+            {
+                query = query.Where(x => x.Create_Person.Contains(MF.Create_Person)).AsQueryable();
+            }
+
+            if (!string.IsNullOrEmpty(MF.Status))
+            {
+                query = query.Where(x => x.Status == MF.Status).AsQueryable();
+            }
+
+            if (!string.IsNullOrEmpty(MF.Auditor))
+            {
+                query = query.Where(x => x.Auditor.Contains(MF.Auditor)).AsQueryable();
+            }
+
+            if (!string.IsNullOrEmpty(MF.Time_Start) && !string.IsNullOrEmpty(MF.Time_End))
+            {
+                DateTime Start_DT = Convert.ToDateTime((MF.Time_Start));
+                DateTime End_DT = Convert.ToDateTime((MF.Time_End));
+                End_DT = End_DT.AddDays(1);
+                if (DateTime.Compare(Start_DT, End_DT) > 0)
+                {
+                    throw new Exception("起始时间不可大于结束时间！");
+                }
+
+                query = query.Where(x => x.Create_DT >= Start_DT && x.Create_DT <= End_DT).AsQueryable();
+            }
+
+            PageList<WMS_Profit_Loss_Head> PList = new PageList<WMS_Profit_Loss_Head>();
+            PList.PageIndex = MF.PageIndex;
+            PList.PageSize = MF.PageSize;
+            PList.TotalRecord = query.Count();
+            PList.Rows = query.OrderByDescending(x => x.Create_DT).Skip((MF.PageIndex - 1) * MF.PageSize).Take(MF.PageSize).ToList();
+
+            List<Guid> ID_List = PList.Rows.Select(x => x.Head_ID).Distinct().ToList();
+            List<WMS_Profit_Loss_Line> Line_List = db.WMS_Profit_Loss_Line.Where(x => ID_List.Contains(x.Link_Head_ID)).ToList();
+            List<WMS_Profit_Loss_Line> Line_List_Sub = new List<WMS_Profit_Loss_Line>();
+            foreach (var x in PList.Rows)
+            {
+                Line_List_Sub = Line_List.Where(c => c.Link_Head_ID == x.Head_ID).ToList();
+                if (Line_List_Sub.Any())
+                {
+                    x.MatSn_Count = Line_List_Sub.Select(c => c.MatSn).Distinct().Count();
+                }
+            }
+
+            return PList;
+        }
+
+        public PageList<WMS_Profit_Loss_Head> Get_WMS_Profit_Loss_Head_PageList_Sub(WMS_Profit_Loss_Filter MF)
+        {
+            var query = db.WMS_Profit_Loss_Head.Where(x => x.LinkMainCID == MF.LinkMainCID).AsQueryable();
+            query = query.Where(x => x.Status != WMS_Profit_Loss_Head_Status_Enum.已执行.ToString() && x.Status != WMS_Profit_Loss_Head_Status_Enum.已退回.ToString()).AsQueryable();
+
+            if (!string.IsNullOrEmpty(MF.Task_No_Str))
+            {
+                query = query.Where(x => x.Task_Bat_No_Str.Contains(MF.Task_No_Str)).AsQueryable();
+            }
+
+            if (!string.IsNullOrEmpty(MF.Create_Person))
+            {
+                query = query.Where(x => x.Create_Person.Contains(MF.Create_Person)).AsQueryable();
+            }
+
+            if (!string.IsNullOrEmpty(MF.Status))
+            {
+                query = query.Where(x => x.Status == MF.Status).AsQueryable();
+            }
+
+            if (!string.IsNullOrEmpty(MF.Auditor))
+            {
+                query = query.Where(x => x.Auditor.Contains(MF.Auditor)).AsQueryable();
+            }
+
+            if (!string.IsNullOrEmpty(MF.Time_Start) && !string.IsNullOrEmpty(MF.Time_End))
+            {
+                DateTime Start_DT = Convert.ToDateTime((MF.Time_Start));
+                DateTime End_DT = Convert.ToDateTime((MF.Time_End));
+                End_DT = End_DT.AddDays(1);
+                if (DateTime.Compare(Start_DT, End_DT) > 0)
+                {
+                    throw new Exception("起始时间不可大于结束时间！");
+                }
+
+                query = query.Where(x => x.Create_DT >= Start_DT && x.Create_DT <= End_DT).AsQueryable();
+            }
+
+            PageList<WMS_Profit_Loss_Head> PList = new PageList<WMS_Profit_Loss_Head>();
+            PList.PageIndex = MF.PageIndex;
+            PList.PageSize = MF.PageSize;
+            PList.TotalRecord = query.Count();
+            PList.Rows = query.OrderByDescending(x => x.Create_DT).Skip((MF.PageIndex - 1) * MF.PageSize).Take(MF.PageSize).ToList();
+
+            List<Guid> ID_List = PList.Rows.Select(x => x.Head_ID).Distinct().ToList();
+            List<WMS_Profit_Loss_Line> Line_List = db.WMS_Profit_Loss_Line.Where(x => ID_List.Contains(x.Link_Head_ID)).ToList();
+            List<WMS_Profit_Loss_Line> Line_List_Sub = new List<WMS_Profit_Loss_Line>();
+            foreach (var x in PList.Rows)
+            {
+                Line_List_Sub = Line_List.Where(c => c.Link_Head_ID == x.Head_ID).ToList();
+                if (Line_List_Sub.Any())
+                {
+                    x.MatSn_Count = Line_List_Sub.Select(c => c.MatSn).Distinct().Count();
+                }
+            }
+
+            return PList;
+        }
+
+        public PageList<WMS_Profit_Loss_Head> Get_WMS_Profit_Loss_Head_PageList_Record(WMS_Profit_Loss_Filter MF)
+        {
+            var query = db.WMS_Profit_Loss_Head.Where(x => x.LinkMainCID == MF.LinkMainCID).AsQueryable();
+            query = query.Where(x => x.Status == WMS_Profit_Loss_Head_Status_Enum.已执行.ToString() || x.Status == WMS_Profit_Loss_Head_Status_Enum.已退回.ToString()).AsQueryable();
+
+            if (!string.IsNullOrEmpty(MF.Task_No_Str))
+            {
+                query = query.Where(x => x.Task_Bat_No_Str.Contains(MF.Task_No_Str)).AsQueryable();
+            }
+
+            if (!string.IsNullOrEmpty(MF.Create_Person))
+            {
+                query = query.Where(x => x.Create_Person.Contains(MF.Create_Person)).AsQueryable();
+            }
+
+            if (!string.IsNullOrEmpty(MF.Auditor))
+            {
+                query = query.Where(x => x.Auditor.Contains(MF.Auditor)).AsQueryable();
+            }
+
+            if (!string.IsNullOrEmpty(MF.Status))
+            {
+                query = query.Where(x => x.Status == MF.Status).AsQueryable();
+            }
+
+            if (!string.IsNullOrEmpty(MF.Time_Start) && !string.IsNullOrEmpty(MF.Time_End))
+            {
+                DateTime Start_DT = Convert.ToDateTime((MF.Time_Start));
+                DateTime End_DT = Convert.ToDateTime((MF.Time_End));
+                End_DT = End_DT.AddDays(1);
+                if (DateTime.Compare(Start_DT, End_DT) > 0)
+                {
+                    throw new Exception("起始时间不可大于结束时间！");
+                }
+
+                query = query.Where(x => x.Create_DT >= Start_DT && x.Create_DT <= End_DT).AsQueryable();
+            }
+
+            PageList<WMS_Profit_Loss_Head> PList = new PageList<WMS_Profit_Loss_Head>();
+            PList.PageIndex = MF.PageIndex;
+            PList.PageSize = MF.PageSize;
+            PList.TotalRecord = query.Count();
+            PList.Rows = query.OrderByDescending(x => x.Create_DT).Skip((MF.PageIndex - 1) * MF.PageSize).Take(MF.PageSize).ToList();
+
+            List<Guid> ID_List = PList.Rows.Select(x => x.Head_ID).Distinct().ToList();
+            List<WMS_Profit_Loss_Line> Line_List = db.WMS_Profit_Loss_Line.Where(x => ID_List.Contains(x.Link_Head_ID)).ToList();
+            List<WMS_Profit_Loss_Line> Line_List_Sub = new List<WMS_Profit_Loss_Line>();
+            foreach (var x in PList.Rows)
+            {
+                Line_List_Sub = Line_List.Where(c => c.Link_Head_ID == x.Head_ID).ToList();
+                if (Line_List_Sub.Any())
+                {
+                    x.MatSn_Count = Line_List_Sub.Select(c => c.MatSn).Distinct().Count();
+                }
+            }
+
+            return PList;
+        }
+
+        public WMS_Profit_Loss_Head Get_WMS_Profit_Loss_Head_DB(Guid Head_ID)
+        {
+            WMS_Profit_Loss_Head Head = db.WMS_Profit_Loss_Head.Find(Head_ID);
+            Head = Head == null ? new WMS_Profit_Loss_Head() : Head;
+            return Head;
+        }
+
+        public WMS_Profit_Loss_Head Get_WMS_Profit_Loss_Head_Item(Guid Head_ID)
+        {
+            WMS_Profit_Loss_Head Head = db.WMS_Profit_Loss_Head.Find(Head_ID);
+            Head = Head == null ? new WMS_Profit_Loss_Head() : Head;
+            Head.Line_List = db.WMS_Profit_Loss_Line.Where(x => x.Link_Head_ID == Head.Head_ID).ToList();
+            Head.MatSn_Count = Head.Line_List.Select(x => x.MatSn).Distinct().Count();
+            return Head;
+        }
+
+        private long Auto_Create_Task_Bat_WMS_Profit_Loss_Head(User U)
+        {
+            long Task_Bat_No_Min = Convert.ToInt64(DateTime.Now.ToString("yyyyMMdd") + "0001");
+            long Task_Bat_No_Max = Convert.ToInt64(DateTime.Now.ToString("yyyyMMdd") + "9999");
+
+            long Task_Bat_No = 0;
+            if (db.WMS_Profit_Loss_Head.Where(x => x.LinkMainCID == U.LinkMainCID && x.Task_Bat_No >= Task_Bat_No_Min).Any())
+            {
+                Task_Bat_No = db.WMS_Profit_Loss_Head.Where(x => x.LinkMainCID == U.LinkMainCID).Max(x => x.Task_Bat_No) + 1;
+            }
+            else
+            {
+                Task_Bat_No = Task_Bat_No_Min;
+            }
+
+            if (Task_Bat_No > Task_Bat_No_Max)
+            {
+                throw new Exception("已经超过最大值，请联系管理人员");
+            }
+            return Task_Bat_No;
+        }
+
+        public void Confirm_WMS_Profit_Loss_Head(Guid HeadID, User U)
+        {
+            WMS_Profit_Loss_Head Head = db.WMS_Profit_Loss_Head.Find(HeadID);
+            if (Head == null) { throw new Exception("WMS_Profit_Loss_Head is null"); }
+
+            if (Head.Status == WMS_Profit_Loss_Head_Status_Enum.已审核.ToString())
+            {
+                throw new Exception("盈亏审核单已审核，不支持重复操作");
+            }
+
+            if (Head.Status != WMS_Profit_Loss_Head_Status_Enum.待审核.ToString())
+            {
+                throw new Exception("盈亏审核单状态异常");
+            }
+
+            Head.Status = WMS_Profit_Loss_Head_Status_Enum.已审核.ToString();
+            Head.Audit_DT = DateTime.Now;
+            Head.Auditor = U.UserFullName;
+
+            List<WMS_Profit_Loss_Line> Line_List = db.WMS_Profit_Loss_Line.Where(x => x.Link_Head_ID == HeadID).ToList();
+
+            //需要发邮件
+            ISentEmailService IS = new SentEmailService();
+            IS.Sent_To_Manager_With_WMS_Profit_Loss_Head(Head, Line_List);
+
+            db.Entry(Head).State = EntityState.Modified;
+            MyDbSave.SaveChange(db);
+        }
+
+        public void Confirm_WMS_Profit_Loss_Head_By_Accounting(Guid HeadID, User U)
+        {
+            WMS_Profit_Loss_Head Head = db.WMS_Profit_Loss_Head.Find(HeadID);
+            if (Head == null) { throw new Exception("WMS_Profit_Loss_Head is null"); }
+
+            if (Head.Status == WMS_Profit_Loss_Head_Status_Enum.待执行.ToString())
+            {
+                throw new Exception("盈亏审核单等待仓库执行，不支持重复操作");
+            }
+
+            if (Head.Status != WMS_Profit_Loss_Head_Status_Enum.已审核.ToString())
+            {
+                throw new Exception("盈亏审核单状态异常");
+            }
+
+            Head.Status = WMS_Profit_Loss_Head_Status_Enum.待执行.ToString();
+            Head.Approve_DT = DateTime.Now;
+            Head.Approver = U.UserFullName;
+
+            List<WMS_Profit_Loss_Line> Line_List = db.WMS_Profit_Loss_Line.Where(x => x.Link_Head_ID == HeadID).ToList();
+
+            //需要发邮件
+            ISentEmailService IS = new SentEmailService();
+            IS.Sent_To_WMS_Staff_With_Comfirmed_WMS_Profit_Loss_Head(Head, Line_List);
+
+            db.Entry(Head).State = EntityState.Modified;
+            MyDbSave.SaveChange(db);
+        }
+
+        public void Refuse_WMS_Profit_Loss_Head(Guid HeadID, string Remark, User U)
+        {
+            if (string.IsNullOrEmpty(Remark)) { throw new Exception("未添加驳回理由"); }
+
+            WMS_Profit_Loss_Head Head = db.WMS_Profit_Loss_Head.Find(HeadID);
+            if (Head == null) { throw new Exception("WMS_Profit_Loss_Head is null"); }
+
+            if (Head.Status == WMS_Profit_Loss_Head_Status_Enum.已退回.ToString())
+            {
+                throw new Exception("盈亏审核单已退回，不支持重复操作");
+            }
+
+            if (Head.Status != WMS_Profit_Loss_Head_Status_Enum.待审核.ToString())
+            {
+                throw new Exception("盈亏审核单状态异常");
+            }
+
+            Head.Status = WMS_Profit_Loss_Head_Status_Enum.已退回.ToString();
+            Head.Audit_DT = DateTime.Now;
+            Head.Auditor = U.UserFullName;
+            Head.Refuse_Remark = Remark.Trim();
+
+            List<WMS_Profit_Loss_Line> Line_List = db.WMS_Profit_Loss_Line.Where(x => x.Link_Head_ID == HeadID).ToList();
+
+            //需要发邮件
+            ISentEmailService IS = new SentEmailService();
+            IS.Sent_To_WMS_Staff_With_Refused_WMS_Profit_Loss_Head(Head, Line_List);
+
+            db.Entry(Head).State = EntityState.Modified;
+            MyDbSave.SaveChange(db);
+        }
+
+        public void Finish_WMS_Profit_Loss_Head(Guid HeadID)
+        {
+            WMS_Profit_Loss_Head Head = db.WMS_Profit_Loss_Head.Find(HeadID);
+            if (Head == null) { throw new Exception("WMS_Profit_Loss_Head is null"); }
+
+            if (Head.Status == WMS_Profit_Loss_Head_Status_Enum.已执行.ToString())
+            {
+                throw new Exception("盈亏审核单已执行，不支持重复操作");
+            }
+
+            if (Head.Status != WMS_Profit_Loss_Head_Status_Enum.待执行.ToString())
+            {
+                throw new Exception("盈亏审核单状态异常");
+            }
+
+            Head.Status = WMS_Profit_Loss_Head_Status_Enum.已执行.ToString();
+            Head.Finish_DT = DateTime.Now;
+
+            //更新库存
+            WMS_Stock_Task Task = db.WMS_Stock_Task.Find(Head.Link_HeadID);
+            if (Task == null) { throw new Exception("WMS_Stock_Task is null"); }
+
+            List<WMS_Stocktaking_Scan> Stocktaking_Scan_List = db.WMS_Stocktaking_Scan.Where(x => x.Link_TaskID == Task.Task_ID).ToList();
+
+            List<WMS_Stock> Stock_List_DB = db.WMS_Stock.Where(x => x.LinkMainCID == Head.LinkMainCID && x.Location == Task.Location).ToList();
+            WMS_Stock Stock_DB = new WMS_Stock();
+
+            WMS_Stock Stock_DB_Null = new WMS_Stock();
+            Stock_DB_Null.WMS_In_DT = DateTime.Now.ToString("yyyy-MM-dd");
+            Stock_DB_Null.MatName = string.Empty;
+            Stock_DB_Null.MatUnit = "PCS";
+            Stock_DB_Null.Price = 0;
+            Stock_DB_Null.Wms_In_Head_ID = Guid.Empty;
+            Stock_DB_Null.LinkMainCID = Task.LinkMainCID;
+
+            List<WMS_Stock> Stock_List = new List<WMS_Stock>();
+            WMS_Stock Stock = new WMS_Stock();
+            foreach (var x in Stocktaking_Scan_List.OrderBy(x => x.Create_DT).ToList())
+            {
+                Stock_DB = Stock_List_DB.Where(c => c.MatSn == x.MatSn).FirstOrDefault();
+                if (Stock_DB == null)
+                {
+                    Stock_DB = Stock_DB_Null;
+                }
+
+                Stock = new WMS_Stock();
+                Stock.Stock_ID = MyGUID.NewGUID();
+                Stock.Quantity = x.Scan_Quantity;
+                Stock.Package = x.Package_Type;
+                Stock.Location_Type = WMS_Stock_Location_Type_Enum.标准库位.ToString();
+                Stock.Location = Task.Location;
+                Stock.WMS_In_DT = Stock_DB.WMS_In_DT;
+                Stock.MatSn = x.MatSn;
+                Stock.MatName = Stock_DB.MatName;
+                Stock.MatUnit = Stock_DB.MatUnit;
+                Stock.MatBrand = Stock_DB.MatBrand;
+                Stock.Price = Stock_DB.Price;
+                Stock.Wms_In_Head_ID = Stock_DB.Wms_In_Head_ID;
+                Stock.LinkMainCID = Stock_DB.LinkMainCID;
+                Stock_List.Add(Stock);
+            }
+
+            db.WMS_Stock.RemoveRange(Stock_List_DB);
+            db.WMS_Stock.AddRange(Stock_List);
+
+            //生成盈亏记录
+            List<WMS_Profit_Loss_Line> Line_List = db.WMS_Profit_Loss_Line.Where(x => x.Link_Head_ID == Head.Head_ID).ToList();
+            List<WMS_Profit_Loss> Record_List = new List<WMS_Profit_Loss>();
+            WMS_Profit_Loss Record = new WMS_Profit_Loss();
+            
+            DateTime DT = DateTime.Now;
+            foreach (var x in Line_List)
+            {
+                Record = new WMS_Profit_Loss();
+                Record.Line_ID = MyGUID.NewGUID();
+                Record.MatSn = x.MatSn;
+                Record.MatBrand = x.MatBrand;
+                Record.MatName = x.MatName;
+                Record.MatUnit = x.MatUnit;
+                Record.Old_Quantity = x.Old_Quantity;
+                Record.New_Quantity = x.New_Quantity;
+                Record.Price = x.Unit_Price;
+                Record.Location = x.Location;
+                Record.Status = WMS_Profit_Loss_Status_Enum.已确定.ToString();
+                Record.Work_Person = Task.Work_Person;
+                Record.Create_DT = DT;
+                Record.Link_TaskID = Task.Task_ID;
+                Record.LinkMainCID = Task.LinkMainCID;
+                Record_List.Add(Record);
+            }
+
+            db.WMS_Profit_Loss.AddRange(Record_List);
+
+            db.Entry(Head).State = EntityState.Modified;
+            MyDbSave.SaveChange(db);
+        }
+
+        public string Get_WMS_Profit_Loss_Line_By_Head_To_Excel(List<WMS_Profit_Loss_Line> PL_List)
+        {
+            string Path = string.Empty;
+            //设定表头
+            DataTable DT = new DataTable("Excel");
+            //设定dataTable表头
+            DataColumn myDataColumn = new DataColumn();
+            List<string> TableHeads = new List<string>();
+            
+            TableHeads.Add("产品型号");
+            TableHeads.Add("品牌");
+            TableHeads.Add("库位");
+            TableHeads.Add("调整前");
+            TableHeads.Add("调整后");
+            TableHeads.Add("差异数");
+            TableHeads.Add("差异金额");
+            foreach (string TableHead in TableHeads)
+            {
+                //TableHead
+                myDataColumn = new DataColumn();
+                myDataColumn.DataType = Type.GetType("System.String");
+                myDataColumn.ColumnName = TableHead;
+                myDataColumn.ReadOnly = true;
+                myDataColumn.Unique = false;  //获取或设置一个值，该值指示列的每一行中的值是否必须是唯一的。
+                DT.Columns.Add(myDataColumn);
+            }
+
+            DataRow newRow;
+            foreach (var x in PL_List.OrderBy(x => x.MatSn).ToList())
+            {
+                x.Diff_Quantity = x.New_Quantity - x.Old_Quantity;
+                x.Total_Price = x.Diff_Quantity * x.Unit_Price;
+
+                newRow = DT.NewRow();
+                newRow["产品型号"] = x.MatSn;
+                newRow["品牌"] = x.MatBrand;
+                newRow["库位"] = x.Location;
+                newRow["调整前"] = x.Old_Quantity.ToString("N0");
+                newRow["调整后"] = x.New_Quantity.ToString("N0");
+                newRow["差异数"] = x.Diff_Quantity.ToString("N0");
+                newRow["差异金额"] = x.Total_Price.ToString("N4");
+                DT.Rows.Add(newRow);
+            }
+
+            Path = MyExcel.CreateNewExcel(DT);
+            return Path;
+        }
     }
 }
 
@@ -4901,6 +5211,12 @@ namespace SMART.Api
             if (db.WMS_Stock_Task.Where(x => x.LinkMainCID == MainCID && x.Status == WMS_Stock_Task_Enum.未盘库.ToString() && x.Location == Task.Location).Any())
             {
                 throw new Exception("该库位存在未盘库任务");
+            }
+
+            //存在移库任务或配货任务，不允许盘库
+            if (db.WMS_Move.Where(x => x.Out_Location == Task.Location && x.Move_Status == WMS_Move_Status_Enum.待移库.ToString()).Any())
+            {
+                throw new Exception("该库位存在移库任务，不支持盘库");
             }
 
             //创建底盘信息

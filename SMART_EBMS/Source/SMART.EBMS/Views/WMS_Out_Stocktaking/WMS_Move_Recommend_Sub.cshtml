@@ -1,90 +1,108 @@
 ﻿@model List<WMS_Stocktaking_Scan>
 @{
-    Layout = null;
+    Layout = "~/Views/Shared/_Layout.cshtml";
     WMS_Stock_Task Task = ViewData["Task"] as WMS_Stock_Task;
+    List<WMS_Move> Move_List = ViewData["Move_List"] as List<WMS_Move>;
 }
 
-<table style="width:100%;">
-    <tr>
-        <td><h4>库位：<strong style="font-size:22px;">@Task.Location</strong></h4></td>
-        <td>&nbsp;</td>
-        <td style="text-align:right">
-            <button type="button" onclick="Create_Move_Task('@Task.Task_ID')" class="btn btn-primary btn-sm">创建移库任务</button>
-        </td>
-    </tr>
-</table>
+@{Html.RenderPartial("_TopMenu");}
+<script>TopMenuToAction("移库推荐");</script>
 
-<table class="table table-bordered text-nowrap" style="width:100%;">
-    <thead>
-        <tr>
-            <th style="width:200px;">型号</th>
-            <th style="width:70px;text-align:right">数量</th>
-            <th style="width:70px;text-align:right">装箱数</th>
-            <th>推荐移库目标信息</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var x in Model)
-        {
+@if (TempData["Error"] != null)
+{
+    <div class="Textarea_Error">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="Textarea_Success">@TempData["Success"]</div>
+}
+
+<div id="RightDivContext" style="margin:15px 15px 0px 15px">
+    <div style="width:700px">
+
+        <table style="width:100%;margin-bottom:10px;">
             <tr>
-                <td style="vertical-align:top;" class="MatSn_Font">@x.MatSn</td>
-                <td style="vertical-align:top;text-align:right">@x.Scan_Quantity.ToString("N0")</td>
-                <td style="vertical-align:top;text-align:right">@x.Pack_Qty.ToString("N0")</td>
-                <td style="vertical-align:top;">
-                    @foreach (var xx in x.Recommend_Info_List)
+                <td style="text-align:left;width:10px;">
+                    <a href="~/WMS_Out_Stocktaking/WMS_Move_Recommend" class="btn btn-info btn-sm">返回</a>
+                </td>
+                <td>&nbsp;</td>
+                <td style="text-align:right;">
+                    @if (Task.Recommend_Status == WMS_Recommend_Status_Enum.未推荐.ToString())
                     {
-                       <span>@xx.Location (@xx.Quantity)，</span>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="Finish_Was_Waste_Task()">推荐完成</button>
                     }
                 </td>
             </tr>
-        }
-    </tbody>
-</table>
+        </table>
 
-@*<table class="table table-bordered text-nowrap" style="width:100%;">
-
-        @foreach (var x in Model)
-        {
-            <tr>
-                <th style="width:200px;">型号</th>
-                <th style="width:70px;text-align:right">数量</th>
-                <th style="width:70px;text-align:right">装箱数</th>
-            </tr>
-            <tr>
-                <td style="vertical-align:top;" class="MatSn_Font">@x.MatSn</td>
-                <td style="vertical-align:top;text-align:right">@x.Scan_Quantity.ToString("N0")</td>
-                <td style="vertical-align:top;text-align:right">@x.Pack_Qty.ToString("N0")</td>
-            </tr>
-            <tr>
-                <td style="vertical-align:top;height:35px;" colspan="3">
-                    @foreach (var xx in x.Recommend_Info_List)
+        <div style="background-color:white;">
+            <h3 style="padding-left:15px;padding-top:15px;">库位：<strong>@Task.Location</strong></h3>
+            <div style="padding:15px;">
+                <table class="table table-bordered text-nowrap" style="width:100%;font-size:14px;">
+                    <tr class="active">
+                        <td style="width:220px;">产品型号</td>
+                        <td style="width:70px;text-align:right">数量</td>
+                        <td style="width:70px;text-align:right">装箱数</td>
+                        <td>推荐移库目标信息</td>
+                    </tr>
+                    @foreach (var x in Model)
                     {
-                        <a onclick="Create_Move_Task('@Task.Task_ID','@xx.Location')">
-                            <input type="checkbox" id="Location_@xx.Location" name="Location_@xx.Location" style="cursor:pointer" />
-                            <label for="Location_@xx.Location" style="padding-right:20px;cursor:pointer">@xx.Location (@xx.Quantity)</label>
-                        </a>
+                        <tr>
+                            <td><span class="MatSn_Font">@x.MatSn</span></td>
+                            <td style="text-align:right">@x.Scan_Quantity.ToString("N0")</td>
+                            <td style="text-align:right">@x.Pack_Qty.ToString("N0")</td>
+                            <td style="padding:0px;">
+                                @foreach (var xx in x.Recommend_Info_List)
+                                {
+                                    <div onclick="Create_Move_Task('@x.MatSn','@xx.Location','@x.Scan_Quantity')" style="cursor:pointer;width:100%;margin:15px;margin-bottom:28px">
+                                        <i style="border:1px solid black;padding:8px;" class="icon-plus"></i>
+                                        <span style="padding-left:5px;">@xx.Location</span>
+                                        <span style="padding-left:5px;">(@xx.Quantity.ToString("N0"))</span>
+                                    </div>
+                                }
+                            </td>
+
+                        </tr>
                     }
-                </td>
+                </table>
 
-            </tr>
-        }
-</table>*@
+                @if (Move_List.Any())
+                {
+                    <h4>移库任务</h4>
+                    <table class="table table-bordered text-nowrap" style="width:100%;font-size:14px;">
+                        @foreach (var x in Move_List)
+                        {
+                            <tr>
+                                <td style="width:90px;">
+                                    <div onclick="Delete_Move_Task('@x.Move_ID')" style="cursor:pointer;width:100%;margin:15px;">
+                                        <i style="border:1px solid black;padding:8px;" class="icon-minus"></i>
+                                        <span style="padding-left:5px;">@x.In_Location</span>
+                                    </div>
+                                </td>
+                                <td style="width:70px;text-align:center">
+                                    <button style="margin:8px" type="button" class="btn btn-info btn-sm" onclick="Show_WMS_Move_Task('@x.Move_ID')">查看</button>
+                                </td>
+                                <td style="text-align:center;padding:20px;width:70px;">@x.Move_Status</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                        }
+                    </table>
+                }
+            </div>
+        </div>
 
-<table class="FormTable_Sim" style="width:100%;">
-    <tr>
-        <td style="text-align:center">
-            <button type="button" onclick="Finish_Recommend('@Task.Task_ID')" class="btn btn-info btn-sm">不接受推荐</button>
-        </td>
-    </tr>
-</table>
+    </div>
+</div>
 
 <script>
-    function Finish_Recommend(Task_ID) {
-        if (confirm("确认已接受推荐？") == false) {
+    function Create_Move_Task(MatSn, Location, Qty) {
+        if (confirm("确认创建移库任务?") == false) {
             return false;
         }
 
-        $.post("/WMS_Out_Stocktaking/WMS_Move_Recommend_Sub_Finish_Post/" + Task_ID, function (result) {
+        var Quantity = parseInt(Qty);
+        $.post("/WMS_Out_Stocktaking/WMS_Move_Recommend_Sub_Create_Post/@Task.Task_ID", { MatSn: MatSn, Location: Location, Quantity: Quantity }, function (result) {
             if (result == "") {
                 ReloadPage();
             } else {
@@ -93,17 +111,57 @@
         });
     }
 
-    function Create_Move_Task(Task_ID) {
-        if (confirm("确认创建移库任务？") == false) {
+    function Delete_Move_Task(Move_ID) {
+        if (confirm("确认删除移库任务?") == false) {
             return false;
         }
 
-        $.post("/WMS_Out_Stocktaking/WMS_Move_Recommend_Sub_Create_Post/" + Task_ID, function (result) {
+        $.post("/WMS_Out_Stocktaking/WMS_Move_Recommend_Sub_Delete_Post/" + Move_ID, function (result) {
             if (result == "") {
-                alert("移库任务创建成功");
+                ReloadPage();
+            } else {
+                alert(result);
+            }
+        });
+    }
+
+    function Finish_Was_Waste_Task() {
+        if (confirm("确认完成推荐?") == false) {
+            return false;
+        }
+
+        $.post("/WMS_Out_Stocktaking/WMS_Move_Recommend_Sub_Finish_Post/@Task.Task_ID", function (result) {
+            if (result == "") {
+                alert("确认成功");
+                ReloadPage();
             } else {
                 alert(result);
             }
         });
     }
 </script>
+
+<!--查看移库任务-->
+<script>
+    function Show_WMS_Move_Task(Move_ID) {
+        Reload_WMS_Move_Task_Modal(Move_ID);
+        $('#WMS_Move_Task_Modal').modal({ backdrop: 'static' });
+    }
+
+    function Reload_WMS_Move_Task_Modal(Move_ID) {
+        $("#WMS_Move_Task_Modal_Context").text("Loading...");
+        $("#WMS_Move_Task_Modal_Context").load("/WMS_Out_Stocktaking/WMS_Move_Recommend_Sub_Operate/" + Move_ID);
+    }
+</script>
+<div class="modal fade" id="WMS_Move_Task_Modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">移库任务</h5>
+            </div>
+            <div class="modal-body" id="WMS_Move_Task_Modal_Context"></div>
+        </div>
+    </div>
+</div>
+<!--查看移库任务-->

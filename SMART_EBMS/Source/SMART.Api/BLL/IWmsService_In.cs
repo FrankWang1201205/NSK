@@ -2639,16 +2639,22 @@ namespace SMART.Api
             Location = Location == null ? string.Empty : Location;
             if (string.IsNullOrEmpty(Location)) { throw new Exception("请填写库位！"); }
 
-            List<WMS_Stock> Stock_List_DB = db.WMS_Stock.Where(x => x.LinkMainCID == Move.LinkMainCID && x.Location == Move.Out_Location).ToList();
-            Stock_List_DB = Stock_List_DB.Where(x => MatSn_List.Contains(x.MatSn)).ToList();
-
-            if (string.IsNullOrEmpty(Move.Work_Person)) { throw new Exception("未派工"); }
-
             if (db.WMS_Location.Where(x => x.LinkMainCID == Move.LinkMainCID && x.Location == Location).Any() == false)
             {
                 throw new Exception("系统库位中不存在填写的库位");
             }
 
+            //存在盘库任务不支持操作
+            if (db.WMS_Stock_Task.Where(x => x.LinkMainCID == Move.LinkMainCID && x.Status == WMS_Stock_Task_Enum.未盘库.ToString() && x.Location == Location).Any())
+            {
+                throw new Exception("移入库位" + Location + "存在盘库任务，不支持操作");
+            }
+
+            List<WMS_Stock> Stock_List_DB = db.WMS_Stock.Where(x => x.LinkMainCID == Move.LinkMainCID && x.Location == Move.Out_Location).ToList();
+            Stock_List_DB = Stock_List_DB.Where(x => MatSn_List.Contains(x.MatSn)).ToList();
+
+            if (string.IsNullOrEmpty(Move.Work_Person)) { throw new Exception("未派工"); }
+            
             List<WMS_Move_Record> Record_List = new List<WMS_Move_Record>();
             WMS_Move_Record Record = new WMS_Move_Record();
 
@@ -3084,7 +3090,7 @@ namespace SMART.Api
             if (Move == null) { throw new Exception("移库任务不存在"); }
 
             if (string.IsNullOrEmpty(Move.Work_Person)) { throw new Exception("未派工"); }
-
+            
             Move.Move_Status = WMS_Move_Status_Enum.已移库.ToString();
             db.Entry(Move).State = EntityState.Modified;
             MyDbSave.SaveChange(db);
@@ -4385,7 +4391,7 @@ namespace SMART.Api
 
             if (string.IsNullOrEmpty(Move.Work_Person) && !string.IsNullOrEmpty(Move.Task_Bat_No)) { throw new Exception("未派工"); }
 
-            List<WMS_Stock> Stock_List_DB = Stock_List_DB = db.WMS_Stock.Where(x => x.LinkMainCID == Move.LinkMainCID && x.Location == Move.Out_Location).ToList();
+            List<WMS_Stock> Stock_List_DB = db.WMS_Stock.Where(x => x.LinkMainCID == Move.LinkMainCID && x.Location == Move.Out_Location).ToList();
 
             List<string> Line_MatSn_List = Stock_List_DB.Select(x => x.MatSn).Distinct().ToList();
 
@@ -4487,7 +4493,7 @@ namespace SMART.Api
 
             if (string.IsNullOrEmpty(Move.Work_Person) && !string.IsNullOrEmpty(Move.Task_Bat_No)) { throw new Exception("未派工"); }
 
-            List<WMS_Stock> Stock_List_DB = Stock_List_DB = db.WMS_Stock.Where(x => x.LinkMainCID == Move.LinkMainCID && x.Location == Move.Out_Location).ToList();
+            List<WMS_Stock> Stock_List_DB = db.WMS_Stock.Where(x => x.LinkMainCID == Move.LinkMainCID && x.Location == Move.Out_Location).ToList();
 
             List<string> Line_MatSn_List = Stock_List_DB.Select(x => x.MatSn).Distinct().ToList();
 
@@ -4789,6 +4795,12 @@ namespace SMART.Api
             Move.Create_DT = DateTime.Now;
             Move.Out_Location = Scan_Source;
             if (db.WMS_Location.Where(x => x.LinkMainCID == MainCID && x.Location == Move.Out_Location).Any() == false) { throw new Exception("系统中不存在该库位"); }
+
+            //存在盘库任务不支持操作
+            if (db.WMS_Stock_Task.Where(x => x.LinkMainCID == Move.LinkMainCID && x.Status == WMS_Stock_Task_Enum.未盘库.ToString() && x.Location == Move.Out_Location).Any())
+            {
+                throw new Exception("扫描库位存在盘库任务，不支持操作");
+            }
 
             if (db.WMS_Stock.Where(x => x.LinkMainCID == MainCID && x.Location == Move.Out_Location).Any() == false) { throw new Exception("该库位无产品"); }
 

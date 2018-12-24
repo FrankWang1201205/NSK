@@ -276,13 +276,20 @@ namespace SMART.EBMS.Controllers
             return View(List);
         }
 
-        public PartialViewResult WMS_Move_Recommend_Sub(Guid ID)
+        public ActionResult WMS_Move_Recommend_Sub(Guid ID)
         {
+            User U = this.MyUser();
+            ViewData["User"] = U;
+
             Guid TaskID = ID;
             WMS_Stock_Task Task = IW.Get_WMS_Stock_Task_Item_DB(TaskID);
             ViewData["Task"] = Task;
+
+            List<WMS_Move> Move_List = IW.Get_WMS_Move_List_By_Link_HeadID(TaskID);
+            ViewData["Move_List"] = Move_List;
+
             List<WMS_Stocktaking_Scan> List = IW.Get_WMS_Stocktaking_Scan_List_For_Move(TaskID);
-            return PartialView(List);
+            return View(List);
         }
 
         [HttpPost]
@@ -307,8 +314,12 @@ namespace SMART.EBMS.Controllers
             string result = string.Empty;
             try
             {
+                WMS_Move_Scan Move_Scan = new WMS_Move_Scan();
+                Move_Scan.MatSn = Request["MatSn"] == null ? string.Empty : Request["MatSn"].Trim();
+                Move_Scan.In_Location = Request["Location"] == null ? string.Empty : Request["Location"].Trim();
+                Move_Scan.Scan_Quantity = Convert.ToInt32(Request["Quantity"].ToString());
                 Guid Task_ID = ID;
-                IW.Create_WMS_Move_From_WMS_Stocktaking_Scan_Recommend(Task_ID);
+                IW.Create_WMS_Move_From_WMS_Stocktaking_Scan_Recommend(Task_ID, Move_Scan);
             }
             catch (Exception Ex)
             {
@@ -317,6 +328,47 @@ namespace SMART.EBMS.Controllers
             return result;
         }
 
+        [HttpPost]
+        public string WMS_Move_Recommend_Sub_Delete_Post(Guid ID)
+        {
+            string result = string.Empty;
+            try
+            {
+                Guid Move_ID = ID;
+                IW.Delete_WMS_Move_From_WMS_Stocktaking_Scan_Recommend(Move_ID);
+            }
+            catch (Exception Ex)
+            {
+                result = Ex.Message.ToString();
+            }
+            return result;
+        }
+
+        public PartialViewResult WMS_Move_Recommend_Sub_Operate(Guid ID)
+        {
+            Guid Move_ID = ID;
+            WMS_Move Move = IW.Get_WMS_Move_DB(Move_ID);
+            ViewData["Move"] = Move;
+
+            List<WMS_Move_Scan> Scan_List = IW.Get_WMS_Move_Scan_List(Move_ID);
+            return PartialView(Scan_List);
+        }
+
+        [HttpPost]
+        public string WMS_Move_Recommend_Sub_Operate_Finish_Post(Guid ID)
+        {
+            string result = string.Empty;
+            try
+            {
+                Guid Move_ID = ID;
+                IW.Finish_WMS_Move_Task_From_Recommend(Move_ID);
+            }
+            catch (Exception Ex)
+            {
+                result = Ex.Message.ToString();
+            }
+            return result;
+        }
     }
 
 }

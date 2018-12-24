@@ -661,8 +661,7 @@
     <Content Include="Views\WMS_Out\WMS_Out_Task_Preview_Label_To_Modal.cshtml" />
     <Content Include="Views\WMS_Task_Notice\WMS_Out_Inspection_List_Sub.cshtml" />
     <Content Include="Views\WMS_Stocktaking\WMS_Stocktaking_Task_Preview_Sub.cshtml" />
-    <Content Include="Views\WMS_Profit_Loss\WMS_Profit_Or_Loss.cshtml" />
-    <Content Include="Views\WMS_Profit_Loss\WMS_Profit_Or_Loss_Check.cshtml" />
+    <Content Include="Views\WMS_Profit_Loss\WMS_Profit_Loss_Record_Search.cshtml" />
     <Content Include="Views\WMS_Profit_Loss\_TopMenu.cshtml" />
     <Content Include="Views\WMS_Out\WMS_Out_Task_Preview_Pick_Sub.cshtml" />
     <Content Include="Views\WMS_Stocktaking\WMS_Stocktaking_Task_Record.cshtml" />
@@ -813,7 +812,15 @@
     <Content Include="Views\WMS_Task_Waste\WMS_Task_Waste_Record_Preview.cshtml" />
     <Content Include="Views\WMS_Waste_Operate\WMS_Waste_Record_Search.cshtml" />
     <Content Include="Views\WMS_Task_Waste\WMS_Task_Waste_Create_Sub_Modal.cshtml" />
-    <Content Include="Views\WMS_Profit_Loss\WMS_Profit_Or_Loss_Check_Task.cshtml" />
+    <Content Include="Views\WMS_Profit_Loss\WMS_Profit_Loss_Task_Search.cshtml" />
+    <Content Include="Views\WMS_Profit_Loss\WMS_Profit_Loss_Task_Search_Preview.cshtml" />
+    <Content Include="Views\WMS_Profit_Loss\WMS_Profit_Loss_Task_Record.cshtml" />
+    <Content Include="Views\WMS_Profit_Loss\WMS_Profit_Loss_Task_Record_Preview.cshtml" />
+    <Content Include="Views\WMS_Profit_Loss\WMS_Profit_Loss_Task_For_Accounting.cshtml" />
+    <Content Include="Views\WMS_Profit_Loss\WMS_Profit_Loss_Task_For_Accounting_Preview.cshtml" />
+    <Content Include="Views\WMS_Profit_Loss\WMS_Profit_Loss_Task_For_Manager.cshtml" />
+    <Content Include="Views\WMS_Profit_Loss\WMS_Profit_Loss_Task_For_Manager_Preview.cshtml" />
+    <Content Include="Views\WMS_Out_Stocktaking\WMS_Move_Recommend_Sub_Operate.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SMART.Api\SMART.Api.csproj">

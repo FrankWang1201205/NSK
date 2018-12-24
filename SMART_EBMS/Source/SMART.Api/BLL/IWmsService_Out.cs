@@ -88,7 +88,11 @@ namespace SMART.Api
         PageList<WMS_Stock_Task> Get_WMS_Stock_Task_PageList_For_Move_Recommend(WMS_Stock_Filter MF);
         List<WMS_Stocktaking_Scan> Get_WMS_Stocktaking_Scan_List_For_Move(Guid TaskID);
         void Finish_WMS_Stocktaking_Scan_Recommend(Guid TaskID);
-        void Create_WMS_Move_From_WMS_Stocktaking_Scan_Recommend(Guid TaskID);
+        List<WMS_Move> Get_WMS_Move_List_By_Link_HeadID(Guid Link_HeadID);
+        void Create_WMS_Move_From_WMS_Stocktaking_Scan_Recommend(Guid TaskID, WMS_Move_Scan Move_Scan);
+        void Delete_WMS_Move_From_WMS_Stocktaking_Scan_Recommend(Guid Move_ID);
+        List<WMS_Move_Scan> Get_WMS_Move_Scan_List(Guid Move_ID);
+        void Finish_WMS_Move_Task_From_Recommend(Guid Move_ID);
     }
 
     //送货单创建
@@ -1229,6 +1233,17 @@ namespace SMART.Api
             WMS_Stock_Temp Stock_Temp = new WMS_Stock_Temp();
 
             List<string> Location_List = Scan_List.Select(x => x.Scan_Location).Distinct().ToList();
+            
+            //有盘库任务不允许出库
+            List<WMS_Stock_Task> Task_List = db.WMS_Stock_Task.Where(x => x.LinkMainCID == Head.LinkMainCID && x.Status == WMS_Stock_Task_Enum.未盘库.ToString()).ToList();
+            foreach (var Loc in Location_List)
+            {
+                if (Task_List.Where(c => c.Location == Loc).Any())
+                {
+                    throw new Exception("库位" + Loc + "存在盘库任务，不支持配货");
+                }
+            }
+
             List<WMS_Stock> Stock_List_DB = db.WMS_Stock.Where(x => Location_List.Contains(x.Location)).ToList();
             Stock_List_DB = Stock_List_DB.Where(x => MatSn_List.Contains(x.MatSn)).ToList();
             List<WMS_Stock> Stock_List_Sub = new List<WMS_Stock>();
@@ -3187,16 +3202,21 @@ namespace SMART.Api
             WMS_Stock_Task Task = db.WMS_Stock_Task.Find(TaskID);
             if (Task == null) { throw new Exception("WMS_Stock_Task is null"); }
 
+            if (db.WMS_Move.Where(x => x.Link_HeadID == Task.Task_ID && x.Move_Status == WMS_Move_Status_Enum.待移库.ToString()).Any())
+            {
+                throw new Exception("存在移库任务未完成");
+            }
+
             if (Task.Recommend_Status == WMS_Recommend_Status_Enum.未推荐.ToString())
             {
                 Task.Recommend_Status = WMS_Recommend_Status_Enum.已推荐.ToString();
             }
-
+         
             db.Entry(Task).State = EntityState.Modified;
             MyDbSave.SaveChange(db);
         }
 
-        public void Create_WMS_Move_From_WMS_Stocktaking_Scan_Recommend(Guid TaskID)
+        public void Create_WMS_Move_From_WMS_Stocktaking_Scan_Recommend(Guid TaskID, WMS_Move_Scan Move_Scan)
         {
             WMS_Stock_Task Task = db.WMS_Stock_Task.Find(TaskID);
             if (Task == null) { throw new Exception("WMS_Stock_Task is null"); }
@@ -3206,19 +3226,183 @@ namespace SMART.Api
             Move.LinkMainCID = Task.LinkMainCID;
             Move.Create_DT = DateTime.Now;
             Move.Out_Location = Task.Location;
+            Move.In_Location = Move_Scan.In_Location;
+            Move.Move_Status = WMS_Move_Status_Enum.待移库.ToString();
+            Move.Work_Person = Task.Work_Person;
+            Move.Link_HeadID = Task.Task_ID;
+            db.WMS_Move.Add(Move);
+
             if (db.WMS_Location.Where(x => x.LinkMainCID == Task.LinkMainCID && x.Location == Move.Out_Location).Any() == false) { throw new Exception("系统中不存在该库位"); }
 
             if (db.WMS_Stock.Where(x => x.LinkMainCID == Task.LinkMainCID && x.Location == Move.Out_Location).Any() == false) { throw new Exception("该库位无产品"); }
+            
+            WMS_Stock Stock_DB = db.WMS_Stock.Where(x => x.LinkMainCID == Move.LinkMainCID && x.Location == Move.Out_Location).FirstOrDefault();
+            
+            Move_Scan.Scan_ID = MyGUID.NewGUID();
+            Move_Scan.Create_DT = DateTime.Now;
+            Move_Scan.Link_TaskID = Move.Move_ID;
+            Move_Scan.LinkMainCID = Move.LinkMainCID;
+            Move_Scan.MatBrand = Stock_DB.MatBrand;
+            Move_Scan.Out_Location = Move.Out_Location;
+            Move_Scan.In_Location = Move.In_Location;
+            Move_Scan.Scan_Source = Move_Scan.MatSn;
+            Move_Scan.Package_Type = WMS_Stock_Package_Enum.零头.ToString();
+            Move_Scan.Status = WMS_Move_Status_Enum.待移库.ToString();
+            db.WMS_Move_Scan.Add(Move_Scan);
 
-            if (db.WMS_Move.Where(x => x.Move_ID != Move.Move_ID && x.Out_Location == Move.Out_Location && x.Move_Status == WMS_Move_Status_Enum.待移库.ToString()).Any())
+            //移库任务判断
+            List<WMS_Move> Move_List_DB = db.WMS_Move.Where(x => x.Link_HeadID == Task.Task_ID).ToList();
+            if (Move_List_DB.Any())
             {
-                throw new Exception("该库位已创建待移库任务");
+                List<Guid> Move_ID_List = Move_List_DB.Select(x => x.Move_ID).ToList();
+                if (db.WMS_Move_Scan.Where(x => Move_ID_List.Contains(x.Link_TaskID) && x.MatSn == Move_Scan.MatSn).Any())
+                {
+                    throw new Exception("该库位中的产品型号已创建待移库任务");
+                }
             }
 
-            Move.Move_Status = WMS_Move_Status_Enum.待移库.ToString();
-            db.WMS_Move.Add(Move);
             MyDbSave.SaveChange(db);
         }
+
+        public List<WMS_Move> Get_WMS_Move_List_By_Link_HeadID(Guid Link_HeadID)
+        {
+            return db.WMS_Move.Where(x => x.Link_HeadID == Link_HeadID).ToList();
+        }
+
+        public List<WMS_Move_Scan> Get_WMS_Move_Scan_List(Guid Move_ID)
+        {
+            return db.WMS_Move_Scan.Where(x => x.Link_TaskID == Move_ID).ToList();
+        }
+
+        public void Delete_WMS_Move_From_WMS_Stocktaking_Scan_Recommend(Guid Move_ID)
+        {
+            WMS_Move Move = db.WMS_Move.Find(Move_ID);
+            if (Move == null) { throw new Exception("WMS_Move is null"); }
+
+            if (Move.Move_Status == WMS_Move_Status_Enum.已移库.ToString())
+            {
+                throw new Exception("该移库任务已完成，不支持删除");
+            }
+
+            List<WMS_Move_Scan> Scan_List = db.WMS_Move_Scan.Where(x => x.Link_TaskID == Move.Move_ID).ToList();
+            db.WMS_Move_Scan.RemoveRange(Scan_List);
+            db.WMS_Move.Remove(Move);
+
+            MyDbSave.SaveChange(db);
+        }
+
+        public void Finish_WMS_Move_Task_From_Recommend(Guid Move_ID)
+        {
+            WMS_Move Move = db.WMS_Move.Find(Move_ID);
+            if (Move == null) { throw new Exception("WMS_Move is null"); }
+
+            if (Move.Move_Status == WMS_Move_Status_Enum.已移库.ToString())
+            {
+                throw new Exception("该移库任务已完成，不支持操作");
+            }
+
+            List<WMS_Move_Scan> Scan_List = db.WMS_Move_Scan.Where(x => x.Link_TaskID == Move.Move_ID).ToList();
+            foreach (var x in Scan_List)
+            {
+                x.Status = WMS_Move_Status_Enum.已移库.ToString();
+                db.Entry(x).State = EntityState.Modified;
+            }
+
+            Move.Move_Status = WMS_Move_Status_Enum.已移库.ToString();
+            db.Entry(Move).State = EntityState.Modified;
+
+            List<string> MatSn_List = Scan_List.Select(x => x.MatSn).Distinct().ToList();
+            List<WMS_Stock> Stock_List_DB = db.WMS_Stock.Where(x => x.LinkMainCID == Move.LinkMainCID && x.Location == Move.Out_Location).ToList();
+            Stock_List_DB = Stock_List_DB.Where(x => MatSn_List.Contains(x.MatSn)).ToList();
+
+            WMS_Stock Stock_DB = new WMS_Stock();
+            WMS_Stock Stock = new WMS_Stock();
+            List<WMS_Stock> Stock_List = new List<WMS_Stock>();
+            List<WMS_Stock> Stock_List_Remove = new List<WMS_Stock>();
+
+            List<WMS_Move_Record> Record_List = new List<WMS_Move_Record>();
+            WMS_Move_Record Record = new WMS_Move_Record();
+            DateTime DT = DateTime.Now;
+
+            //移库记录
+            foreach (var x in Scan_List)
+            { 
+                Stock_DB = Stock_List_DB.Where(c => c.MatSn == x.MatSn).FirstOrDefault();
+                if (Stock_DB == null) { throw new Exception("Stock_DB is null"); }
+
+                Record = new WMS_Move_Record();
+                Record.Record_ID = MyGUID.NewGUID();
+                Record.Out_Location = x.Out_Location;
+                Record.In_Location = x.In_Location;
+                Record.Create_DT = DT;
+                Record.LinkMainCID = x.LinkMainCID;
+                Record.Work_Person = Move.Work_Person;
+                Record.Link_TaskID = Move.Move_ID;
+                Record.MatSn = x.MatSn;
+                Record.Quantity = x.Scan_Quantity;
+                Record.Package_Type = x.Package_Type;
+                Record.MatName = Stock_DB.MatName;
+                Record.MatBrand = Stock_DB.MatBrand;
+                Record.MatUnit = Stock_DB.MatUnit;
+                Record.Move_Type = WMS_Move_Type_Enum.移库作业.ToString();
+                Record_List.Add(Record);
+            }
+            db.WMS_Move_Record.AddRange(Record_List);
+
+            //库存产品变换库位
+            int Quantity = 0;
+            foreach (var x in Scan_List)
+            {
+                Quantity = x.Scan_Quantity;
+
+                //消库
+                foreach (var xx in Stock_List_DB.Where(c => c.MatSn == x.MatSn).OrderBy(c => c.Quantity).ToList())
+                {
+                    if (Quantity >= xx.Quantity && Quantity > 0)
+                    {
+                        Quantity = Quantity - xx.Quantity;
+                        xx.Location = Move.In_Location;
+                        xx.Package = WMS_Stock_Package_Enum.零头.ToString();
+                        xx.Location_Type = WMS_Stock_Location_Type_Enum.标准库位.ToString();
+                        db.Entry(xx).State = EntityState.Modified;
+                    }
+                    else if (Quantity < xx.Quantity && Quantity > 0)
+                    {
+                        //更新原有库存
+                        xx.Quantity = xx.Quantity - Quantity;
+                        db.Entry(xx).State = EntityState.Modified;
+
+                        Stock = new WMS_Stock();
+                        Stock.Stock_ID = MyGUID.NewGUID();
+                        Stock.WMS_In_DT = xx.WMS_In_DT;
+                        Stock.WMS_Out_DT = xx.WMS_Out_DT;
+                        Stock.MatSn = xx.MatSn;
+                        Stock.MatName = xx.MatName;
+                        Stock.MatBrand = xx.MatBrand;
+                        Stock.MatUnit = xx.MatUnit;
+                        Stock.Quantity = Quantity;
+                        Stock.Package = WMS_Stock_Package_Enum.零头.ToString();
+                        Stock.Price = xx.Price;
+                        Stock.Location = Move.In_Location;
+                        Stock.Cases = xx.Cases;
+                        Stock.Location_Type = WMS_Stock_Location_Type_Enum.标准库位.ToString();
+                        Stock.Wms_In_Head_ID = xx.Wms_In_Head_ID;
+                        Stock.LinkMainCID = xx.LinkMainCID;
+                        Stock_List.Add(Stock);
+                        break;
+                    }
+                }
+                
+            }
+
+            if (Stock_List.Any())
+            {
+                db.WMS_Stock.AddRange(Stock_List);
+            }
+
+            MyDbSave.SaveChange(db);
+        }
+        
     }
 }
 

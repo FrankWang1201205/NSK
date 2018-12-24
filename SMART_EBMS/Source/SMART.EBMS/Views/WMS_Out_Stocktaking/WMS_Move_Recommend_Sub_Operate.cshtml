@@ -1,0 +1,53 @@
+﻿@model  List<WMS_Move_Scan>
+@{
+    Layout = null;
+    WMS_Move Move = ViewData["Move"] as WMS_Move;
+}
+
+
+<table style="width:100%;margin-bottom:5px;">
+    <tr>
+        <td><h4>移出库位：<strong style="font-size:22px;">@Move.Out_Location</strong> ，移入库位：<strong style="font-size:22px;">@Move.In_Location</strong></h4></td>
+   
+        <td style="width:10px;text-align:left">
+
+            @if (Move.Move_Status == WMS_Move_Status_Enum.待移库.ToString())
+            {
+                <button type="button" onclick="Finish_WMS_Move_Task('@Move.Move_ID')" class="btn btn-primary btn-sm">移库完成</button>
+            }
+        </td>
+    </tr>
+</table>
+
+<table class="table table-condensed table-bordered text-nowrap" style="font-size:14px;width:100%;">
+    <tr class="active">
+        <td style="width:220px;">产品型号</td>
+        <td style="text-align:right; width:100px;">产品数</td>
+        <td>&nbsp;</td>
+    </tr>
+    @foreach (var x in Model)
+    {
+        <tr>
+            <td><span class="MatSn_Font">@x.MatSn</span></td>
+            <td style="text-align:right">@x.Scan_Quantity.ToString("N0")</td>
+            <td>&nbsp;</td>
+        </tr>
+    }
+</table>
+
+<script>
+    function Finish_WMS_Move_Task(Move_ID) {
+        if (confirm("确认移库任务已完成?") == false) {
+            return false;
+        }
+
+        $.post("/WMS_Out_Stocktaking/WMS_Move_Recommend_Sub_Operate_Finish_Post/" + Move_ID, function (result) {
+            if (result == "") {
+                ReloadPage();
+            } else {
+                alert(result);
+            }
+        });
+    }
+</script>
+

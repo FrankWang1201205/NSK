@@ -74,7 +74,6 @@ namespace SMART.EBMS.Controllers
             return result;
         }
 
-
         [HttpPost]
         public string WMS_Waste_Check_For_Manager_Preview_Refuse_Post(Guid ID)
         {

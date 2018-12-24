@@ -2,11 +2,10 @@
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     WMS_Stock_Filter MF = ViewData["MF"] as WMS_Stock_Filter;
-    User U = ViewData["User"] as User;
 }
 
 @{Html.RenderPartial("_TopMenu");}
-<script>TopMenuToAction("盈亏核验");</script>
+<script>TopMenuToAction("盈亏记录");</script>
 
 @if (TempData["Error"] != null)
 {
@@ -19,11 +18,11 @@
 }
 
 <div class="DeductionDiv TopSearchDiv">
-    <form id="MyForm" action="~/WMS_Profit_Loss/WMS_Profit_Or_Loss_Check" method="get">
+    <form id="MyForm" action="~/WMS_Profit_Loss/WMS_Profit_Loss_Record_Search" method="get">
         <table style="width:100%;">
             <tr>
                 <td style="width:100px; text-align:left;">
-                    <input type="text" class="form-control input-sm" name="Work_Person" id="Work_Person" value="@MF.Work_Person" placeholder="核验人">
+                    <input type="text" class="form-control input-sm" name="Work_Person" id="Work_Person" value="@MF.Work_Person" placeholder="作业人">
                 </td>
 
                 <td style="width:10px;padding-left:15px;">
@@ -58,24 +57,21 @@
         </table>
     </form>
 </div>
+
 <table id="DataTable" class="ListTable table table-nowrap" style="width:100%;">
     <thead>
         <tr>
             <th style="width:10px;">&nbsp;</th>
+            <th style="width:70px;">作业人</th>
             <th style="width:80px;">调整日期</th>
             <th style="width:250px;">产品型号</th>
             <th style="width:80px;">品牌</th>
-            <th style="width:80px;">库位</th>
+            <th style="width:80px;">盘库库位</th>
             <th style="width:70px; text-align: right;">调整前</th>
             <th style="width:70px; text-align: right;">调整后</th>
             <th style="width:70px; text-align: right;">差异数</th>
             <th style="width:70px; text-align: right;">差异金额</th>
-            @if (U.RoleTitle == User_RoleTitle_Emun.公司经理.ToString() || U.RoleTitle == User_RoleTitle_Emun.财务会计.ToString() || U.RoleTitle == User_RoleTitle_Emun.系统管理员.ToString())
-            {
-                <th style="width:70px;">&nbsp;</th>
-                <th style="width:70px;">&nbsp;</th>
-            }
-
+            <th style="width:70px; text-align: right;">状态</th>
             <th>&nbsp;</th>
         </tr>
     </thead>
@@ -87,40 +83,17 @@
             x.Total_Price = x.Diff_Quantity * x.Price;
             <tr>
                 <td>&nbsp;</td>
-                <td>@x.Create_DT.ToString("yyyy-MM-dd")</td>
-                <td><span class="MatSn_Font">@x.MatSn</span></td>
-                <td>@x.MatBrand</td>
-                <td>@x.Location</td>
-                <td style="text-align:right;">@x.Old_Quantity.ToString("N0")</td>
-                <td style="text-align:right;">@x.New_Quantity.ToString("N0")</td>
-                <td style="text-align:right;">@x.Diff_Quantity.ToString("N0")</td>
-                <td style="text-align:right;">@x.Total_Price.ToString("N4")</td>
-                @if (U.RoleTitle == User_RoleTitle_Emun.公司经理.ToString() || U.RoleTitle == User_RoleTitle_Emun.财务会计.ToString() || U.RoleTitle == User_RoleTitle_Emun.系统管理员.ToString())
-                {
-                    <td style="text-align:center">
-                        @if (x.Status == WMS_Profit_Loss_Status_Enum.未确定.ToString())
-                    {
-                            <button type="button" onclick="Confirm_Record('@x.Line_ID')" class="btn btn-primary btn-xs">确认</button>
-                        }
-                        else
-                        {
-                            <button type="button" disabled class="btn btn-primary btn-xs">确认</button>
-                        }
-                    </td>
-                    <td style="text-align:center">
-                        @if (x.Status == WMS_Profit_Loss_Status_Enum.未确定.ToString())
-                        {
-                            <button type="button" onclick="Delete_Record('@x.Line_ID')" class="btn btn-danger btn-xs">删除</button>
-                        }
-                        else
-                        {
-                            <button type="button" disabled class="btn btn-danger btn-xs">删除</button>
-                        }
-
-                    </td>
-                }
-
-                <td>&nbsp;</td>
+                <td style="vertical-align:top;">@x.Work_Person</td>
+                <td style="vertical-align:top;">@x.Create_DT.ToString("yyyy-MM-dd")</td>
+                <td style="vertical-align:top;"><span class="MatSn_Font">@x.MatSn</span></td>
+                <td style="vertical-align:top;">@x.MatBrand</td>
+                <td style="vertical-align:top;">@x.Location</td>
+                <td style="text-align:right; vertical-align:top;">@x.Old_Quantity.ToString("N0")</td>
+                <td style="text-align:right; vertical-align:top;">@x.New_Quantity.ToString("N0")</td>
+                <td style="text-align:right; vertical-align:top;">@x.Diff_Quantity.ToString("N0")</td>
+                <td style="text-align:right; vertical-align:top;">@x.Total_Price.ToString("N4")</td>
+                <td style="text-align:right; vertical-align:top;">@x.Status</td>
+                <td style="vertical-align:top;">&nbsp;</td>
             </tr>
         }
     </tbody>
@@ -166,37 +139,4 @@
         minView: 2,
         forceParse: 0
     });
-
-    function Confirm_Record(Line_ID) {
-        DisAndEnabledBtn(1);
-        if (confirm("确认生成此纪录？") == false) {
-            DisAndEnabledBtn(0);
-            return false;
-        }
-
-        $.post("/WMS_Profit_Loss/WMS_Profit_Loss_Confirm_Post/" + Line_ID, function (result) {
-            if (result == "") {
-                ReloadPage();
-            } else {
-                alert(result);
-            }
-        });
-    }
-
-    function Delete_Record(Line_ID) {
-        DisAndEnabledBtn(1);
-        if (confirm("确认删除此纪录？") == false) {
-            DisAndEnabledBtn(0);
-            return false;
-        }
-
-        $.post("/WMS_Profit_Loss/WMS_Profit_Loss_Delete_Post/" + Line_ID, function (result) {
-            if (result == "") {
-                ReloadPage();
-            } else {
-                alert(result);
-            }
-        });
-    }
 </script>
-

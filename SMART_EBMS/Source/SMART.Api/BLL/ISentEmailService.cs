@@ -106,15 +106,17 @@ namespace SMART.Api
         void Batch_Sent_To_Sales_With_WMS_Out_Finish_With_Tracking_No(List<WMS_Track_Info> Track_Info_List, User U);
 
         //盘库盈亏邮件
-        void Sent_To_Accounting_Staff_With_Profit_Or_Loss(List<WMS_Profit_Loss> PL_List, WMS_Stock_Task Stock_Task);
-
+        void Sent_To_Manager_With_WMS_Profit_Loss_Head(WMS_Profit_Loss_Head Head, List<WMS_Profit_Loss_Line> Line_List);
+        void Sent_To_Accounting_Staff_With_WMS_Profit_Loss_Head(WMS_Profit_Loss_Head Head, List<WMS_Profit_Loss_Line> Line_List);
+        void Sent_To_WMS_Staff_With_Refused_WMS_Profit_Loss_Head(WMS_Profit_Loss_Head Head, List<WMS_Profit_Loss_Line> Line_List);
+        void Sent_To_WMS_Staff_With_Comfirmed_WMS_Profit_Loss_Head(WMS_Profit_Loss_Head Head, List<WMS_Profit_Loss_Line> Line_List);
+        
         //报废邮件提醒 
         void Sent_To_Manager_With_WMS_Waste_Task(WMS_Waste_Head Head, List<WMS_Waste_Line> Line_List);
         void Sent_To_Accounting_Staff_With_WMS_Waste_Task(WMS_Waste_Head Head, List<WMS_Waste_Line> Line_List);
         void Sent_To_WMS_Staff_With_Refused_WMS_Waste_Task(WMS_Waste_Head Head, List<WMS_Waste_Line> Line_List);
         void Sent_To_WMS_Staff_With_Comfirmed_WMS_Waste_Task(WMS_Waste_Head Head, List<WMS_Waste_Line> Line_List);
     }
-
 
     //收货邮件
     public partial class SentEmailService : ISentEmailService
@@ -308,24 +310,93 @@ namespace SMART.Api
     //盘库盈亏邮件
     public partial class SentEmailService : ISentEmailService
     {
-        public void Sent_To_Accounting_Staff_With_Profit_Or_Loss(List<WMS_Profit_Loss> PL_List, WMS_Stock_Task Stock_Task)
+        public void Sent_To_Manager_With_WMS_Profit_Loss_Head(WMS_Profit_Loss_Head Head, List<WMS_Profit_Loss_Line> Line_List)
         {
-            string mailSubject = "库存盈亏记录产生";
+            string mailSubject = "盘库盈亏审核单";
             string mailBody = string.Empty;
-            mailBody += "<h5>盘库库位：" + Stock_Task.Location + "</h5>";
-            mailBody += "<h5>创建日期：" + Stock_Task.Create_DT.ToString("yyyy-MM-dd") + "</h5>";
-            mailBody += "<h5>作业人员：" + Stock_Task.Work_Person + "</h5>";
+            mailBody += "<h5>任务编号：" + Head.Task_Bat_No_Str + "</h5>";
+            mailBody += "<h5>申请时间：" + Head.Create_DT.ToString("yyyy-MM-dd HH:mm:ss") + "</h5>";
+            mailBody += "<h5>申请人：" + Head.Create_Person + "</h5>";
+            mailBody += "<h5>状态：等待公司经理审核</h5>";
             mailBody += "<hr/>";
             mailBody += "<h5>此邮件为系统自动发送邮件，请勿回复！</h5>";
 
-            User U = db.User.Where(x => x.LinkMainCID == Stock_Task.LinkMainCID && x.RoleTitle == User_RoleTitle_Emun.财务审计.ToString()).FirstOrDefault();
+            User U = db.User.Where(x => x.LinkMainCID == Head.LinkMainCID && x.RoleTitle == User_RoleTitle_Emun.公司经理.ToString()).FirstOrDefault();
 
             string MailToAddress = U.Email;
             List<string> mailToAddress_List = new List<string>();
             mailToAddress_List.Add(MailToAddress);
-            SentEmail SE = this.Get_SentEmail(Stock_Task.LinkMainCID);
+            SentEmail SE = this.Get_SentEmail(Head.LinkMainCID);
             IWmsService IW = new WmsService();
-            string ExcelPath = IW.Get_WMS_Profit_Loss_List_To_Excel(PL_List);
+            string ExcelPath = IW.Get_WMS_Profit_Loss_Line_By_Head_To_Excel(Line_List);
+            Task.Factory.StartNew(() => NetMail.SendNetMailSingle_Save_DB_With_Excel(mailToAddress_List, mailSubject, mailBody, SE, ExcelPath));
+
+        }
+
+        public void Sent_To_Accounting_Staff_With_WMS_Profit_Loss_Head(WMS_Profit_Loss_Head Head, List<WMS_Profit_Loss_Line> Line_List)
+        {
+            string mailSubject = "盘库盈亏审核单";
+            string mailBody = string.Empty;
+            mailBody += "<h5>任务编号：" + Head.Task_Bat_No_Str + "</h5>";
+            mailBody += "<h5>申请时间：" + Head.Create_DT.ToString("yyyy-MM-dd HH:mm:ss") + "</h5>";
+            mailBody += "<h5>申请人：" + Head.Create_Person + "</h5>";
+            mailBody += "<h5>状态：公司经理已审核通过</h5>";
+            mailBody += "<hr/>";
+            mailBody += "<h5>此邮件为系统自动发送邮件，请勿回复！</h5>";
+
+            User U = db.User.Where(x => x.LinkMainCID == Head.LinkMainCID && x.RoleTitle == User_RoleTitle_Emun.财务审计.ToString()).FirstOrDefault();
+
+            string MailToAddress = U.Email;
+            List<string> mailToAddress_List = new List<string>();
+            mailToAddress_List.Add(MailToAddress);
+            SentEmail SE = this.Get_SentEmail(Head.LinkMainCID);
+            IWmsService IW = new WmsService();
+            string ExcelPath = IW.Get_WMS_Profit_Loss_Line_By_Head_To_Excel(Line_List);
+            Task.Factory.StartNew(() => NetMail.SendNetMailSingle_Save_DB_With_Excel(mailToAddress_List, mailSubject, mailBody, SE, ExcelPath));
+        }
+
+        public void Sent_To_WMS_Staff_With_Refused_WMS_Profit_Loss_Head(WMS_Profit_Loss_Head Head, List<WMS_Profit_Loss_Line> Line_List)
+        {
+            string mailSubject = "盘库盈亏审核单驳回";
+            string mailBody = string.Empty;
+            mailBody += "<h5>任务编号：" + Head.Task_Bat_No_Str + "</h5>";
+            mailBody += "<h5>申请时间：" + Head.Create_DT.ToString("yyyy-MM-dd HH:mm:ss") + "</h5>";
+            mailBody += "<h5>申请人：" + Head.Create_Person + "</h5>";
+            mailBody += "<h5>状态：公司经理驳回</h5>";
+            mailBody += "<h5>驳回理由：" + Head.Refuse_Remark + "</h5>";
+            mailBody += "<hr/>";
+            mailBody += "<h5>此邮件为系统自动发送邮件，请勿回复！</h5>";
+
+            User U = db.User.Where(x => x.LinkMainCID == Head.LinkMainCID && x.RoleTitle == User_RoleTitle_Emun.仓管主管.ToString()).FirstOrDefault();
+
+            string MailToAddress = U.Email;
+            List<string> mailToAddress_List = new List<string>();
+            mailToAddress_List.Add(MailToAddress);
+            SentEmail SE = this.Get_SentEmail(Head.LinkMainCID);
+            IWmsService IW = new WmsService();
+            string ExcelPath = IW.Get_WMS_Profit_Loss_Line_By_Head_To_Excel(Line_List);
+            Task.Factory.StartNew(() => NetMail.SendNetMailSingle_Save_DB_With_Excel(mailToAddress_List, mailSubject, mailBody, SE, ExcelPath));
+        }
+
+        public void Sent_To_WMS_Staff_With_Comfirmed_WMS_Profit_Loss_Head(WMS_Profit_Loss_Head Head, List<WMS_Profit_Loss_Line> Line_List)
+        {
+            string mailSubject = "盘库盈亏审核单通过";
+            string mailBody = string.Empty;
+            mailBody += "<h5>任务编号：" + Head.Task_Bat_No_Str + "</h5>";
+            mailBody += "<h5>申请时间：" + Head.Create_DT.ToString("yyyy-MM-dd HH:mm:ss") + "</h5>";
+            mailBody += "<h5>申请人：" + Head.Create_Person + "</h5>";
+            mailBody += "<h5>状态：公司经理已通过，财务确认盈亏</h5>";
+            mailBody += "<hr/>";
+            mailBody += "<h5>此邮件为系统自动发送邮件，请勿回复！</h5>";
+
+            User U = db.User.Where(x => x.LinkMainCID == Head.LinkMainCID && x.RoleTitle == User_RoleTitle_Emun.仓管主管.ToString()).FirstOrDefault();
+
+            string MailToAddress = U.Email;
+            List<string> mailToAddress_List = new List<string>();
+            mailToAddress_List.Add(MailToAddress);
+            SentEmail SE = this.Get_SentEmail(Head.LinkMainCID);
+            IWmsService IW = new WmsService();
+            string ExcelPath = IW.Get_WMS_Profit_Loss_Line_By_Head_To_Excel(Line_List);
             Task.Factory.StartNew(() => NetMail.SendNetMailSingle_Save_DB_With_Excel(mailToAddress_List, mailSubject, mailBody, SE, ExcelPath));
         }
     }
@@ -390,7 +461,7 @@ namespace SMART.Api
             mailBody += "<hr/>";
             mailBody += "<h5>此邮件为系统自动发送邮件，请勿回复！</h5>";
 
-            User U = db.User.Where(x => x.LinkMainCID == Head.LinkMainCID && x.UserFullName == Head.Create_Person).FirstOrDefault();
+            User U = db.User.Where(x => x.LinkMainCID == Head.LinkMainCID && x.RoleTitle == User_RoleTitle_Emun.仓管主管.ToString()).FirstOrDefault();
 
             string MailToAddress = U.Email;
             List<string> mailToAddress_List = new List<string>();
@@ -413,7 +484,7 @@ namespace SMART.Api
             mailBody += "<hr/>";
             mailBody += "<h5>此邮件为系统自动发送邮件，请勿回复！</h5>";
 
-            User U = db.User.Where(x => x.LinkMainCID == Head.LinkMainCID && x.UserFullName == Head.Create_Person).FirstOrDefault();
+            User U = db.User.Where(x => x.LinkMainCID == Head.LinkMainCID && x.RoleTitle == User_RoleTitle_Emun.仓管主管.ToString()).FirstOrDefault();
 
             string MailToAddress = U.Email;
             List<string> mailToAddress_List = new List<string>();

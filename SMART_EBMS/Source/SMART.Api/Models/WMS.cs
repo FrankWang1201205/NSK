@@ -1281,6 +1281,38 @@ namespace SMART.Api.Models
         public string Status { get; set; }
     }
 
+    public enum WMS_Stock_Task_Line_State_Enum
+    {
+        数量一致,
+        超出系统,
+        低于系统,
+        还未扫码,
+        多出型号,
+    }
+
+    public enum WMS_Stock_Task_Enum
+    {
+        未盘库,
+        已盘库,
+    }
+
+    public enum WMS_Recommend_Status_Enum
+    {
+        未推荐,
+        已推荐,
+    }
+
+    public enum WMS_Stock_Task_Property_Enum
+    {
+        日常盘库,
+        首次盘库,
+        配货动盘,
+    }
+}
+
+//库存盈亏
+namespace SMART.Api.Models
+{
     public class WMS_Profit_Loss
     {
         public WMS_Profit_Loss()
@@ -1296,9 +1328,10 @@ namespace SMART.Api.Models
             Link_TaskID = Guid.Empty;
             LinkMainCID = Guid.Empty;
             Work_Person = string.Empty;
-            Status = string.Empty;
             Price = 0;
             Total_Price = 0;
+            MatName = string.Empty;
+            MatUnit = string.Empty;
         }
 
         [Key]
@@ -1306,8 +1339,15 @@ namespace SMART.Api.Models
 
         [Required]
         public string MatSn { get; set; }
-        
+
+        [DefaultValue("")]
         public string MatBrand { get; set; }
+
+        [DefaultValue("")]
+        public string MatName { get; set; }
+
+        [DefaultValue("")]
+        public string MatUnit { get; set; }
 
         [Required]
         public int Old_Quantity { get; set; }
@@ -1326,12 +1366,12 @@ namespace SMART.Api.Models
 
         [Required]
         public string Location { get; set; }
-        
-        public string Work_Person { get; set; }
 
         [Required]
         public string Status { get; set; }
 
+        public string Work_Person { get; set; }
+        
         [Required]
         public DateTime Create_DT { get; set; }
 
@@ -1403,38 +1443,203 @@ namespace SMART.Api.Models
         public Guid LinkMainCID { get; set; }
     }
 
-    public enum WMS_Stock_Task_Line_State_Enum
-    {
-        数量一致,
-        超出系统,
-        低于系统,
-        还未扫码,
-        多出型号,
-    }
-
-    public enum WMS_Stock_Task_Enum
-    {
-        未盘库,
-        已盘库,
-    }
-
     public enum WMS_Profit_Loss_Status_Enum
     {
         未确定,
         已确定,
     }
 
-    public enum WMS_Recommend_Status_Enum
+    //盈亏单
+    public class WMS_Profit_Loss_Head
     {
-        未推荐,
-        已推荐,
+        public WMS_Profit_Loss_Head()
+        {
+            Head_ID = Guid.Empty;
+            Task_Bat_No = 0;
+            Task_Bat_No_Str = string.Empty;
+            Create_DT = DateTime.Now;
+            Create_Person = string.Empty;
+            MatSn_Count = 0;
+            Status = string.Empty;
+            LinkMainCID = Guid.Empty;
+            Line_List = new List<WMS_Profit_Loss_Line>();
+            Refuse_Remark = string.Empty;
+            Auditor = string.Empty;
+            Audit_DT = DateTime.Now;
+            Approver = string.Empty;
+            Approve_DT = DateTime.Now;
+            Link_HeadID = Guid.Empty;
+            Finish_DT = DateTime.Now;
+            Location = string.Empty;
+        }
+
+        [Key]
+        public Guid Head_ID { get; set; }
+
+        [Required]
+        public long Task_Bat_No { get; set; }
+
+        [Required]
+        public string Task_Bat_No_Str { get; set; }
+
+        [Required]
+        public DateTime Create_DT { get; set; }
+
+        [Required]
+        public string Create_Person { get; set; }
+
+        [NotMapped]
+        public int MatSn_Count { get; set; }
+
+        [Required]
+        public string Status { get; set; }
+
+        [Required]
+        public Guid LinkMainCID { get; set; }
+
+        [NotMapped]
+        public List<WMS_Profit_Loss_Line> Line_List { get; set; }
+
+        [DefaultValue("")]
+        public string Auditor { get; set; }
+
+        public DateTime Audit_DT { get; set; }
+
+        //拒绝理由
+        [DefaultValue("")]
+        public string Refuse_Remark { get; set; }
+
+        [DefaultValue("")]
+        public string Approver { get; set; }
+
+        public DateTime Approve_DT { get; set; }
+
+        public DateTime Finish_DT { get; set; }
+
+        public Guid Link_HeadID { get; set; }
+
+        [Required]
+        public string Location { get; set; }
     }
 
-    public enum WMS_Stock_Task_Property_Enum
+    //盈亏单清单
+    public class WMS_Profit_Loss_Line
     {
-        日常盘库,
-        首次盘库,
-        配货动盘,
+        public WMS_Profit_Loss_Line()
+        {
+            Line_ID = Guid.Empty;
+            Task_Bat_No = 0;
+            Task_Bat_No_Str = string.Empty;
+            Create_DT = DateTime.Now;
+            Create_Person = string.Empty;
+            MatName = string.Empty;
+            MatSn = string.Empty;
+            MatBrand = string.Empty;
+            MatUnit = string.Empty;
+            Old_Quantity = 0;
+            New_Quantity = 0;
+            Diff_Quantity = 0;
+            Unit_Price = 0;
+            Total_Price = 0;
+            LinkMainCID = Guid.Empty;
+            Link_Head_ID = Guid.Empty;
+            Location = string.Empty;
+        }
+
+        [Key]
+        public Guid Line_ID { get; set; }
+
+        //任务编号：格式：(YYYYMMdd)+(0001)
+        [Required]
+        public long Task_Bat_No { get; set; }
+
+        [Required]
+        public string Task_Bat_No_Str { get; set; }
+
+        [Required]
+        public DateTime Create_DT { get; set; }
+
+        [Required]
+        public string Create_Person { get; set; }
+
+        [DefaultValue("")]
+        public string MatName { get; set; }
+
+        [Required]
+        public string MatSn { get; set; }
+
+        [DefaultValue("")]
+        public string MatBrand { get; set; }
+
+        [DefaultValue("")]
+        public string MatUnit { get; set; }
+
+        [Required]
+        public int Old_Quantity { get; set; }
+
+        [Required]
+        public int New_Quantity { get; set; }
+
+        [NotMapped]
+        public int Diff_Quantity { get; set; }
+
+        //单价
+        [Required]
+        public decimal Unit_Price { get; set; }
+
+        [NotMapped]
+        public decimal Total_Price { get; set; }
+
+        [Required]
+        public Guid LinkMainCID { get; set; }
+
+        [Required]
+        public Guid Link_Head_ID { get; set; }
+
+        [Required]
+        public string Location { get; set; }
+    }
+
+    [NotMapped]
+    public class WMS_Profit_Loss_Filter
+    {
+        public WMS_Profit_Loss_Filter()
+        {
+            PageIndex = 1;
+            PageSize = 20;
+            Keyword = string.Empty;
+            Time_Start = string.Empty;
+            Time_End = string.Empty;
+            MatSn = string.Empty;
+            Task_No_Str = string.Empty;
+            Status = string.Empty;
+            Status_List = Enum.GetNames(typeof(WMS_Profit_Loss_Head_Status_Enum)).ToList();
+            LinkMainCID = Guid.Empty;
+            Create_Person = string.Empty;
+            Auditor = string.Empty;
+        }
+
+        public int PageIndex { get; set; }
+        public int PageSize { get; set; }
+        public string Keyword { get; set; }
+        public string MatSn { get; set; }
+        public string Task_No_Str { get; set; }
+        public string Time_Start { get; set; }
+        public string Time_End { get; set; }
+        public string Create_Person { get; set; }
+        public string Auditor { get; set; }
+        public string Status { get; set; }
+        public List<string> Status_List { get; set; }
+        public Guid LinkMainCID { get; set; }
+    }
+
+    public enum WMS_Profit_Loss_Head_Status_Enum
+    {
+        待审核,
+        已退回,
+        已审核,
+        待执行,
+        已执行,
     }
 }
 
