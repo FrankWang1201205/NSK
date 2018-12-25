@@ -103,14 +103,14 @@ namespace SMART.Api
         //出库发货邮件
         void Sent_To_Sales_With_WMS_Out_Inspection(Guid Head_ID);
         void Sent_To_Sales_With_WMS_Out_Finish(Guid Head_ID);
-        void Batch_Sent_To_Sales_With_WMS_Out_Finish_With_Tracking_No(List<WMS_Track_Info> Track_Info_List, User U);
+        void Batch_Sent_To_Sales_With_WMS_Out_Finish_With_Tracking_No(List<WMS_Out_Head> Head_List, List<WMS_Track> Track_List, List<WMS_Track_Info> Track_Info_List, User U);
 
         //盘库盈亏邮件
         void Sent_To_Manager_With_WMS_Profit_Loss_Head(WMS_Profit_Loss_Head Head, List<WMS_Profit_Loss_Line> Line_List);
         void Sent_To_Accounting_Staff_With_WMS_Profit_Loss_Head(WMS_Profit_Loss_Head Head, List<WMS_Profit_Loss_Line> Line_List);
         void Sent_To_WMS_Staff_With_Refused_WMS_Profit_Loss_Head(WMS_Profit_Loss_Head Head, List<WMS_Profit_Loss_Line> Line_List);
         void Sent_To_WMS_Staff_With_Comfirmed_WMS_Profit_Loss_Head(WMS_Profit_Loss_Head Head, List<WMS_Profit_Loss_Line> Line_List);
-        
+
         //报废邮件提醒 
         void Sent_To_Manager_With_WMS_Waste_Task(WMS_Waste_Head Head, List<WMS_Waste_Line> Line_List);
         void Sent_To_Accounting_Staff_With_WMS_Waste_Task(WMS_Waste_Head Head, List<WMS_Waste_Line> Line_List);
@@ -253,57 +253,50 @@ namespace SMART.Api
 
         }
 
-        public void Batch_Sent_To_Sales_With_WMS_Out_Finish_With_Tracking_No(List<WMS_Track_Info> Track_Info_List, User U)
+        public void Batch_Sent_To_Sales_With_WMS_Out_Finish_With_Tracking_No(List<WMS_Out_Head> Head_List, List<WMS_Track> Track_List, List<WMS_Track_Info> Track_Info_List, User U)
         {
-            List<string> Tracking_No_List = Track_Info_List.Select(x => x.Tracking_No).Distinct().ToList();
-            List<WMS_Track> Track_List = db.WMS_Track.Where(x => x.LinkMainCID == U.LinkMainCID && Tracking_No_List.Contains(x.Tracking_No)).ToList();
             List<Guid> Head_ID_List = Track_List.Select(x => x.Link_Head_ID).Distinct().ToList();
-            List<WMS_Out_Head> Head_List = db.WMS_Out_Head.Where(x => Head_ID_List.Contains(x.Head_ID)).ToList();
-         
-            if (Head_List.Any())
+            List<string> User_List_Str = Head_List.Select(x => x.Create_Person).Distinct().ToList();
+            List<User> User_List = db.User.Where(x => x.LinkMainCID == U.LinkMainCID && User_List_Str.Contains(x.UserFullName)).ToList();
+            List<WMS_Out_Scan> Scan_List = db.WMS_Out_Scan.Where(x => Head_ID_List.Contains(x.Link_Head_ID)).ToList();
+
+            User U_Sub = new User();
+            List<WMS_Out_Scan> Scan_List_Sub = new List<WMS_Out_Scan>();
+            List<WMS_Track> Track_List_Sub = new List<WMS_Track>();
+            List<WMS_Track_Info> Track_Info_List_Sub = new List<WMS_Track_Info>();
+            List<string> Tracking_No_List_Sub = new List<string>();
+
+            string MailToAddress = string.Empty;
+            SentEmail SE = this.Get_SentEmail(U.LinkMainCID);
+            IWmsService IW = new WmsService();
+
+            SentEmail_Info Info = new SentEmail_Info();
+            List<SentEmail_Info> Info_List = new List<SentEmail_Info>();
+            foreach (var x in Head_List)
             {
-                List<string> User_List_Str = Head_List.Select(x => x.Create_Person).Distinct().ToList();
-                List<User> User_List = db.User.Where(x => x.LinkMainCID == U.LinkMainCID && User_List_Str.Contains(x.UserFullName)).ToList();
-                List<WMS_Out_Scan> Scan_List = db.WMS_Out_Scan.Where(x => Head_ID_List.Contains(x.Link_Head_ID)).ToList();
+                Info = new SentEmail_Info();
+                Info.mailSubject = x.Customer_Name + "送货快递信息补发";
+                Info.mailBody = string.Empty;
+                Info.mailBody += "<h5>任务编号：" + x.Task_Bat_No_Str + "</h5>";
+                Info.mailBody += "<h5>发货日期：" + x.Out_DT_Str + "</h5>";
+                Info.mailBody += "<h5>运输方式：" + x.Logistics_Mode + "</h5>";
+                Info.mailBody += "<h5>客户名称：" + x.Customer_Name + "</h5>";
+                Info.mailBody += "<hr/>";
+                Info.mailBody += "<h5>此邮件为系统自动发送邮件，请勿回复！</h5>";
 
-                User U_Sub = new User();
-                List<WMS_Out_Scan> Scan_List_Sub = new List<WMS_Out_Scan>();
-                List<WMS_Track> Track_List_Sub = new List<WMS_Track>();
-                List<WMS_Track_Info> Track_Info_List_Sub = new List<WMS_Track_Info>();
-                List<string> Tracking_No_List_Sub = new List<string>();
+                U_Sub = User_List.Where(c => c.UserFullName == x.Create_Person).FirstOrDefault();
+                Scan_List_Sub = Scan_List.Where(c => c.Link_Head_ID == x.Head_ID).ToList();
+                Track_List_Sub = Track_List.Where(c => c.Link_Head_ID == x.Head_ID).ToList();
+                Tracking_No_List_Sub = Track_List_Sub.Select(c => c.Tracking_No).Distinct().ToList();
+                Track_Info_List_Sub = Track_Info_List.Where(c => Tracking_No_List_Sub.Contains(c.Tracking_No)).ToList();
 
-                string MailToAddress = string.Empty;
-                SentEmail SE = this.Get_SentEmail(U.LinkMainCID);
-                IWmsService IW = new WmsService();
+                MailToAddress = U_Sub.Email;
+                Info.mailToAddress_List.Add(MailToAddress);
 
-                SentEmail_Info Info = new SentEmail_Info();
-                List<SentEmail_Info> Info_List = new List<SentEmail_Info>();
-                foreach (var x in Head_List)
-                {
-                    Info = new SentEmail_Info();
-                    Info.mailSubject = x.Customer_Name + "送货快递信息补发";
-                    Info.mailBody = string.Empty;
-                    Info.mailBody += "<h5>任务编号：" + x.Task_Bat_No_Str + "</h5>";
-                    Info.mailBody += "<h5>发货日期：" + x.Out_DT_Str + "</h5>";
-                    Info.mailBody += "<h5>运输方式：" + x.Logistics_Mode + "</h5>";
-                    Info.mailBody += "<h5>客户名称：" + x.Customer_Name + "</h5>";
-                    Info.mailBody += "<hr/>";
-                    Info.mailBody += "<h5>此邮件为系统自动发送邮件，请勿回复！</h5>";
-
-                    U_Sub = User_List.Where(c => c.UserFullName == x.Create_Person).FirstOrDefault();
-                    Scan_List_Sub = Scan_List.Where(c => c.Link_Head_ID == x.Head_ID).ToList();
-                    Track_List_Sub = Track_List.Where(c => c.Link_Head_ID == x.Head_ID).ToList();
-                    Tracking_No_List_Sub = Track_List_Sub.Select(c => c.Tracking_No).Distinct().ToList();
-                    Track_Info_List_Sub = Track_Info_List.Where(c => Tracking_No_List_Sub.Contains(c.Tracking_No)).ToList();
-
-                    MailToAddress = U_Sub.Email;
-                    Info.mailToAddress_List.Add(MailToAddress);
-
-                    Info.ExcelPath = IW.Get_Out_Task_List_To_Excel_With_Tracking_No(x, Scan_List_Sub, Track_List_Sub, Track_Info_List_Sub);
-                    Info_List.Add(Info);
-                }
-                NetMail.SendNetMailSingle_Save_DB_With_Excel_Foreach(Info_List, SE);
+                Info.ExcelPath = IW.Get_Out_Task_List_To_Excel_With_Tracking_No(x, Scan_List_Sub, Track_List_Sub, Track_Info_List_Sub);
+                Info_List.Add(Info);
             }
+            NetMail.SendNetMailSingle_Save_DB_With_Excel_Foreach(Info_List, SE);
         }
     }
 
@@ -448,7 +441,7 @@ namespace SMART.Api
             string ExcelPath = IW.Get_WMS_Waste_Line_By_Head_To_Excel(Line_List);
             Task.Factory.StartNew(() => NetMail.SendNetMailSingle_Save_DB_With_Excel(mailToAddress_List, mailSubject, mailBody, SE, ExcelPath));
         }
-        
+
         public void Sent_To_WMS_Staff_With_Refused_WMS_Waste_Task(WMS_Waste_Head Head, List<WMS_Waste_Line> Line_List)
         {
             string mailSubject = "库存报废申请单驳回";

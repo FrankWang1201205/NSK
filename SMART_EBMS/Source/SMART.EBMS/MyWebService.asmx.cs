@@ -415,24 +415,24 @@ namespace SMART.EBMS
         }
 
         [WebMethod]
-        public DataTable WMS_Out_Task_List_With_Tray_No(string HeadID)
+        public DataTable WMS_Out_Track_List()
         {
-            return IW.WMS_Out_Task_List_With_Tray_No(HeadID);
+            return IW.WMS_Out_Track_List(MainCID);
         }
 
         [WebMethod]
-        public DataTable WMS_Out_Track_List(string HeadID, string Tray_No)
+        public DataTable WMS_Out_Track_List_Sub(string ScanStr)
         {
-            return IW.WMS_Out_Track_List(HeadID,Tray_No);
+            return IW.WMS_Out_Track_List_Sub(MainCID, ScanStr);
         }
 
         [WebMethod]
-        public string WMS_Out_Track_Scan_Item(string HeadID, string Tray_No, string ScanStr, string Cost)
+        public string WMS_Out_Track_Scan_Item(string Tray_No, string ScanStr, string Weight)
         {
             string result = string.Empty;
             try
             {
-                IW.WMS_Out_Track_Scan_Item(HeadID, Tray_No, ScanStr, Cost);
+                IW.WMS_Out_Track_Scan_Item(MainCID, Tray_No, ScanStr, Weight);
             }
             catch (Exception Ex)
             {
@@ -442,12 +442,12 @@ namespace SMART.EBMS
         }
 
         [WebMethod]
-        public string WMS_Out_Track_Scan_Delete(string HeadID, string Tray_No)
+        public string WMS_Out_Track_Scan_Delete(string ScanStr)
         {
             string result = string.Empty;
             try
             {
-                IW.WMS_Out_Track_Scan_Delete(HeadID, Tray_No);
+                IW.WMS_Out_Track_Scan_Delete(MainCID, ScanStr);
             }
             catch (Exception Ex)
             {

@@ -23,11 +23,11 @@
     <form id="MyForm" action="~/WMS_Stocktaking/WMS_Stocktaking_Task_Record" method="get">
         <table style="width:100%;">
             <tr>
-                <td style="width:120px;padding-left:5px;">
+                <td style="width:120px;">
                     <input type="text" class="form-control input-sm" name="Work_Person" id="Work_Person" value="@MF.Work_Person" placeholder="作业人">
                 </td>
 
-                <td style="width:10px;padding-left:15px;">
+                <td style="width:10px;padding-left:5px;">
                     <input autocomplete="off" style="width:90px;" class="form-control input-sm Time_Select" name="Time_Start" type="text" id="Time_Start" placeholder="起始时间" value="@MF.Time_Start" />
                 </td>
 
@@ -39,7 +39,7 @@
                     <input autocomplete="off" style="width:90px;" class="form-control input-sm Time_Select" name="Time_End" type="text" id="Time_End" placeholder="结束时间" value="@MF.Time_End" />
                 </td>
 
-                <td style="width:200px; padding-left:15px;">
+                <td style="width:200px; padding-left:5px;">
                     <div class="input-group input-group-sm" style="width:200px;">
                         <input type="text" name="Location" id="Location" placeholder="库位" value="@MF.Location" class="form-control ">
                         <div class="input-group-btn">

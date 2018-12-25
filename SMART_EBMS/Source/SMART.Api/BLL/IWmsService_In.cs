@@ -19,6 +19,7 @@ namespace SMART.Api
     {
         //收货作业
         PageList<WMS_In_Task> Get_WMS_In_Task_PageList(WMS_In_Filter MF);
+        PageList<WMS_In_Task> Get_WMS_In_Task_PageList_PDA(WMS_In_Filter MF);
         PageList<WMS_In_Task> Get_WMS_In_Task_PageList_Distribute(WMS_In_Filter MF);
         WMS_In_Task Get_WMS_In_Task_Item(Guid Head_ID, WMS_In_Filter MF);
         WMS_In_Task Get_WMS_In_Task_Item(WMS_In_Filter MF);
@@ -99,6 +100,111 @@ namespace SMART.Api
         public PageList<WMS_In_Task> Get_WMS_In_Task_PageList(WMS_In_Filter MF)
         {
             var query = db.WMS_In_Head.Where(x => x.LinkMainCID == MF.LinkMainCID).AsQueryable();
+
+            if (!string.IsNullOrEmpty(MF.Task_Bat_No))
+            {
+                query = query.Where(x => x.Task_Bat_No_Str.Contains(MF.Task_Bat_No)).AsQueryable();
+            }
+
+            if (!string.IsNullOrEmpty(MF.Logistics_Company))
+            {
+                query = query.Where(x => x.Logistics_Company.Contains(MF.Logistics_Company)).AsQueryable();
+            }
+
+            if (!string.IsNullOrEmpty(MF.Logistics_Mode))
+            {
+                query = query.Where(x => x.Logistics_Mode.Contains(MF.Logistics_Mode)).AsQueryable();
+            }
+
+            if (!string.IsNullOrEmpty(MF.Supplier))
+            {
+                query = query.Where(x => x.Supplier_Name.Contains(MF.Supplier)).AsQueryable();
+            }
+
+            if (Enum.GetNames(typeof(WMS_In_Global_State_Enum)).ToList().Where(x => x == MF.Global_State).Any())
+            {
+                query = query.Where(x => x.Status == MF.Global_State).AsQueryable();
+            }
+
+            if (!string.IsNullOrEmpty(MF.MatType))
+            {
+                query = query.Where(x => x.MatType == MF.MatType).AsQueryable();
+            }
+
+            if (!string.IsNullOrEmpty(MF.Head_Type))
+            {
+                query = query.Where(x => x.Head_Type == MF.Head_Type).AsQueryable();
+            }
+
+            if (!string.IsNullOrEmpty(MF.Create_Person))
+            {
+                query = query.Where(x => x.Create_Person.Contains(MF.Create_Person)).AsQueryable();
+            }
+
+            if (!string.IsNullOrEmpty(MF.Work_Person))
+            {
+                query = query.Where(x => x.Work_Person.Contains(MF.Work_Person)).AsQueryable();
+            }
+
+            if (!string.IsNullOrEmpty(MF.Time_Start) && !string.IsNullOrEmpty(MF.Time_End))
+            {
+                DateTime Start_DT = Convert.ToDateTime((MF.Time_Start));
+                DateTime End_DT = Convert.ToDateTime((MF.Time_End));
+                End_DT = End_DT.AddDays(1);
+                if (DateTime.Compare(Start_DT, End_DT) > 0)
+                {
+                    throw new Exception("起始时间不可大于结束时间！");
+                }
+
+                query = query.Where(x => x.Create_DT >= Start_DT && x.Create_DT <= End_DT).AsQueryable();
+            }
+
+            List<WMS_In_Head> List = query.OrderByDescending(x => x.Create_DT).Skip((MF.PageIndex - 1) * MF.PageSize).Take(MF.PageSize).ToList();
+
+            List<Guid> Head_ID_List = List.Select(x => x.Head_ID).ToList();
+            var WMS_In_Line_Select = db.WMS_In_Line.Where(x => x.LinkMainCID == MF.LinkMainCID && Head_ID_List.Contains(x.Link_Head_ID)).Select(x => new { x.Line_ID, x.MatSn, x.Link_Head_ID, x.Quantity, x.Delivery_DT }).ToList();
+            List<WMS_In_Line> WMS_In_Line_List = WMS_In_Line_Select.Select(x => new WMS_In_Line { Line_ID = x.Line_ID, MatSn = x.MatSn, Link_Head_ID = x.Link_Head_ID, Quantity = x.Quantity, Delivery_DT = x.Delivery_DT }).ToList();
+
+            PageList<WMS_In_Task> PList = new PageList<WMS_In_Task>();
+            List<WMS_In_Task> Row_List = new List<WMS_In_Task>();
+            WMS_In_Task T = new WMS_In_Task();
+            List<WMS_In_Line> WMS_In_Line_List_Sub = new List<WMS_In_Line>();
+            foreach (var x in List)
+            {
+                T = new WMS_In_Task();
+                T.Head_ID = x.Head_ID;
+                T.Task_Bat_No_Str = x.Task_Bat_No_Str;
+                T.Create_DT = x.Create_DT;
+                T.Create_Person = x.Create_Person;
+                T.Logistics_Company = x.Logistics_Company;
+                T.Logistics_Mode = x.Logistics_Mode;
+                T.MatType = x.MatType;
+                T.Brand = x.Brand;
+                T.Logistics_Cost_Type = x.Logistics_Cost_Type;
+                T.Supplier_Name = x.Supplier_Name;
+                T.Global_State = x.Status;
+                T.Link_WMS_In_No = x.Link_WMS_In_No;
+                T.Work_Person = x.Work_Person;
+                T.Driver_Name = x.Driver_Name;
+                T.Scan_Mat_Type = x.Scan_Mat_Type;
+                WMS_In_Line_List_Sub = WMS_In_Line_List.Where(c => c.Link_Head_ID == x.Head_ID).ToList();
+                T.MatSn_Count = WMS_In_Line_List_Sub.GroupBy(c => c.MatSn).Count();
+                T.Line_Count = WMS_In_Line_List_Sub.Count();
+                T.Line_Quantity_Sum = WMS_In_Line_List_Sub.Sum(c => c.Quantity);
+                Row_List.Add(T);
+            }
+
+            PList.PageIndex = MF.PageIndex;
+            PList.PageSize = MF.PageSize;
+            PList.TotalRecord = List.Count();
+            PList.Rows = Row_List;
+            return PList;
+        }
+
+        public PageList<WMS_In_Task> Get_WMS_In_Task_PageList_PDA(WMS_In_Filter MF)
+        {
+            var query = db.WMS_In_Head.Where(x => x.LinkMainCID == MF.LinkMainCID).AsQueryable();
+            query = query.Where(x => x.Status == WMS_In_Global_State_Enum.等待收货.ToString() || x.Status == WMS_In_Global_State_Enum.通知采购.ToString()).AsQueryable();
 
             if (!string.IsNullOrEmpty(MF.Task_Bat_No))
             {
@@ -810,7 +916,7 @@ namespace SMART.Api
             MyNormalUploadFile MF = new MyNormalUploadFile();
             string ExcelFilePath = MF.NormalUpLoadFileProcess(ExcelFile, "WMS_In_Line/" + U.UID);
 
-            //根据路径通过已存在的excel来创建HSSFWorkbook，即整个excel文档
+            //根据路径通过已存在的excel来创建XSSFWorkbook，即整个excel文档
             XSSFWorkbook workbook = new XSSFWorkbook(new FileStream(HttpRuntime.AppDomainAppPath.ToString() + ExcelFilePath, FileMode.Open, FileAccess.Read));
 
             string Currency = Currency_Enum.CNY.ToString();
@@ -933,7 +1039,7 @@ namespace SMART.Api
             MyNormalUploadFile MF = new MyNormalUploadFile();
             string ExcelFilePath = MF.NormalUpLoadFileProcess(ExcelFile, "WMS_In_Line/" + U.UID);
 
-            //根据路径通过已存在的excel来创建HSSFWorkbook，即整个excel文档
+            //根据路径通过已存在的excel来创建XSSFWorkbook，即整个excel文档
             XSSFWorkbook workbook = new XSSFWorkbook(new FileStream(HttpRuntime.AppDomainAppPath.ToString() + ExcelFilePath, FileMode.Open, FileAccess.Read));
 
             string Currency = Currency_Enum.CNY.ToString();
@@ -1087,7 +1193,7 @@ namespace SMART.Api
             MyNormalUploadFile MF = new MyNormalUploadFile();
             string ExcelFilePath = MF.NormalUpLoadFileProcess(ExcelFile, "WMS_In_Line/" + U.UID);
 
-            //根据路径通过已存在的excel来创建HSSFWorkbook，即整个excel文档
+            //根据路径通过已存在的excel来创建XSSFWorkbook，即整个excel文档
             XSSFWorkbook workbook = new XSSFWorkbook(new FileStream(HttpRuntime.AppDomainAppPath.ToString() + ExcelFilePath, FileMode.Open, FileAccess.Read));
 
             string Currency = Currency_Enum.CNY.ToString();
@@ -3408,11 +3514,10 @@ namespace SMART.Api
         {
             WMS_In_Filter MF = new WMS_In_Filter();
             MF.LinkMainCID = MainCID;
-            MF.Global_State = WMS_In_Global_State_Enum.等待收货.ToString();
             MF.PageIndex = 1;
             MF.PageSize = 100;
             MF.Logistics_Mode = Logistics_Mode_Enum.快递.ToString();
-            List<WMS_In_Task> List_DB = this.Get_WMS_In_Task_PageList(MF).Rows;
+            List<WMS_In_Task> List_DB = this.Get_WMS_In_Task_PageList_PDA(MF).Rows;
             List<WMS_In_Task> List = new List<WMS_In_Task>();
             foreach (var x in List_DB)
             {
@@ -3465,11 +3570,10 @@ namespace SMART.Api
         {
             WMS_In_Filter MF = new WMS_In_Filter();
             MF.LinkMainCID = MainCID;
-            MF.Global_State = WMS_In_Global_State_Enum.等待收货.ToString();
             MF.PageIndex = 1;
             MF.PageSize = 100;
             MF.Logistics_Mode = Logistics_Mode_Enum.物流.ToString();
-            List<WMS_In_Task> List_DB = this.Get_WMS_In_Task_PageList(MF).Rows;
+            List<WMS_In_Task> List_DB = this.Get_WMS_In_Task_PageList_PDA(MF).Rows;
             List<WMS_In_Task> List = new List<WMS_In_Task>();
             foreach (var x in List_DB)
             {
@@ -3522,11 +3626,10 @@ namespace SMART.Api
         {
             WMS_In_Filter MF = new WMS_In_Filter();
             MF.LinkMainCID = MainCID;
-            MF.Global_State = WMS_In_Global_State_Enum.等待收货.ToString();
             MF.PageIndex = 1;
             MF.PageSize = 100;
             MF.Logistics_Mode = Logistics_Mode_Enum.自提.ToString();
-            List<WMS_In_Task> List_DB = this.Get_WMS_In_Task_PageList(MF).Rows;
+            List<WMS_In_Task> List_DB = this.Get_WMS_In_Task_PageList_PDA(MF).Rows;
             List<WMS_In_Task> List = new List<WMS_In_Task>();
             foreach (var x in List_DB)
             {
@@ -3579,11 +3682,10 @@ namespace SMART.Api
         {
             WMS_In_Filter MF = new WMS_In_Filter();
             MF.LinkMainCID = MainCID;
-            MF.Global_State = WMS_In_Global_State_Enum.等待收货.ToString();
             MF.PageIndex = 1;
             MF.PageSize = 100;
             MF.Logistics_Mode = Logistics_Mode_Enum.自送.ToString();
-            List<WMS_In_Task> List_DB = this.Get_WMS_In_Task_PageList(MF).Rows;
+            List<WMS_In_Task> List_DB = this.Get_WMS_In_Task_PageList_PDA(MF).Rows;
             List<WMS_In_Task> List = new List<WMS_In_Task>();
             foreach (var x in List_DB)
             {

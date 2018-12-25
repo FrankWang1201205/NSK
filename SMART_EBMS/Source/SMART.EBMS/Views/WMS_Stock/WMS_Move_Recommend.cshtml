@@ -21,11 +21,11 @@
     <form id="MyForm" action="~/WMS_Stock/WMS_Move_Recommend" method="get">
         <table style="width:100%;">
             <tr>
-                <td style="width:100px;padding-right:10px;padding-left:10px;">
+                <td style="width:100px;">
                     <input type="text" name="Location" id="Location" placeholder="库位" value="@MF.Location" class="form-control input-sm">
                 </td>
 
-                <td style="width:250px;">
+                <td style="width:250px;padding-left:5px;">
                     <div class="input-group input-group-sm" style="width: 250px; ">
                         <input type="text" name="MatSn" id="MatSn" placeholder="产品型号" value="@MF.MatSn" class="form-control ">
                         <div class="input-group-btn">
@@ -50,7 +50,10 @@
         <a href="javascript:void(0)" class="Tray_Box" onclick="Show_Location_Modal('@x.Location','@x.Link_HeadID')">
             <table>
                 <tr>
-                    <td style="padding-top:25px; color:#175a9b;"><strong style="font-size:22px;">@x.Location</strong></td>
+                    <td style="padding-top:15px; color:#175a9b;"><strong style="font-size:22px;">@x.Location</strong></td>
+                </tr>
+                <tr>
+                    <td style="font-size:13px; padding-top:10px;"><strong>@x.Stock_List.GroupBy(c => c.MatSn).Count().ToString("N0")</strong> 个型号</td>
                 </tr>
             </table>
         </a>

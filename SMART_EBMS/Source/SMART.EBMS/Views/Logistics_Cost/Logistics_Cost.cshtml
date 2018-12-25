@@ -33,7 +33,7 @@
                 </select>
             </td>
 
-            <td style="width:110px; padding-left:15px;">
+            <td style="width:110px; padding-left:5px;">
                 <select name="TrackingType" id="TrackingType" class="form-control input-sm" onchange="SubmitForm()">
                     <option value="">快递类型</option>
                     @foreach (var x in Enum.GetNames(typeof(Tracking_Type_Enum)))
@@ -50,7 +50,7 @@
                 </select>
             </td>
 
-            <td style="width:250px; padding-left:15px;">
+            <td style="width:250px; padding-left:5px;">
                 <div class="input-group input-group-sm" style="width: 250px; ">
                     <input type="text" name="Keyword" id="Keyword" placeholder="快递物流" value="@MF.Keyword" class="form-control ">
                     <div class="input-group-btn">

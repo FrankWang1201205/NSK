@@ -67,7 +67,7 @@ namespace SMART.Api
             MyNormalUploadFile MF = new MyNormalUploadFile();
             string ExcelFilePath = MF.NormalUpLoadFileProcess(ExcelFile, "Purchase_Temp/" + U.UID);
 
-            //根据路径通过已存在的excel来创建HSSFWorkbook，即整个excel文档
+            //根据路径通过已存在的excel来创建XSSFWorkbook，即整个excel文档
             XSSFWorkbook workbook = new XSSFWorkbook(new FileStream(HttpRuntime.AppDomainAppPath.ToString() + ExcelFilePath, FileMode.Open, FileAccess.Read));
 
             //读取Excel列，装箱数据
@@ -167,7 +167,7 @@ namespace SMART.Api
             MyNormalUploadFile MF = new MyNormalUploadFile();
             string ExcelFilePath = MF.NormalUpLoadFileProcess(ExcelFile, "Purchase_Temp_Search/" + U.UID);
 
-            //根据路径通过已存在的excel来创建HSSFWorkbook，即整个excel文档
+            //根据路径通过已存在的excel来创建XSSFWorkbook，即整个excel文档
             XSSFWorkbook workbook = new XSSFWorkbook(new FileStream(HttpRuntime.AppDomainAppPath.ToString() + ExcelFilePath, FileMode.Open, FileAccess.Read));
 
             //读取Excel列，装箱数据
@@ -357,7 +357,7 @@ namespace SMART.Api
             MyNormalUploadFile MF = new MyNormalUploadFile();
             string ExcelFilePath = MF.NormalUpLoadFileProcess(ExcelFile, "Purchase_Temp_MatSn_Search/" + U.UID);
 
-            //根据路径通过已存在的excel来创建HSSFWorkbook，即整个excel文档
+            //根据路径通过已存在的excel来创建XSSFWorkbook，即整个excel文档
             XSSFWorkbook workbook = new XSSFWorkbook(new FileStream(HttpRuntime.AppDomainAppPath.ToString() + ExcelFilePath, FileMode.Open, FileAccess.Read));
 
             //读取Excel列，装箱数据

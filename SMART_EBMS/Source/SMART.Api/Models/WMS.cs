@@ -2897,11 +2897,9 @@ namespace SMART.Api.Models
         public Guid Tracking_ID { get; set; }
 
         public string Logistics_Company { get; set; }
-
-        [Required]
+        
         public string Logistics_Mode { get; set; }
-
-        [Required]
+        
         public decimal Logistics_Cost { get; set; }
 
         [Required]
@@ -2916,8 +2914,7 @@ namespace SMART.Api.Models
 
         [Required]
         public Guid LinkMainCID { get; set; }
-
-        [Required]
+        
         public Guid Link_Head_ID { get; set; }
 
         public string Link_Head_Com_Name { get; set; }
@@ -3054,6 +3051,8 @@ namespace SMART.Api.Models
             Receiver_Phone = string.Empty;
             Receiver_Tel = string.Empty;
             Receiver_Address = string.Empty;
+            Receiver_Company = string.Empty;
+            WMS_Out_Task_No = string.Empty;
             Item_Info = string.Empty;
             Logistics_Company = string.Empty;
             Logistics_Company_Loc = string.Empty;
@@ -3072,8 +3071,7 @@ namespace SMART.Api.Models
         public string Sender_Phone { get; set; }
 
         public string Sender_Tel { get; set; }
-
-        [Required]
+        
         public string Sender_Address { get; set; }
 
         [Required]
@@ -3087,6 +3085,11 @@ namespace SMART.Api.Models
         public string Receiver_Address { get; set; }
 
         [Required]
+        public string Receiver_Company { get; set; }
+
+        [Required]
+        public string WMS_Out_Task_No { get; set; }
+        
         public string Item_Info { get; set; }
 
         [Required]

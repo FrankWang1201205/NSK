@@ -786,7 +786,7 @@ namespace SMART.Api
             //创建上传文件
             string ExcelFilePath = MF.NormalUpLoadFileProcess(ExcelFile, "Excel_Temp/" + U.LinkMainCID);
 
-            //根据路径通过已存在的excel来创建HSSFWorkbook，即整个excel文档
+            //根据路径通过已存在的excel来创建XSSFWorkbook，即整个excel文档
             XSSFWorkbook workbook = new XSSFWorkbook(new FileStream(HttpRuntime.AppDomainAppPath.ToString() + ExcelFilePath, FileMode.Open, FileAccess.Read));
 
             //获取excel的第一个sheet
@@ -1582,7 +1582,7 @@ namespace SMART.Api
             //创建上传文件
             string ExcelFilePath = MF.NormalUpLoadFileProcess(ExcelFile, "Excel_Temp/" + U.LinkMainCID);
 
-            //根据路径通过已存在的excel来创建HSSFWorkbook，即整个excel文档
+            //根据路径通过已存在的excel来创建XSSFWorkbook，即整个excel文档
             XSSFWorkbook workbook = new XSSFWorkbook(new FileStream(HttpRuntime.AppDomainAppPath.ToString() + ExcelFilePath, FileMode.Open, FileAccess.Read));
 
             //获取excel的第一个sheet
@@ -2170,7 +2170,7 @@ namespace SMART.Api
             MyNormalUploadFile MF = new MyNormalUploadFile();
             string ExcelFilePath = MF.NormalUpLoadFileProcess(ExcelFile, "Material/" + U.UID + "多品牌");
 
-            //根据路径通过已存在的excel来创建HSSFWorkbook，即整个excel文档
+            //根据路径通过已存在的excel来创建XSSFWorkbook，即整个excel文档
             XSSFWorkbook workbook = new XSSFWorkbook(new FileStream(HttpRuntime.AppDomainAppPath.ToString() + ExcelFilePath, FileMode.Open, FileAccess.Read));
 
             //获取excel的第一个sheet
@@ -2320,7 +2320,7 @@ namespace SMART.Api
             MyNormalUploadFile MF = new MyNormalUploadFile();
             string ExcelFilePath = MF.NormalUpLoadFileProcess(ExcelFile, "Material/" + U.UID);
 
-            //根据路径通过已存在的excel来创建HSSFWorkbook，即整个excel文档
+            //根据路径通过已存在的excel来创建XSSFWorkbook，即整个excel文档
             XSSFWorkbook workbook = new XSSFWorkbook(new FileStream(HttpRuntime.AppDomainAppPath.ToString() + ExcelFilePath, FileMode.Open, FileAccess.Read));
 
             //获取excel的第一个sheet

@@ -414,6 +414,7 @@
     <Content Include="DownLoad\型号对比模板.xlsx" />
     <Content Include="DownLoad\批量导入库存模板.xlsx" />
     <Content Include="DownLoad\多品牌产品型号上传模板.xlsx" />
+    <Content Include="DownLoad\快递单号导入模板.xlsx" />
     <None Include="Properties\PublishProfiles\Public_Loc.pubxml" />
     <None Include="Properties\PublishProfiles\SMART_FTP.pubxml" />
     <Content Include="Views\MatImg\_TopMenu.cshtml" />

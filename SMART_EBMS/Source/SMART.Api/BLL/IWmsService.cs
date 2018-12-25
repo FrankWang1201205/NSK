@@ -1040,33 +1040,27 @@ namespace SMART.Api
             {
                 query = query.Where(x => x.Location_Type == MF.Location_Type).AsQueryable();
             }
-
-            List<WMS_Stock> Stock_List = query.ToList();
-
-            var Group = from x in Stock_List
-                        group x by x.Location into g
-                        select new
-                        {
-                            Location = g.Key,
-                        };
-
-            List<WMS_Stock_Group_Location> List = new List<WMS_Stock_Group_Location>();
-            WMS_Stock_Group_Location T = new WMS_Stock_Group_Location();
-            foreach (var x in Group)
-            {
-                T = new WMS_Stock_Group_Location();
-                T.Location = x.Location;
-                T.Stock_List = Stock_List.Where(c => c.Location == x.Location).ToList();
-                List.Add(T);
-            }
-
-            List = List.OrderBy(x => x.Location).ToList();
-
+            
+            List<string> Loc_List = query.Select(x => x.Location).Distinct().ToList();
             PageList<WMS_Stock_Group_Location> PList = new PageList<WMS_Stock_Group_Location>();
             PList.PageIndex = MF.PageIndex;
             PList.PageSize = MF.PageSize;
-            PList.TotalRecord = List.Count();
-            PList.Rows = List.Skip((MF.PageIndex - 1) * MF.PageSize).Take(MF.PageSize).ToList();
+            PList.TotalRecord = Loc_List.Count();
+           
+            Loc_List = Loc_List.Skip((MF.PageIndex - 1) * MF.PageSize).Take(MF.PageSize).ToList();
+            List<WMS_Stock> Stock_List = query.Where(x => Loc_List.Contains(x.Location)).ToList();
+
+            List<WMS_Stock_Group_Location> List = new List<WMS_Stock_Group_Location>();
+            WMS_Stock_Group_Location T = new WMS_Stock_Group_Location();
+            foreach (var Loc in Loc_List.OrderBy(x => x))
+            {
+                T = new WMS_Stock_Group_Location();
+                T.Location = Loc;
+                T.Stock_List = Stock_List.Where(c => c.Location == Loc).ToList();
+                List.Add(T);
+            }
+
+            PList.Rows = List;
             return PList;
         }
 
@@ -1357,6 +1351,7 @@ namespace SMART.Api
             {
                 T = new WMS_Stock_Group_Location();
                 T.Location = Location;
+                T.Stock_List = Stock_List_DB.Where(c => c.Location == Location).ToList();
                 List.Add(T);
             }
 
@@ -2377,7 +2372,7 @@ namespace SMART.Api
             MyNormalUploadFile MF = new MyNormalUploadFile();
             string ExcelFilePath = MF.NormalUpLoadFileProcess(ExcelFile, "WMS_Stock_Record/" + Location);
 
-            //根据路径通过已存在的excel来创建HSSFWorkbook，即整个excel文档
+            //根据路径通过已存在的excel来创建XSSFWorkbook，即整个excel文档
             XSSFWorkbook workbook = new XSSFWorkbook(new FileStream(HttpRuntime.AppDomainAppPath.ToString() + ExcelFilePath, FileMode.Open, FileAccess.Read));
 
             //获取excel的第一个sheet
@@ -2465,7 +2460,7 @@ namespace SMART.Api
             MyNormalUploadFile MF = new MyNormalUploadFile();
             string ExcelFilePath = MF.NormalUpLoadFileProcess(ExcelFile, "WMS_Stock_Record/");
 
-            //根据路径通过已存在的excel来创建HSSFWorkbook，即整个excel文档
+            //根据路径通过已存在的excel来创建XSSFWorkbook，即整个excel文档
             XSSFWorkbook workbook = new XSSFWorkbook(new FileStream(HttpRuntime.AppDomainAppPath.ToString() + ExcelFilePath, FileMode.Open, FileAccess.Read));
 
             //获取excel的第一个sheet
@@ -2975,7 +2970,7 @@ namespace SMART.Api
             MyNormalUploadFile MF = new MyNormalUploadFile();
             string ExcelFilePath = MF.NormalUpLoadFileProcess(ExcelFile, "Stock/" + Location);
 
-            //根据路径通过已存在的excel来创建HSSFWorkbook，即整个excel文档
+            //根据路径通过已存在的excel来创建XSSFWorkbook，即整个excel文档
             XSSFWorkbook workbook = new XSSFWorkbook(new FileStream(HttpRuntime.AppDomainAppPath.ToString() + ExcelFilePath, FileMode.Open, FileAccess.Read));
 
             //获取excel的第一个sheet
@@ -3070,7 +3065,7 @@ namespace SMART.Api
             MyNormalUploadFile MF = new MyNormalUploadFile();
             string ExcelFilePath = MF.NormalUpLoadFileProcess(ExcelFile, "Stock/Excel");
 
-            //根据路径通过已存在的excel来创建HSSFWorkbook，即整个excel文档
+            //根据路径通过已存在的excel来创建XSSFWorkbook，即整个excel文档
             XSSFWorkbook workbook = new XSSFWorkbook(new FileStream(HttpRuntime.AppDomainAppPath.ToString() + ExcelFilePath, FileMode.Open, FileAccess.Read));
 
             //获取excel的第一个sheet
@@ -3929,8 +3924,8 @@ namespace SMART.Api
             MyNormalUploadFile MF = new MyNormalUploadFile();
             string ExcelFilePath = MF.NormalUpLoadFileProcess(ExcelFile, "WMS_Track_Info/" + U.UID);
 
-            //根据路径通过已存在的excel来创建HSSFWorkbook，即整个excel文档
-            HSSFWorkbook workbook = new HSSFWorkbook(new FileStream(HttpRuntime.AppDomainAppPath.ToString() + ExcelFilePath, FileMode.Open, FileAccess.Read));
+            //根据路径通过已存在的excel来创建XSSFWorkbook，即整个excel文档
+            XSSFWorkbook workbook = new XSSFWorkbook(new FileStream(HttpRuntime.AppDomainAppPath.ToString() + ExcelFilePath, FileMode.Open, FileAccess.Read));
 
             //读取Excel列，装箱数据
             List<WMS_Track_Info> Line_List = new List<WMS_Track_Info>();
@@ -3948,36 +3943,32 @@ namespace SMART.Api
 
                 Line = new WMS_Track_Info();
 
-                try { Line.Sender_Name = row.GetCell(1).ToString().Trim(); } catch { Line.Sender_Name = string.Empty; }
+                try { Line.Sender_Name = row.GetCell(0).ToString().Trim(); } catch { Line.Sender_Name = string.Empty; }
                 if (string.IsNullOrEmpty(Line.Sender_Name)) { break; }
-                try { Line.Sender_Phone = row.GetCell(2).ToString().Trim(); } catch { Line.Sender_Phone = string.Empty; }
-                try { Line.Sender_Tel = row.GetCell(3).ToString().Trim(); } catch { Line.Sender_Tel = string.Empty; }
-                try { Line.Sender_Address = row.GetCell(4).ToString().Trim(); } catch { Line.Sender_Address = string.Empty; }
-                try { Line.Receiver_Name = row.GetCell(5).ToString().Trim(); } catch { Line.Receiver_Name = string.Empty; }
-                try { Line.Receiver_Phone = row.GetCell(6).ToString().Trim(); } catch { Line.Receiver_Phone = string.Empty; }
-                try { Line.Receiver_Tel = row.GetCell(7).ToString().Trim(); } catch { Line.Receiver_Tel = string.Empty; }
-                try { Line.Receiver_Address = row.GetCell(8).ToString().Trim(); } catch { Line.Receiver_Address = string.Empty; }
-                try { Line.Item_Info = row.GetCell(9).ToString().Trim(); } catch { Line.Item_Info = string.Empty; }
-                try { Line.Logistics_Company = row.GetCell(10).ToString().Trim(); } catch { Line.Logistics_Company = string.Empty; }
-                try { Line.Logistics_Company_Loc = row.GetCell(11).ToString().Trim(); } catch { Line.Logistics_Company_Loc = string.Empty; }
-                try { Line.Tracking_No = row.GetCell(12).ToString().Trim(); } catch { Line.Tracking_No = string.Empty; }
+                try { Line.Receiver_Name = row.GetCell(1).ToString().Trim(); } catch { Line.Receiver_Name = string.Empty; }
+                try { Line.Receiver_Phone = row.GetCell(2).ToString().Trim(); } catch { Line.Receiver_Phone = string.Empty; }
+                try { Line.Receiver_Tel = row.GetCell(3).ToString().Trim(); } catch { Line.Receiver_Tel = string.Empty; }
+                try { Line.Receiver_Address = row.GetCell(4).ToString().Trim(); } catch { Line.Receiver_Address = string.Empty; }
+                try { Line.Receiver_Company = row.GetCell(5).ToString().Trim(); } catch { Line.Receiver_Company = string.Empty; }
+                try { Line.WMS_Out_Task_No = row.GetCell(6).ToString().Trim(); } catch { Line.WMS_Out_Task_No = string.Empty; }
+                try { Line.Logistics_Company = row.GetCell(7).ToString().Trim(); } catch { Line.Logistics_Company = string.Empty; }
+                try { Line.Logistics_Company_Loc = row.GetCell(8).ToString().Trim(); } catch { Line.Logistics_Company_Loc = string.Empty; }
+                try { Line.Tracking_No = row.GetCell(9).ToString().Trim(); } catch { Line.Tracking_No = string.Empty; }
 
                 //过滤换行符
                 Line.Sender_Name = Line.Sender_Name.Replace(Environment.NewLine, "");
-                Line.Sender_Phone = Line.Sender_Phone.Replace(Environment.NewLine, "");
-                Line.Sender_Tel = Line.Sender_Tel.Replace(Environment.NewLine, "");
-                Line.Sender_Address = Line.Sender_Address.Replace(Environment.NewLine, "");
                 Line.Receiver_Name = Line.Receiver_Name.Replace(Environment.NewLine, "");
                 Line.Receiver_Phone = Line.Receiver_Phone.Replace(Environment.NewLine, "");
                 Line.Receiver_Tel = Line.Receiver_Tel.Replace(Environment.NewLine, "");
                 Line.Receiver_Address = Line.Receiver_Address.Replace(Environment.NewLine, "");
-                Line.Item_Info = Line.Item_Info.Replace(Environment.NewLine, "");
+                Line.Receiver_Company = Line.Receiver_Company.Replace(Environment.NewLine, "");
+                Line.WMS_Out_Task_No = Line.WMS_Out_Task_No.Replace(Environment.NewLine, "");
                 Line.Logistics_Company = Line.Logistics_Company.Replace(Environment.NewLine, "");
                 Line.Logistics_Company_Loc = Line.Logistics_Company_Loc.Replace(Environment.NewLine, "");
                 Line.Tracking_No = Line.Tracking_No.Replace(Environment.NewLine, "");
 
                 //判断单元格是否有公式
-                for (int j = 0; j < 13; j++)
+                for (int j = 0; j < 10; j++)
                 {
                     if (row.GetCell(j) != null)
                     {
@@ -3988,9 +3979,9 @@ namespace SMART.Api
                     }
                 }
 
-                if (string.IsNullOrEmpty(Line.Sender_Name) || string.IsNullOrEmpty(Line.Sender_Address)
+                if (string.IsNullOrEmpty(Line.Sender_Name) || string.IsNullOrEmpty(Line.WMS_Out_Task_No)
                     || string.IsNullOrEmpty(Line.Receiver_Name) || string.IsNullOrEmpty(Line.Receiver_Address)
-                    || string.IsNullOrEmpty(Line.Item_Info) || string.IsNullOrEmpty(Line.Logistics_Company)
+                    || string.IsNullOrEmpty(Line.Receiver_Company) || string.IsNullOrEmpty(Line.Logistics_Company)
                     || string.IsNullOrEmpty(Line.Tracking_No))
                 {
                     throw new Exception("Excel中" + Line.Tracking_No + "信息不全");
@@ -4010,11 +4001,39 @@ namespace SMART.Api
                 throw new Exception("Excel中存在与系统重复的快递单号");
             }
 
+            List<WMS_Track> Track_List = db.WMS_Track.Where(x => x.LinkMainCID == U.LinkMainCID && Tracking_No_List.Contains(x.Tracking_No)).ToList();
+            foreach (var Tracking_No in Tracking_No_List)
+            {
+                if (Track_List.Where(c => c.Tracking_No == Tracking_No).Any() == false)
+                {
+                    throw new Exception("系统中不存在快递单号" + Tracking_No);
+                }
+            }
+
+            List<string> Task_No_List = Line_List.Select(x => x.WMS_Out_Task_No).Distinct().ToList();
+            List<WMS_Out_Head> Head_list = db.WMS_Out_Head.Where(x => x.LinkMainCID == U.LinkMainCID && Task_No_List.Contains(x.Task_Bat_No_Str)).ToList();
+            foreach (var x in Head_list)
+            {
+                if (x.Status != WMS_Out_Global_State_Enum.已出库.ToString())
+                {
+                    throw new Exception("出库单" + x.Task_Bat_No_Str + "未出库，不支持导入");
+                }
+            }
+
+            foreach (var Task_No in Task_No_List)
+            {
+                if (Head_list.Where(c => c.Task_Bat_No_Str == Task_No).Any() == false)
+                {
+                    throw new Exception("系统中不存在出库单号" + Task_No);
+                }
+            }
+
             return Line_List;
         }
 
         public void Batch_Create_WMS_Track_Info(List<WMS_Track_Info> List, User U)
         {
+            //保存快递信息
             DateTime DT = DateTime.Now;
             foreach (var x in List)
             {
@@ -4026,9 +4045,31 @@ namespace SMART.Api
 
             db.WMS_Track_Info.AddRange(List);
 
+            //保存扫描快递关联信息
+            List<string> Task_No_List = List.Select(x => x.WMS_Out_Task_No).Distinct().ToList();
+            List<string> Track_No_List = List.Select(x => x.Tracking_No).Distinct().ToList();
+
+            List<WMS_Out_Head> Head_List = db.WMS_Out_Head.Where(x => x.LinkMainCID == U.LinkMainCID && Task_No_List.Contains(x.Task_Bat_No_Str)).ToList();        
+            WMS_Out_Head Head = new WMS_Out_Head();
+            List<WMS_Track> Track_List = db.WMS_Track.Where(x => x.LinkMainCID == U.LinkMainCID && Track_No_List.Contains(x.Tracking_No)).ToList();
+            WMS_Track_Info Track_Info = new WMS_Track_Info();
+
+            foreach (var x in Track_List)
+            {
+                Track_Info = List.Where(c => c.Tracking_No == x.Tracking_No).FirstOrDefault();
+                if (Track_Info == null) { throw new Exception("WMS_Track_Info is null"); }
+                Head = Head_List.Where(c => c.Task_Bat_No_Str == Track_Info.WMS_Out_Task_No).FirstOrDefault();
+                if (Head == null) { throw new Exception("WMS_Out_Head is null"); }
+                x.Link_Head_ID = Head.Head_ID;
+                x.Link_Head_Com_Name = Head.Customer_Name;
+                x.Logistics_Company = Head.Logistics_Company;
+                x.Logistics_Mode = Head.Logistics_Mode;
+                db.Entry(x).State = EntityState.Modified;
+            }
+
             //批量发送邮件
             ISentEmailService IS = new SentEmailService();
-            IS.Batch_Sent_To_Sales_With_WMS_Out_Finish_With_Tracking_No(List, U);
+            IS.Batch_Sent_To_Sales_With_WMS_Out_Finish_With_Tracking_No(Head_List, Track_List, List, U);
 
             MyDbSave.SaveChange(db);
         }

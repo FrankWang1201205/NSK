@@ -420,7 +420,7 @@ namespace SMART.Api
             MyNormalUploadFile MF = new MyNormalUploadFile();
             string ExcelFilePath = MF.NormalUpLoadFileProcess(ExcelFile, "WMS_Out_Line/" + U.UID);
 
-            //根据路径通过已存在的excel来创建HSSFWorkbook，即整个excel文档
+            //根据路径通过已存在的excel来创建XSSFWorkbook，即整个excel文档
             XSSFWorkbook workbook = new XSSFWorkbook(new FileStream(HttpRuntime.AppDomainAppPath.ToString() + ExcelFilePath, FileMode.Open, FileAccess.Read));
 
             string Currency = Currency_Enum.CNY.ToString();
@@ -809,8 +809,8 @@ namespace SMART.Api
 
             WMS_Out_Task_Line T_Line = new WMS_Out_Task_Line();
 
-            List<string> MatSn_List = Line_Group.Select(x => x.MatSn).Distinct().ToList();
-            List<WMS_Stock> Stock_List = db.WMS_Stock.Where(x => MatSn_List.Contains(x.MatSn)).ToList();
+            List<string> MatSn_List = List.Select(x => x.MatSn).Distinct().ToList();
+            List<WMS_Stock> Stock_List = db.WMS_Stock.Where(x => x.LinkMainCID == Head.LinkMainCID && MatSn_List.Contains(x.MatSn)).ToList();
             var Stock_List_Group = from x in Stock_List
                                    group x by new { x.MatSn, x.Location } into G
                                    select new
@@ -2291,13 +2291,13 @@ namespace SMART.Api
                 throw new Exception("此任务单状态异常");
             }
             
-            if (Head.Logistics_Mode == Logistics_Out_Mode_Enum.快递.ToString() || Head.Logistics_Mode == Logistics_Out_Mode_Enum.物流.ToString())
-            {
-                if (db.WMS_Track.Where(x => x.Link_Head_ID == Head.Head_ID).Any() == false)
-                {
-                    throw new Exception("此任务单未添加快递物流信息");
-                }
-            }
+            //if (Head.Logistics_Mode == Logistics_Out_Mode_Enum.快递.ToString() || Head.Logistics_Mode == Logistics_Out_Mode_Enum.物流.ToString())
+            //{
+            //    if (db.WMS_Track.Where(x => x.Link_Head_ID == Head.Head_ID).Any() == false)
+            //    {
+            //        throw new Exception("此任务单未添加快递物流信息");
+            //    }
+            //}
 
             //出库消库存
             WMS_Out_Task_To_WMS_Stock(Head);
@@ -2425,11 +2425,11 @@ namespace SMART.Api
                             Scan_Quantity_Sum = G.Sum(c => c.Scan_Quantity)
                         };
 
-            List<WMS_Track> Track_List = new List<WMS_Track>();
-            if (Head.Logistics_Mode == Logistics_Out_Mode_Enum.快递.ToString() || Head.Logistics_Mode == Logistics_Out_Mode_Enum.物流.ToString())
-            {
-                Track_List = db.WMS_Track.Where(x => x.Link_Head_ID == Head.Head_ID).ToList();
-            }
+            //List<WMS_Track> Track_List = new List<WMS_Track>();
+            //if (Head.Logistics_Mode == Logistics_Out_Mode_Enum.快递.ToString() || Head.Logistics_Mode == Logistics_Out_Mode_Enum.物流.ToString())
+            //{
+            //    Track_List = db.WMS_Track.Where(x => x.Link_Head_ID == Head.Head_ID).ToList();
+            //}
 
             string Path = string.Empty;
             //设定表头
@@ -2451,8 +2451,8 @@ namespace SMART.Api
                 TableHeads.Add("箱号");
             }
 
-            TableHeads.Add("快递单号");
-            TableHeads.Add("重量");
+            //TableHeads.Add("快递单号");
+            //TableHeads.Add("重量");
 
             foreach (string TableHead in TableHeads)
             {
@@ -2484,16 +2484,16 @@ namespace SMART.Api
                     newRow["箱号"] = x.Tray_No;
                 }
 
-                if (Track_List.Where(c => c.Tray_No == x.Tray_No).Any())
-                {
-                    newRow["快递单号"] = Track_List.Where(c => c.Tray_No == x.Tray_No).FirstOrDefault().Tracking_No;
-                    newRow["重量"] = Track_List.Where(c => c.Tray_No == x.Tray_No).FirstOrDefault().Weight;
-                }
-                else
-                {
-                    newRow["快递单号"] = "";
-                    newRow["重量"] = "";
-                }
+                //if (Track_List.Where(c => c.Tray_No == x.Tray_No).Any())
+                //{
+                //    newRow["快递单号"] = Track_List.Where(c => c.Tray_No == x.Tray_No).FirstOrDefault().Tracking_No;
+                //    newRow["重量"] = Track_List.Where(c => c.Tray_No == x.Tray_No).FirstOrDefault().Weight;
+                //}
+                //else
+                //{
+                //    newRow["快递单号"] = "";
+                //    newRow["重量"] = "";
+                //}
 
                 DT.Rows.Add(newRow);
             }
@@ -2632,9 +2632,6 @@ namespace SMART.Api
             TableHeads.Add("重量");
             TableHeads.Add("快递公司");
             TableHeads.Add("寄件人");
-            TableHeads.Add("寄件人手机");
-            TableHeads.Add("寄件人座机");
-            TableHeads.Add("寄件人地址");
             TableHeads.Add("收件人");
             TableHeads.Add("收件人手机");
             TableHeads.Add("收件人座机");
@@ -2681,9 +2678,6 @@ namespace SMART.Api
 
                 newRow["快递公司"] = Info.Logistics_Company;
                 newRow["寄件人"] = Info.Sender_Name;
-                newRow["寄件人手机"] = Info.Sender_Phone;
-                newRow["寄件人座机"] = Info.Sender_Tel;
-                newRow["寄件人地址"] = Info.Sender_Address;
                 newRow["收件人"] = Info.Receiver_Name;
                 newRow["收件人手机"] = Info.Receiver_Phone;
                 newRow["收件人座机"] = Info.Receiver_Tel;
@@ -3428,10 +3422,10 @@ namespace SMART.Api
         DataTable WMS_Out_Task_By_Tray_No_Other(string HeadID, string Tray_No, string Case_No);
         void WMS_Out_Task_Scan_Item_Other(string HeadID, string Tray_No, string Scan_Source, string Quantity, string Case_No);
 
-        DataTable WMS_Out_Task_List_With_Tray_No(string HeadID);
-        DataTable WMS_Out_Track_List(string HeadID, string Tray_No);
-        void WMS_Out_Track_Scan_Item(string HeadID, string Tray_No, string Scan_Source, string Weight);
-        void WMS_Out_Track_Scan_Delete(string HeadID, string Tray_No);
+        DataTable WMS_Out_Track_List(Guid MainCID);
+        void WMS_Out_Track_Scan_Item(Guid MainCID, string Tray_No, string Scan_Source, string Weight);
+        DataTable WMS_Out_Track_List_Sub(Guid MainCID, string Scan_Source);
+        void WMS_Out_Track_Scan_Delete(Guid MainCID, string Scan_Source);
     }
 
     //配货动盘
@@ -3713,11 +3707,7 @@ namespace SMART.Api
                 dr["型号数"] = x.MatSn_Count;
                 dr["产品数"] = x.Quantity_Sum;
                 dr["作业人"] = x.Work_Out_Person;
-                if (x.Status == WMS_Out_Global_State_Enum.待包装.ToString())
-                {
-                    dr["页码"] = "2";
-                }
-                else if (x.Scan_Mat_Type == Scan_Mat_Type_Enum.按托.ToString())
+                if (x.Scan_Mat_Type == Scan_Mat_Type_Enum.按托.ToString())
                 {
                     dr["页码"] = "0";
                 }
@@ -3765,11 +3755,7 @@ namespace SMART.Api
                 dr["型号数"] = x.MatSn_Count;
                 dr["产品数"] = x.Quantity_Sum;
                 dr["作业人"] = x.Work_Out_Person;
-                if (x.Status == WMS_Out_Global_State_Enum.待包装.ToString())
-                {
-                    dr["页码"] = "2";
-                }
-                else if (x.Scan_Mat_Type == Scan_Mat_Type_Enum.按托.ToString())
+                if (x.Scan_Mat_Type == Scan_Mat_Type_Enum.按托.ToString())
                 {
                     dr["页码"] = "0";
                 }
@@ -3817,11 +3803,7 @@ namespace SMART.Api
                 dr["型号数"] = x.MatSn_Count;
                 dr["产品数"] = x.Quantity_Sum;
                 dr["作业人"] = x.Work_Out_Person;
-                if (x.Status == WMS_Out_Global_State_Enum.待包装.ToString())
-                {
-                    dr["页码"] = "2";
-                }
-                else if (x.Scan_Mat_Type == Scan_Mat_Type_Enum.按托.ToString())
+                if (x.Scan_Mat_Type == Scan_Mat_Type_Enum.按托.ToString())
                 {
                     dr["页码"] = "0";
                 }
@@ -4065,74 +4047,19 @@ namespace SMART.Api
             MyDbSave.SaveChange(db);
         }
 
-        public DataTable WMS_Out_Task_List_With_Tray_No(string HeadID)
-        {
-            Guid Link_Head_ID = new Guid(HeadID);
-            WMS_Out_Head Head = db.WMS_Out_Head.Find(Link_Head_ID);
-            if (Head == null) { throw new Exception("任务编号未匹配"); }
-
-            List<WMS_Out_Scan> Scan_List = db.WMS_Out_Scan.Where(x => x.Link_Head_ID == Head.Head_ID).ToList();
-
-            var Group = from x in Scan_List
-                        group x by x.Tray_No into g
-                        select new
-                        {
-                            Tray_No = g.Key,
-                        };
-
-            List<WMS_Out_Task_Group_Tray> List = new List<WMS_Out_Task_Group_Tray>();
-            WMS_Out_Task_Group_Tray T = new WMS_Out_Task_Group_Tray();
-            foreach (var x in Group)
-            {
-                T = new WMS_Out_Task_Group_Tray();
-                T.Tray_No = x.Tray_No;
-                T.Scan_List = Scan_List.Where(c => c.Tray_No == x.Tray_No).ToList();
-                List.Add(T);
-            }
-
-            List = List.OrderBy(x => x.Tray_No).ToList();
-
-            DataTable dt = new DataTable("DT");
-            dt.Columns.Add("序号");
-            dt.Columns.Add("托/箱号");
-            dt.Columns.Add("型号数");
-            dt.Columns.Add("产品数");
-            int i = 0;
-            foreach (var x in List)
-            {
-                i++;
-                DataRow dr = dt.NewRow();
-                dr["序号"] = i;
-                dr["托/箱号"] = x.Tray_No;
-                dr["型号数"] = x.Scan_List.Select(c => c.MatSn).Distinct().Count();
-                dr["产品数"] = x.Scan_List.Sum(c => c.Scan_Quantity);
-                dt.Rows.Add(dr);
-            }
-            return dt;
-        }
-
         //获取快递单列表
-        public DataTable WMS_Out_Track_List(string HeadID, string Tray_No)
+        public DataTable WMS_Out_Track_List(Guid MainCID)
         {
-            Guid Head_ID = new Guid(HeadID);
-            WMS_Out_Head Head = db.WMS_Out_Head.Find(Head_ID);
-            if (Head == null) { throw new Exception("任务编号未匹配"); }
-
-            Tray_No = Tray_No == null ? string.Empty : Tray_No.Trim();
-            if (string.IsNullOrEmpty(Tray_No)) { throw new Exception("未获取托盘号或箱号"); }
-
-            List<WMS_Track> List = db.WMS_Track.Where(x => x.Link_Head_ID == Head.Head_ID && x.Tray_No == Tray_No).ToList();
+            List<WMS_Track> List = db.WMS_Track.Where(x => x.LinkMainCID == MainCID && x.Link_Head_ID == Guid.Empty).ToList();
 
             DataTable dt = new DataTable("List");
-            dt.Columns.Add("序号");
+            dt.Columns.Add("托/箱号");
             dt.Columns.Add("快递单号");
             dt.Columns.Add("重量");
-            int i = 0;
             foreach (var x in List.OrderByDescending(x => x.Create_DT).ToList())
             {
-                i++;
                 DataRow dr = dt.NewRow();
-                dr["序号"] = i;
+                dr["托/箱号"] = x.Tray_No;
                 dr["快递单号"] = x.Tracking_No;
                 dr["重量"] = x.Weight.ToString("N2");
                 dt.Rows.Add(dr);
@@ -4141,7 +4068,7 @@ namespace SMART.Api
         }
 
         //快递单扫描
-        public void WMS_Out_Track_Scan_Item(string HeadID, string Tray_No, string Scan_Source, string Weight)
+        public void WMS_Out_Track_Scan_Item(Guid MainCID, string Tray_No, string Scan_Source, string Weight)
         {
             Scan_Source = Scan_Source == null ? string.Empty : Scan_Source.Trim();
             if (string.IsNullOrEmpty(Scan_Source)) { throw new Exception("未获取快递扫码内容"); }
@@ -4155,54 +4082,54 @@ namespace SMART.Api
 
             if (Box_Weight == 0) { throw new Exception("请输入正确的重量"); }
 
-            Guid Head_ID = new Guid(HeadID);
-            WMS_Out_Head Head = db.WMS_Out_Head.Find(Head_ID);
-            if (Head == null) { throw new Exception("任务编号未匹配"); }
-
-            if (string.IsNullOrEmpty(Head.Work_Out_Person)) { throw new Exception("未派工"); }
-
-            if (Head.Status != WMS_Out_Global_State_Enum.待包装.ToString())
-            {
-                throw new Exception("验货当前状态异常");
-            }
-
-            List<WMS_Track> OLD_Track_List = db.WMS_Track.Where(x => x.Link_Head_ID == Head.Head_ID).ToList();
+            List<WMS_Track> OLD_Track_List = db.WMS_Track.Where(x => x.Link_Head_ID == Guid.Empty).ToList();
             if (OLD_Track_List.Where(x => x.Tracking_No == Scan_Source).Any()) { throw new Exception("此快递单已扫描"); }
-            if (OLD_Track_List.Where(x => x.Tracking_No != Scan_Source && x.Tray_No == Tray_No).Any() && Head.Scan_Mat_Type == Scan_Mat_Type_Enum.按箱.ToString()) { throw new Exception("此箱号上已存在快递单号"); }
 
             WMS_Track T = new WMS_Track();
             T.Tracking_ID = MyGUID.NewGUID();
-            T.Logistics_Company = Head.Logistics_Company;
-            T.Logistics_Mode = Head.Logistics_Mode;
             T.Tracking_No = Scan_Source;
             T.Weight = Box_Weight;
             T.Tray_No = Tray_No;
             T.Scan_PDA_Date = DateTime.Now;
-            T.LinkMainCID = Head.LinkMainCID;
-            T.Link_Head_ID = Head.Head_ID;
+            T.LinkMainCID = MainCID;
             T.Create_DT = DateTime.Now;
-            T.Link_Head_Com_Name = Head.Customer_Name;
             T.Tracking_Type = Tracking_Type_Enum.送货.ToString();
             db.WMS_Track.Add(T);
             MyDbSave.SaveChange(db);
         }
 
-        //快递单删除
-        public void WMS_Out_Track_Scan_Delete(string HeadID, string Tray_No)
+        //快递单信息
+        public DataTable WMS_Out_Track_List_Sub(Guid MainCID, string Scan_Source)
         {
-            Guid Head_ID = new Guid(HeadID);
-            WMS_Out_Head Head = db.WMS_Out_Head.Find(Head_ID);
-            if (Head == null) { throw new Exception("任务编号未匹配"); }
+            Scan_Source = Scan_Source == null ? string.Empty : Scan_Source.Trim();
+            if (string.IsNullOrEmpty(Scan_Source)) { throw new Exception("未获取快递扫码内容"); }
 
-            Tray_No = Tray_No == null ? string.Empty : Tray_No.Trim();
-            if (string.IsNullOrEmpty(Tray_No)) { throw new Exception("未获取托盘号或箱号"); }
+            List<WMS_Track> List = db.WMS_Track.Where(x => x.LinkMainCID == MainCID && x.Tracking_No == Scan_Source).ToList();
 
-            if (Head.Status != WMS_Out_Global_State_Enum.待包装.ToString())
+            DataTable dt = new DataTable("List");
+            dt.Columns.Add("托/箱号");
+            dt.Columns.Add("快递单号");
+            dt.Columns.Add("重量");
+            int i = 0;
+            foreach (var x in List.OrderByDescending(x => x.Create_DT).ToList())
             {
-                throw new Exception("状态异常，不支持删除");
+                i++;
+                DataRow dr = dt.NewRow();
+                dr["托/箱号"] = x.Tray_No;
+                dr["快递单号"] = x.Tracking_No;
+                dr["重量"] = x.Weight.ToString("N2");
+                dt.Rows.Add(dr);
             }
+            return dt;
+        }
 
-            List<WMS_Track> List = db.WMS_Track.Where(x => x.Link_Head_ID == Head.Head_ID && x.Tray_No == Tray_No).ToList();
+        //快递单删除
+        public void WMS_Out_Track_Scan_Delete(Guid MainCID, string Scan_Source)
+        {
+            Scan_Source = Scan_Source == null ? string.Empty : Scan_Source.Trim();
+            if (string.IsNullOrEmpty(Scan_Source)) { throw new Exception("未获取快递扫码内容"); }
+
+            List<WMS_Track> List = db.WMS_Track.Where(x => x.LinkMainCID == MainCID && x.Tracking_No == Scan_Source).ToList();
 
             if (List.Any())
             {
